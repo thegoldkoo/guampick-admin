@@ -29,7 +29,7 @@ const RULES = [
     rx:/banchan|namul|muchim|jorim|반찬|나물\b|무침|조림|장아찌|멸치볶음|깻잎(?!.*기름)/i },
   // ③ Sauces & Condiments
   { type:"Korean Food > Sauces & Condiments",
-    rx:/gochujang|doenjang|soy sauce|ssamjang|고추장|된장|간장|쌈장|참기름|들기름|식초|소금\b|굴소스|다시다|국간장/i },
+    rx:/gochujang|doenjang|soy sauce|ssamjang|fish sauce|anchovy sauce|tuna sauce|고추장|된장|간장|쌈장|참기름|들기름|식초|소금\b|굴소스|다시다|국간장|멸치액젓|액젓|참치소스|까나리/i },
   // ④ Health & Supplements
   { type:"Korean Food > Health & Supplements",
     rx:/vitamin|probiotics|protein powder|collagen|red ginseng|비타민|유산균|오메가3?|콜라겐(?!.*크림|.*세럼)|홍삼|아르기닌|단백질 파우더|프로틴|영양제|보충제|루테인/i },
@@ -61,9 +61,12 @@ const RULES = [
   // ⑬ Body Care
   { type:"Beauty > Body Care",
     rx:/body wash|body lotion|hand cream|toothpaste|mouthwash|바디워시|바디로션|핸드크림|치약|구강청결제|가글/i },
-  // ⑭ Perfume & Fragrance
+  // ── Automotive — 향수/디퓨저보다 먼저 검사 (차량 방향제 오분류 방지) ──
+  { type:"Automotive",
+    rx:/car air freshener|car diffuser|car shampoo|car wash|car wax|car neck pillow|car cup holder|car sunvisor|car seat|windshield|wiper|tire\b|vehicle|자동차|차량용|카샴푸|카워시|차량 방향|자동차 방향|선바이저|컵홀더.*차|차.*방향/i },
+  // ── Beauty Perfume (차량 제외) ──
   { type:"Beauty > Perfume & Fragrance",
-    rx:/perfume|eau de parfum|fragrance|reed diffuser|향수|디퓨저|퍼퓸/i },
+    rx:/eau de parfum|eau de toilette|reed diffuser|body mist(?!.*car)|perfume(?!.*car)|향수|퍼퓸|룸 디퓨저/i },
   // ⑮ Skincare (가장 넓음 — 마지막에)
   { type:"Beauty > Skincare",
     rx:/face cleanser|face toner|face serum|facial cream|face lotion|ampoule|facial essence|클렌저|폼클렌징|토너|앰플|세럼(?!.*헤어|.*hair)|에센스(?!.*헤어|.*hair)|수분크림|아이크림|비비크림|쿠션(?!.*방석)|파운데이션|미스트(?!.*헤어)/i },
@@ -142,52 +145,182 @@ function mergeTags(existing, newTags) {
   return [...new Set([...curr,...newTags])].join(", ");
 }
 
-const TRANS_PROMPT = `You are classifying GuamPick Shopify products.
-Prefer conservative classification over aggressive guessing. When uncertain, choose the broader valid category.
+// ── Category normalization (오타/변형 자동 교정) ──────────────────────────────
+const ALLOWED_TYPES = new Set(TYPES);
+const TYPE_NORMALIZE = {
+  "Korean Food > Banchan (Side Dishes)": "Korean Food > Banchan",
+  "Beauty > Skin Care": "Beauty > Skincare",
+  "Beauty>Skincare": "Beauty > Skincare",
+  "Korean Food > Sauce & Condiments": "Korean Food > Sauces & Condiments",
+  "Korean Food > Snack & Chips": "Korean Food > Snacks & Chips",
+  "Korean Food > Fresh produce": "Korean Food > Fresh Produce",
+  "Life": "Other", "life": "Other",
+};
 
-Your job:
-1. Choose exactly ONE category from the allowed list.
-2. Translate the product title into natural English.
-3. Write a short English product description in 2-3 sentences.
-4. Detect brand tags only when reasonably confident.
-5. Return JSON only.
+function normalizeType(t="") {
+  const s = t.trim();
+  return TYPE_NORMALIZE[s] || s;
+}
 
-Rules:
-- You MUST choose from the allowed categories only. Do NOT invent new categories.
-- Keep pack count, weight, volume in the English title.
-- Frozen/tteokbokki/ramen/instant meals → "Korean Food > Packaged Foods"
-- Fresh vegetables/fruits/raw produce → "Korean Food > Fresh Produce"
-- Kimchi/kkakdugi → "Korean Food > Kimchi"
-- Namul/muchim/jorim ready side dishes → "Korean Food > Banchan"
-- Gochujang/doenjang/sesame oil/vinegar → "Korean Food > Sauces & Condiments"
-- Vitamins/probiotics/red ginseng/protein → "Korean Food > Health & Supplements"
-- Chips/candy/crackers/cookies/popcorn → "Korean Food > Snacks & Chips"
-- face toner/serum/cleanser/ampoule → "Beauty > Skincare"
-- shampoo/scalp/hair mask → "Beauty > Hair Care"
-- body wash/lotion/toothpaste/hand cream → "Beauty > Body Care"
-- sheet mask/sleeping mask/clay mask → "Beauty > Mask Packs"
-- sunscreen/SPF/UV → "Beauty > Sun Care"
-- If none clearly fit → "Other"
+// 광고성 문구 제거 + 90자 제한
+function cleanTitle(t="") {
+  let s = t.trim()
+    .replace(/(?:^|\s)premium(?:\s|$)/gi, " ")
+    .replace(/(?:\s|^)perfect for .*$/gi, "")
+    .replace(/(?:\s|^)great for .*$/gi, "")
+    .replace(/(?:\s|^)easy to use.*$/gi, "")
+    .replace(/(?:\s|^)for everyday use.*$/gi, "")
+    .replace(/(?:\s|^)for cooking.*$/gi, "")
+    .replace(/(?:\s|^)fresh and crisp.*$/gi, "")
+    .replace(/(?:\s|^)high quality.*$/gi, "")
+    .replace(/[–—]+/g, " - ")
+    .replace(/\s+/g, " ").trim();
+  return s.length > 90 ? s.slice(0, 90).trim() : s;
+}
 
-Allowed categories:
-Beauty > Skincare | Beauty > Hair Care | Beauty > Body Care | Beauty > Mask Packs | Beauty > Sun Care | Beauty > Perfume & Fragrance
-Korean Food > Kimchi | Korean Food > Fresh Produce | Korean Food > Snacks & Chips | Korean Food > Bread & Bakery | Korean Food > Banchan | Korean Food > Sauces & Condiments | Korean Food > Health & Supplements | Korean Food > Packaged Foods
-Fashion > Women's Clothing | Fashion > Men's Clothing | Fashion > Kids Clothing | Fashion > Swimwear & Beachwear | Fashion > Shoes & Sandals | Fashion > Accessories
-Sports & Outdoors > Exercise & Fitness | Sports & Outdoors > Golf | Sports & Outdoors > Swimming | Sports & Outdoors > Outdoor & Camping
-Home & Living > Household Supplies | Home & Living > Kitchenware | Home & Living > Home & Interior
-Baby & Kids > Baby Care | Baby & Kids > Toys & Games
-Stationery & Office | Automotive | Flowers & Gifts | Pet Supplies | $1 Bakery | Other
+// AI 결과 후처리: type 보정 + title 정리 + life 차단
+function postProcess(rawProduct, aiResult) {
+  const sourceTitle = rawProduct?.title || "";
+  const combined = [sourceTitle, rawProduct?.tags || ""].join(" ");
 
-Allowed brand tags (only when confident): Bibigo, Black and White Chef, Dr.G, Round Lab, COSRX, Innisfree, Laneige, Sulwhasoo, Etude, Some By Mi, Skin1004, Anua, Torriden
+  let finalType = normalizeType(aiResult?.type || "");
+  let finalTitle = cleanTitle(aiResult?.title_en || sourceTitle);
+  const confidence = Number(aiResult?.confidence || 0);
 
-Confidence: 0.90-1.00 very clear | 0.75-0.89 likely | 0.60-0.74 ambiguous | below 0.60 → use broader category or Other
+  // 허용 카테고리 아니면 룰로 재분류
+  if (!ALLOWED_TYPES.has(finalType)) {
+    const ruleResult = ruleClassify(combined);
+    finalType = ruleResult?.type || "Other";
+  }
 
-Return ONLY JSON (no markdown):
-{"type":"...","title_en":"...","description":"...","confidence":0.00,"brandTags":[]}`;
+  // life 절대 차단
+  if (!finalType || finalType.toLowerCase() === "life") {
+    const ruleResult = ruleClassify(combined);
+    finalType = ruleResult?.type || "Other";
+  }
 
-const AI_TYPE_PROMPT = `Classify this product into exactly ONE of these types. Prefer conservative classification.
-When uncertain choose the broader valid category or Other.
-Reply with ONLY the type name:\n${TYPES.join("\n")}`;
+  // confidence 낮거나 Other/Packaged Foods이면 강한 룰로 덮어쓰기
+  const strongRule = ruleClassify(combined);
+  if (strongRule && (confidence < 0.75 || finalType === "Other" || finalType === "Korean Food > Packaged Foods")) {
+    finalType = strongRule.type;
+  }
+
+  // title이 너무 길거나 광고문이면 원본으로 대체
+  if (finalTitle.length > 80 || /perfect for|great for|easy to use|for cooking/i.test(finalTitle)) {
+    finalTitle = cleanTitle(sourceTitle);
+  }
+
+  return {
+    type: finalType,
+    title_en: finalTitle,
+    description: aiResult?.description || "",
+    confidence,
+    brandTags: Array.isArray(aiResult?.brandTags) ? aiResult.brandTags : [],
+  };
+}
+
+// ── Option translation maps ───────────────────────────────────────────────────
+const OPTION_NAME_MAP = {
+  "색상":"Color","컬러":"Color","사이즈":"Size","크기":"Size","용량":"Volume",
+  "중량":"Weight","맛":"Flavor","향":"Scent","종류":"Type","옵션":"Option",
+  "수량":"Quantity","구성":"Set","재질":"Material","스타일":"Style","길이":"Length",
+  "폭":"Width","높이":"Height","호수":"Size","신발사이즈":"Shoe Size",
+};
+const OPTION_VALUE_MAP = {
+  // Colors
+  "빨강":"Red","레드":"Red","검정":"Black","블랙":"Black","흰색":"White","화이트":"White",
+  "파랑":"Blue","블루":"Blue","초록":"Green","그린":"Green","노랑":"Yellow","옐로우":"Yellow",
+  "분홍":"Pink","핑크":"Pink","회색":"Gray","그레이":"Gray","갈색":"Brown","브라운":"Brown",
+  "보라":"Purple","퍼플":"Purple","베이지":"Beige","네이비":"Navy","민트":"Mint","오렌지":"Orange",
+  // Sizes
+  "소":"Small","중":"Medium","대":"Large","특대":"X-Large","특소":"X-Small",
+  "대용량":"Large Size","소용량":"Small Size",
+  // Flavors
+  "매운맛":"Spicy","순한맛":"Mild","오리지널":"Original","기본":"Basic","혼합":"Mixed",
+  // Storage
+  "냉동":"Frozen","냉장":"Chilled","실온":"Room Temperature",
+  // Product types
+  "본품":"Main Product","리필":"Refill","단품":"Single Item","세트":"Set","1+1":"Buy 1 Get 1",
+  "증정품":"Gift Item","샘플":"Sample","패키지":"Package",
+  // Misc
+  "없음":"None","기타":"Other","선택":"Select",
+};
+
+function hasKorean(text="") { return /[가-힣]/.test(String(text)); }
+function nws(text="") { return String(text).replace(/\s+/g," ").trim(); }
+
+function translateOptName(name="") { return OPTION_NAME_MAP[nws(name)] || nws(name); }
+function translateOptVal(value="") {
+  let c = nws(value);
+  if (OPTION_VALUE_MAP[c]) return OPTION_VALUE_MAP[c];
+  c = c.replace(/^(\d+)\s*개$/, (_, n) => `${n} ${n==="1"?"Piece":"Pieces"}`);
+  c = c.replace(/^(\d+)\s*개입$/, "$1 Pack");
+  return c;
+}
+function dedupeArr(arr=[]) { return [...new Set(arr.map(v=>nws(v)).filter(Boolean))]; }
+
+function sanitizeOptions(options=[]) {
+  if(!Array.isArray(options)) return [];
+  return options.map(opt=>{
+    const name = translateOptName(opt?.name||"");
+    const values = dedupeArr((opt?.values||[]).map(translateOptVal));
+    return (name && values.length) ? {name, values} : null;
+  }).filter(Boolean);
+}
+function sanitizeTags(tags=[]) {
+  if(!Array.isArray(tags)) return [];
+  return dedupeArr(tags.map(t=>{ const c=nws(t); return OPTION_VALUE_MAP[c]||c.toLowerCase(); }));
+}
+
+function postProcessEnglishData(aiResult) {
+  const result = {
+    title_en:      nws(aiResult?.title_en||""),
+    description_en:nws(aiResult?.description_en||""),
+    options:       sanitizeOptions(aiResult?.options||[]),
+    tags_en:       sanitizeTags(aiResult?.tags_en||[]),
+  };
+  return { ...result, isEnglishOnly: ![result.title_en, result.description_en, ...result.tags_en, ...result.options.flatMap(o=>[o.name,...o.values])].some(hasKorean) };
+}
+
+
+const TRANS_PROMPT = `You are cleaning and standardizing Shopify product data for GuamPick.
+Convert all Korean text into clear, natural English for an English-only e-commerce store.
+
+Important:
+- Output must be 100% English. No Korean characters anywhere.
+- Do not invent facts. Keep the product meaning accurate.
+- Keep titles short, clean, and product-like.
+- Do NOT use: "perfect for", "great for", "premium quality", "easy to use", "for everyday use"
+
+Tasks:
+1. Title — short natural English. Keep brand, product name, flavor/type, size, count.
+   Good: "Crown Corn Chips Roasted Corn Flavor 70g, 6 Packs"
+   Bad: "Premium Fresh Corn Chips – Perfect for Snacking"
+
+2. Description — 1-2 simple factual sentences. No hype.
+
+3. Options — convert names and values to standard English. Remove duplicates.
+   - "없음"→"None" | "선택"→"Select" | "기타"→"Other"
+   Option names: 색상/컬러→Color | 사이즈/크기/호수→Size | 용량→Volume | 중량→Weight | 맛→Flavor | 향→Scent | 종류→Type | 수량→Quantity | 구성→Set | 재질→Material | 스타일→Style | 길이→Length | 신발사이즈→Shoe Size
+   Option values: 빨강→Red | 검정→Black | 흰색→White | 파랑→Blue | 초록→Green | 노랑→Yellow | 분홍→Pink | 회색→Gray | 갈색→Brown | 보라→Purple | 소→Small | 중→Medium | 대→Large | 특대→X-Large | 1개→1 Piece | 2개→2 Pieces | 3개입→3 Pack | 6개입→6 Pack | 매운맛→Spicy | 순한맛→Mild | 오리지널→Original | 혼합→Mixed | 냉동→Frozen | 냉장→Chilled | 실온→Room Temperature
+
+4. Tags — convert all to English, remove Korean, lowercase, no duplicates.
+
+Return JSON only (no markdown):
+{
+  "title_en": "string",
+  "description_en": "string",
+  "options": [{"name":"string","values":["string"]}],
+  "tags_en": ["string"]
+}`;
+
+// ── 한글 잔존 시 재시도용 간단 프롬프트 ─────────────────────────────────────
+const RETRY_PROMPT = `The following product data still contains Korean characters. Convert ALL Korean to English.
+Return JSON only: {"title_en":"...","description_en":"...","options":[{"name":"...","values":["..."]}],"tags_en":["..."]}
+No Korean allowed in any field.`;
+
+const AI_TYPE_PROMPT = `Classify this product into exactly ONE of these types. NEVER output "life". Prefer conservative classification. Reply with ONLY the type name:\n${TYPES.join("\n")}`;
+
 
 function calcShipping(kg) { return Math.ceil(Math.max(kg, 0.1)) * 3; }
 
@@ -196,17 +329,30 @@ function downloadCSV(rawRows, headers, resultMap, applyPrice) {
   const ti=headers.indexOf("Title"), yi=headers.indexOf("Type");
   const bi=headers.indexOf("Body (HTML)"), tagi=headers.indexOf("Tags");
   const pi=headers.indexOf("Variant Price"), hi=headers.indexOf("Handle");
+  const o1ni=headers.indexOf("Option1 Name"), o2ni=headers.indexOf("Option2 Name"), o3ni=headers.indexOf("Option3 Name");
+  const o1vi=headers.indexOf("Option1 Value"), o2vi=headers.indexOf("Option2 Value"), o3vi=headers.indexOf("Option3 Value");
   const extraH = ["Est. Weight (kg)","Shipping ($)","Original Price","Suggested Price"];
   const rows = rawRows.map(row => {
     const r = resultMap[row[hi]]; if (!r) return [...row,"","","",""];
     const nr=[...row]; const isFirst=!seen.has(row[hi]); seen.add(row[hi]);
     if(ti>=0) nr[ti]=r.titleEn||r.title;
     if(yi>=0) nr[yi]=r.newType;
+    // Translate option VALUES in every variant row (rule-based, instant)
+    if(o1vi>=0&&row[o1vi]) nr[o1vi]=translateOptVal(row[o1vi]);
+    if(o2vi>=0&&row[o2vi]) nr[o2vi]=translateOptVal(row[o2vi]);
+    if(o3vi>=0&&row[o3vi]) nr[o3vi]=translateOptVal(row[o3vi]);
     if(isFirst){
+      // Option NAMES (first row only)
+      if(r.optionsEn?.length){
+        r.optionsEn.forEach((opt,idx)=>{ const ni=[o1ni,o2ni,o3ni][idx]; if(ni>=0&&opt.name) nr[ni]=opt.name; });
+      } else {
+        if(o1ni>=0&&row[o1ni]) nr[o1ni]=translateOptName(row[o1ni]);
+        if(o2ni>=0&&row[o2ni]) nr[o2ni]=translateOptName(row[o2ni]);
+        if(o3ni>=0&&row[o3ni]) nr[o3ni]=translateOptName(row[o3ni]);
+      }
       if(bi>=0&&r.description) nr[bi]=(row[bi]||"")+`<div style="margin-top:16px;padding-top:12px;border-top:1px solid #eee"><p>${r.description}</p></div>`;
-      // Tags: merge brand tags + shipping-included tag
-      const extraTags = [...(r.brandTags||[]), ...(applyPrice&&r.suggested ? ["shipping-included"] : [])];
-      if(tagi>=0&&extraTags.length) nr[tagi]=mergeTags(row[tagi], extraTags);
+      const extraTags=[...(r.brandTags||[]),...(r.tagsEn||[]),...(applyPrice&&r.suggested?["shipping-included"]:[])];
+      if(tagi>=0&&extraTags.length) nr[tagi]=mergeTags(row[tagi],extraTags);
       if(applyPrice&&pi>=0&&r.suggested) nr[pi]=r.suggested;
     }
     return [...nr, r.weightKg?.toFixed(2)||"", `$${r.shipping?.toFixed(2)||"0"}`, r.origPrice>0?`$${r.origPrice.toFixed(2)}`:"", r.suggested?`$${r.suggested}`:""];
@@ -253,8 +399,39 @@ export default function Classifier() {
       complete:({data:rows})=>{
         const hdr=rows[0]; setHeaders(hdr); setRawRows(rows.slice(1));
         const ti=hdr.indexOf("Title"),yi=hdr.indexOf("Type"),ii=hdr.indexOf("Image Src"),hi=hdr.indexOf("Handle"),pi=hdr.indexOf("Variant Price"),tagi=hdr.indexOf("Tags");
+        const o1ni=hdr.indexOf("Option1 Name"), o1vi=hdr.indexOf("Option1 Value");
+        const o2ni=hdr.indexOf("Option2 Name"), o2vi=hdr.indexOf("Option2 Value");
+        const o3ni=hdr.indexOf("Option3 Name"), o3vi=hdr.indexOf("Option3 Value");
+
+        // First pass: collect all option values per handle (across all variant rows)
+        const optValMap = {}; // handle → {o1name, o1vals[], o2name, o2vals[], o3name, o3vals[]}
+        rows.slice(1).forEach(r=>{
+          const h=r[hi]; if(!h) return;
+          if(!optValMap[h]) optValMap[h]={
+            o1name:r[o1ni]||"", o1vals:new Set(),
+            o2name:r[o2ni]||"", o2vals:new Set(),
+            o3name:r[o3ni]||"", o3vals:new Set(),
+          };
+          if(r[o1vi]) optValMap[h].o1vals.add(r[o1vi]);
+          if(r[o2vi]) optValMap[h].o2vals.add(r[o2vi]);
+          if(r[o3vi]) optValMap[h].o3vals.add(r[o3vi]);
+        });
+
         const seen=new Set(); const prods=[];
-        rows.slice(1).forEach(r=>{const h=r[hi];if(h&&!seen.has(h)){seen.add(h);prods.push({handle:h,title:r[ti]||"",image:r[ii]||"",originalType:r[yi]||"",price:r[pi]||"0",tags:r[tagi]||""});}});
+        rows.slice(1).forEach(r=>{
+          const h=r[hi];
+          if(h&&!seen.has(h)){
+            seen.add(h);
+            const ov=optValMap[h]||{};
+            prods.push({
+              handle:h, title:r[ti]||"", image:r[ii]||"",
+              originalType:r[yi]||"", price:r[pi]||"0", tags:r[tagi]||"",
+              opt1name: ov.o1name||"", opt1vals: [...(ov.o1vals||[])],
+              opt2name: ov.o2name||"", opt2vals: [...(ov.o2vals||[])],
+              opt3name: ov.o3name||"", opt3vals: [...(ov.o3vals||[])],
+            });
+          }
+        });
         setProducts(prods);
       },
     });
@@ -278,28 +455,74 @@ export default function Classifier() {
     for(let i=0;i<pre.length;i+=BATCH){
       const chunk=pre.slice(i,i+BATCH);
       await Promise.allSettled(chunk.map(async p=>{
-        let titleEn=p.title, description="", aiType=null;
+        let titleEn=p.title, description="", aiType=null, optionsEn=[], tagsEn=[];
+
+        // ── 1단계: 분류 (룰 기반 우선, 애매한 것만 AI) ───────────────────────
+        if(!p.ruleType){
+          try{
+            const t=await claude(AI_TYPE_PROMPT, p.title, 60);
+            const nt=normalizeType(t.trim());
+            if(nt&&ALLOWED_TYPES.has(nt)) aiType=nt;
+          }catch(_){}
+        }
+
+        // ── 2단계: 영어 통일 (제목/설명/옵션/태그) ───────────────────────────
         try{
-          const raw=await claude(TRANS_PROMPT,`Title: ${p.title}\nBody HTML: (omitted)\nVendor: \nExisting Tags: ${p.tags}`,400);
-          const m=raw.match(/\{[\s\S]*?\}/);
+          const input = [
+            `Title: ${p.title}`,
+            `Tags: ${p.tags}`,
+            `Option1 Name: ${p.opt1name}`,
+            `Option1 Values: ${p.opt1vals.join(", ")}`,
+            `Option2 Name: ${p.opt2name}`,
+            `Option2 Values: ${p.opt2vals.join(", ")}`,
+            `Option3 Name: ${p.opt3name}`,
+            `Option3 Values: ${p.opt3vals.join(", ")}`,
+          ].join("\n");
+          const raw=await claude(TRANS_PROMPT, input, 500);
+          const m=raw.match(/\{[\s\S]*\}/);
           if(m){
             const j=JSON.parse(m[0]);
-            titleEn=j.title_en||p.title;
-            description=j.description||"";
-            // Use AI type if rule didn't catch it
-            if(!p.ruleType&&j.type&&TYPES.includes(j.type)) aiType=j.type;
-            // Merge AI brand tags
-            if(j.brandTags?.length) p.brandTags=[...new Set([...p.brandTags,...j.brandTags])];
+            const en=postProcessEnglishData(j);
+            titleEn=cleanTitle(en.title_en||p.title);
+            description=en.description_en||"";
+            optionsEn=en.options||[];
+            tagsEn=en.tags_en||[];
+
+            // ── 3단계: 한글 잔존 검사 → 재시도 ──────────────────────────────
+            if(!en.isEnglishOnly){
+              try{
+                const retryInput = JSON.stringify({title_en:titleEn,description_en:description,options:optionsEn,tags_en:tagsEn});
+                const retryRaw=await claude(RETRY_PROMPT, retryInput, 400);
+                const rm=retryRaw.match(/\{[\s\S]*\}/);
+                if(rm){
+                  const rj=JSON.parse(rm[0]);
+                  const ren=postProcessEnglishData(rj);
+                  if(ren.isEnglishOnly){
+                    titleEn=cleanTitle(ren.title_en||titleEn);
+                    description=ren.description_en||description;
+                    optionsEn=ren.options||optionsEn;
+                    tagsEn=ren.tags_en||tagsEn;
+                  }
+                }
+              }catch(_){}
+            }
+
+            // 그래도 한글 남으면 원본 제목 유지
+            if(hasKorean(titleEn)) titleEn=cleanTitle(p.title);
+            const aiBrands=detectBrands(titleEn+" "+tagsEn.join(" "));
+            if(aiBrands.length) p.brandTags=[...new Set([...p.brandTags,...aiBrands])];
           }
         }catch(_){}
-        if(!p.ruleType&&!aiType){
-          try{const t=await claude(AI_TYPE_PROMPT,p.title,60);if(t&&TYPES.includes(t.trim()))aiType=t.trim();}catch(_){}
+
+        let finalType=p.ruleType||aiType||p.originalType||"Other";
+        finalType=normalizeType(finalType);
+        if(!ALLOWED_TYPES.has(finalType)||finalType.toLowerCase()==="life"){
+          finalType=ruleClassify(p.title)?.type||"Other";
         }
-        const finalType=p.ruleType||aiType||p.originalType||"Other";
         const shipping=calcShipping(p.weightKg);
         const origPrice=parseFloat(p.price)||0;
         const suggested=origPrice>0?(origPrice+shipping).toFixed(2):null;
-        const result={...p,newType:finalType,titleEn,description,shipping,origPrice,suggested,confidence:p.ruleType?0.98:aiType?0.85:0.5,src:p.ruleSrc||(aiType?"ai":"fallback")};
+        const result={...p,newType:finalType,titleEn,description,optionsEn,tagsEn,shipping,origPrice,suggested,confidence:p.ruleType?0.98:aiType?0.85:0.5,src:p.ruleSrc||(aiType?"ai":"fallback")};
         rMapRef.current={...rMapRef.current,[p.handle]:result};
         rArrRef.current=[...rArrRef.current,result];
         setRMap({...rMapRef.current}); setResults([...rArrRef.current]);
