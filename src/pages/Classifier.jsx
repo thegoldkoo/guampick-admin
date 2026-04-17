@@ -360,7 +360,13 @@ No Korean allowed in any field.`;
 const AI_TYPE_PROMPT = `Classify this product into exactly ONE of these types. NEVER output "life". Prefer conservative classification. Reply with ONLY the type name:\n${TYPES.join("\n")}`;
 
 
-// ── 운영 태그 생성 ────────────────────────────────────────────────────────────
+function normalizeKey(v="") {
+  return String(v||"").trim().toLowerCase();
+}
+
+function makeVariantKey(handle, o1, o2, o3) {
+  return [handle, o1, o2, o3].map(normalizeKey).join("__");
+}
 function _nt(text="") { return String(text).toLowerCase().replace(/\s+/g," ").trim(); }
 function _addTag(s, t) { if(t) s.add(t); }
 
@@ -436,8 +442,24 @@ function calcShipping(kg) { return Math.ceil(Math.max(kg, 0.1)) * 3; }
 
 // variant 행의 옵션값에서 수량 추출 (예: "3개입" → 3, "12 Pack" → 12)
 function extractQtyFromOption(val="") {
-  const m = String(val).match(/^(\d+)\s*(개입?|pack|packs|pieces?|set)/i);
-  return m ? parseInt(m[1]) : 1;
+  const s = String(val).trim();
+
+  // "50ml × 3개", "280g × 2개"
+  let m = s.match(/[×x\*]\s*(\d+)\s*개/i);
+  if (m) return parseInt(m[1], 10);
+
+  // "130g, 12개"
+  m = s.match(/,\s*(\d+)\s*개/i);
+  if (m) return parseInt(m[1], 10);
+
+  // "12개입", "6개입", "6 pack", "3 pieces"
+  m = s.match(/(\d+)\s*개입/i);
+  if (m) return parseInt(m[1], 10);
+
+  m = s.match(/(\d+)\s*(pack|packs|pieces?|set)\b/i);
+  if (m) return parseInt(m[1], 10);
+
+  return 1;
 }
 
 // variant 행 기준 무게 추정 (title 무게 × 옵션 수량)
@@ -493,7 +515,10 @@ function downloadCSV(rawRows, headers, resultMap, applyPrice, translateOptions=f
   const newPi = keepIdx.indexOf(pi); // 필터된 배열에서의 Variant Price 위치
 
   const rows = rawRows.map(row => {
-    const r = resultMap[row[hi]]; if (!r) return [...keepIdx.map(i=>row[i]),"","","",""];
+    // variantKey로 먼저 조회 (정규화), 없으면 handle fallback
+    const vk = makeVariantKey(row[hi], row[o1vi], row[o2vi], row[o3vi]);
+    const r = resultMap[vk] || resultMap[row[hi]];
+    if (!r) return [...keepIdx.map(i=>row[i]),"","","",""];
     const nr=[...row]; const isFirst=!seen.has(row[hi]); seen.add(row[hi]);
 
     // Title + Type: 모든 행
@@ -756,11 +781,16 @@ export default function Classifier() {
           usedDefaultWeight: estimateWeight(p.title) == null,
         };
         result.opTags = generateOperationalTags(result);
-        rMapRef.current={
-          ...rMapRef.current,
-          [p.handle]: result,                    // handle 기준 (type/title용)
-          [`${p.handle}_${p.opt1vals.join("|")}`]: result, // 옵션 기준 (향후 확장용)
-        };
+
+        // handle 기준 저장 (fallback용) + 각 variant 조합으로도 저장
+        const newMap = { ...rMapRef.current, [p.handle]: result };
+        const allV1 = p.opt1vals.length ? p.opt1vals : [""];
+        const allV2 = p.opt2vals.length ? p.opt2vals : [""];
+        const allV3 = p.opt3vals.length ? p.opt3vals : [""];
+        for (const v1 of allV1) for (const v2 of allV2) for (const v3 of allV3) {
+          newMap[makeVariantKey(p.handle, v1, v2, v3)] = result;
+        }
+        rMapRef.current = newMap;
         rArrRef.current=[...rArrRef.current,result];
         setRMap({...rMapRef.current}); setResults([...rArrRef.current]);
       }));
