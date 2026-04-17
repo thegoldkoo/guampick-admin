@@ -27,22 +27,22 @@ const RULES = [
   { type:"Korean Food > Banchan",
     rx:/banchan|반찬|namul|나물\b|muchim|무침|jorim|조림|장아찌|멸치볶음|콩자반|오징어채볶음|깻잎장아찌|깻잎무침|젓갈/i },
   { type:"Korean Food > Sauces & Condiments",
-    rx:/gochujang|고추장|doenjang|된장|soy sauce|간장|ssamjang|쌈장|fish sauce|anchovy sauce|tuna sauce|액젓|멸치액젓|까나리|vinegar|식초|sesame oil|참기름|perilla oil|들기름|salt\b|소금\b|pepper\b|후추|dressing|드레싱|oyster sauce|굴소스|다시다|국간장|양념장/i },
+    rx:/gochujang|고추장|doenjang|된장|soy sauce|간장|ssamjang|쌈장|fish sauce|anchovy sauce|tuna sauce|액젓|멸치액젓|까나리|vinegar|식초|sesame oil|참기름|perilla oil|들기름|salt\b|소금\b|pepper\b|후추|dressing|드레싱|oyster sauce|굴소스|다시다|국간장|양념장|\bmayonnaise\b|\bmayo\b|마요네즈|\bwasabi\b|와사비|\bbibim sauce\b|비빔소스|\bhot sauce\b|핫소스|\bpho sauce\b|쌀국수 소스|\bpasta sauce\b|파스타소스|\bmarinade\b|마리네이드|\bseasoning sauce\b|양념소스|ketchup|케첩|mustard|겨자/i },
   { type:"Korean Food > Health & Supplements",
     rx:/vitamin|비타민|probiotics|유산균|protein powder|protein\b|프로틴|단백질 파우더|collagen(?!.*cream|.*serum)|콜라겐(?!.*크림|.*세럼)|red ginseng|홍삼|omega\s*3?|오메가\s*3?|arginine|아르기닌|루테인|영양제|보충제/i },
   { type:"Korean Food > Fresh Produce",
-    rx:/친환경|유기농|무농약|fresh produce|vegetable|fruit|bean sprouts|mung bean sprouts|콩나물|숙주|깻잎\b|치커리|상추\b|배추|오이\b|배\b|사과\b|딸기\b|포도\b|수박\b|참외\b|복숭아\b|귤\b|감\b|미나리|쑥갓|브로콜리|토마토|양파\b|마늘\b|애호박|당근\b|감자\b|고구마\b|lemon|lemons|grape|grapes|apple|apples|pear|pears|cabbage|lettuce|sesame leaf/i },
+    rx:/친환경|유기농|무농약|fresh produce|vegetable|fruit|bean sprouts|mung bean sprouts|콩나물|숙주|깻잎\b|\bperilla leaf\b|치커리|상추\b|배추|오이\b|배\b|사과\b|딸기\b|포도\b|수박\b|참외\b|복숭아\b|귤\b|감\b|미나리|쑥갓|브로콜리|토마토|양파\b|마늘\b|애호박|당근\b|감자\b|고구마\b|lemon|lemons|grape|grapes|apple|apples|pear|pears|cabbage|lettuce|sesame leaf|\bfresh ginger\b|생강\b|\bdried ginger\b|건생강|\bwild thistle\b|곤드레|엉겅퀴|\bgeongondeure\b/i },
   { type:"Korean Food > Bread & Bakery",
-    rx:/bread\b|bakery|식빵|빵\b|크루아상|바게트|베이글|머핀|스콘|toast bread|sandwich bread|croissant|bagel|muffin|scone|roll cake|카스테라/i },
+    rx:/bread\b|bakery|pancake mix|jeon mix|korean pancake|식빵|빵\b|크루아상|바게트|베이글|머핀|스콘|toast bread|sandwich bread|croissant|bagel|muffin|scone|roll cake|카스테라/i },
   { type:"Korean Food > Snacks & Chips",
-    rx:/chips|cracker|cookie|biscuit|candy|gummy|jelly candy|popcorn|snack\b|cereal\b|nurungji snack|콘칲|칩\b|과자|스낵|사탕|젤리(?!.*vitamin)|쿠키|비스킷|팝콘|강냉이|뻥튀기|나쵸|빼빼로|새우깡|꼬북칩|홈런볼|오징어집|꼬깔콘|프링글|누룽지(?!.*탕)/i },
+    rx:/chips|cracker|cookie|biscuit|candy|gummy|jelly candy|popcorn|snack\b|cereal\b|nurungji snack|rice puff|snack puff|sugar\b|brown sugar|sweetener|설탕|흑설탕|콘칲|칩\b|과자|스낵|사탕|젤리(?!.*vitamin)|쿠키|비스킷|팝콘|강냉이|뻥튀기|나쵸|빼빼로|새우깡|꼬북칩|홈런볼|오징어집|꼬깔콘|프링글|누룽지(?!.*탕)/i },
   { type:"Korean Food > Packaged Foods",
-    rx:/ramen|라면|noodle|국수\b|instant|즉석|frozen|냉동|dumpling|만두|tteokbokki|떡볶이|porridge|죽\b|soup base|국물|curry|카레|rice pack|즉석밥|햇반|냉면|비빔밥|순대|라이스누들|쌀국수|우동\b|당면|스프\b|meal kit|밀키트/i },
+    rx:/ramen|라면|noodle|국수\b|instant|즉석|frozen|냉동|dumpling|만두|tteokbokki|떡볶이|porridge|죽\b|soup base|국물|\bbroth\b|육수|\bcooked rice\b|즉석밥|햇반|hetbahn|\binstant rice\b|\bmeal kit\b|밀키트|\bpancake mix\b|부침가루|핫케이크믹스|\bbrown sugar\b|설탕\b|\bstock powder\b|육수분말|curry|카레|ready.to.eat|barley rice|sprouted|냉면|비빔밥|순대|라이스누들|쌀국수|우동\b|당면|스프\b/i },
   // ── Beauty ────────────────────────────────────────────────────────────
   { type:"Beauty > Sun Care",
     rx:/sunscreen|sun cream|sunblock|\bspf\b|uv protection|선크림|선블록|자외선차단/i },
   { type:"Beauty > Mask Packs",
-    rx:/sheet mask|sleeping mask|clay mask|nose pack|마스크팩|시트마스크|슬리핑마스크|클레이마스크|코팩/i },
+    rx:/sheet mask|sleeping mask|clay mask|nose pack|soothing pad|acne pad|trouble pad|마스크팩|시트마스크|슬리핑마스크|클레이마스크|코팩/i },
   { type:"Beauty > Hair Care",
     rx:/hair shampoo|hair conditioner|hair mask|hair serum|scalp|샴푸(?!.*카|.*차량)|린스\b|컨디셔너|헤어 트리트먼트|헤어마스크|두피|탈모샴푸/i },
   { type:"Beauty > Body Care",
@@ -50,7 +50,7 @@ const RULES = [
   { type:"Beauty > Perfume & Fragrance",
     rx:/eau de parfum|eau de toilette|reed diffuser|body mist(?!.*car)|perfume(?!.*car)|fragrance mist(?!.*car)|향수|퍼퓸|룸 디퓨저/i },
   { type:"Beauty > Skincare",
-    rx:/face cleanser|cleanser|foam cleanser|face toner|toner|face serum|serum(?!.*hair)|facial cream|cream(?!.*body)|face lotion|ampoule|facial essence|essence(?!.*hair)|클렌저|폼클렌징|토너|앰플|세럼(?!.*헤어)|에센스(?!.*헤어)|수분크림|아이크림|비비크림|쿠션(?!.*방석)|파운데이션|미스트(?!.*헤어|.*car)/i },
+    rx:/face cleanser|cleanser|foam cleanser|face toner|toner|face serum|serum(?!.*hair)|\bgel lotion\b|겔로션|moisturizer|all-in-one|facial cream|cream(?!.*body)|face lotion|ampoule|facial essence|essence(?!.*hair)|\bsoothing pads?\b|진정패드|\btrouble pads?\b|트러블패드|\bacne pads?\b|여드름패드|dokdo|round lab|dalba|mediheal|skin1004|anua|torriden|cosrx|클렌저|폼클렌징|토너|앰플|세럼(?!.*헤어)|에센스(?!.*헤어)|수분크림|아이크림|비비크림|쿠션(?!.*방석)|파운데이션|미스트(?!.*헤어|.*car)/i },
   // ── Baby & Kids ───────────────────────────────────────────────────────
   { type:"Baby & Kids > Baby Care",
     rx:/diaper|baby lotion|baby shampoo|baby wipe|기저귀|아기로션|물티슈(?!.*일반)|젖병/i },
@@ -154,21 +154,22 @@ function normalizeType(t="") {
 // 광고성 문구 제거 + 90자 제한
 function cleanTitle(t="") {
   let s = t.trim()
-    .replace(/\s*[-–—]+\s*(?:premium|long.lasting|durable|authentic|natural|healthy|light and delicious|sweet and fresh|crisp and sweet|refreshing|elegant|high.quality|deep cleaning|easy application|convenient|versatile|compatible with.*)?(?:quality|formula|solution|product|item|set)?(?:\s*[,.].*)?$/gi, "")
+    // 대시 뒤에 오는 광고성 설명 전체 제거
+    .replace(/\s*[-–—]\s*(premium|long.lasting|durable|authentic|natural|healthy|light and|fresh and|crisp and|sweet and|pure|refreshing|elegant|convenient|easy to use|perfect for|great for|suitable for|ideal for|compatible with|for everyday|for cooking|for health)[^,]*/gi, "")
+    // 독립적인 promotional phrases
     .replace(/(?:^|\s)premium\s*/gi, " ")
-    .replace(/\s*[-–—]\s*(?:for|perfect|great|easy|suitable).*$/gi, "")
+    .replace(/\s*[-–—]\s*(?:for|perfect|great|easy|suitable|ideal).*$/gi, "")
     .replace(/(?:\s|^)perfect for .*$/gi, "")
     .replace(/(?:\s|^)great for .*$/gi, "")
     .replace(/(?:\s|^)easy to use.*$/gi, "")
     .replace(/(?:\s|^)for everyday use.*$/gi, "")
     .replace(/(?:\s|^)for cooking.*$/gi, "")
+    .replace(/(?:\s|^)for health.*$/gi, "")
     .replace(/(?:\s|^)fresh and crisp.*$/gi, "")
     .replace(/(?:\s|^)high quality.*$/gi, "")
-    .replace(/(?:\s|^)long-lasting.*scent.*$/gi, "")
-    .replace(/(?:\s|^)compatible with.*$/gi, "")
+    .replace(/(?:\s|^)natural korean snack.*$/gi, "")
     .replace(/[–—]+/g, " - ")
     .replace(/\s+/g, " ").trim();
-  // 대시로 끝나면 제거
   s = s.replace(/\s*[-–—]\s*$/, "").trim();
   return s.length > 90 ? s.slice(0, 90).trim() : s;
 }
