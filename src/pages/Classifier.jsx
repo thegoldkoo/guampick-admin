@@ -19,25 +19,27 @@ const TYPES = [
 ];
 
 // ── Rule-based classifier (우선순위 가이드 기준) ──────────────────────────────
-// 순서 중요: 겹치는 키워드는 위에 있는 룰이 먼저 적용됨
+// Snacks가 Packaged Foods보다 먼저 — 순서 중요
 const RULES = [
-  // ── Korean Food: strongest first ─────────────────────────────────────
+  // ── Korean Food ───────────────────────────────────────────────────────
   { type:"Korean Food > Kimchi",
     rx:/kimchi|kimchee|김치|깍두기|kkakdugi|총각김치|열무김치|동치미|백김치/i },
   { type:"Korean Food > Banchan",
     rx:/banchan|반찬|namul|나물\b|muchim|무침|jorim|조림|장아찌|멸치볶음|콩자반|오징어채볶음|깻잎장아찌|깻잎무침|젓갈/i },
   { type:"Korean Food > Sauces & Condiments",
-    rx:/gochujang|고추장|doenjang|된장|soy sauce|간장|ssamjang|쌈장|fish sauce|anchovy sauce|tuna sauce|액젓|멸치액젓|까나리|vinegar|식초|sesame oil|참기름|perilla oil|들기름|salt\b|소금\b|pepper\b|후추|dressing|드레싱|oyster sauce|굴소스|다시다|국간장|양념장|\bmayonnaise\b|\bmayo\b|마요네즈|\bwasabi\b|와사비|\bbibim sauce\b|비빔소스|\bhot sauce\b|핫소스|\bpho sauce\b|쌀국수 소스|\bpasta sauce\b|파스타소스|\bmarinade\b|마리네이드|\bseasoning sauce\b|양념소스|ketchup|케첩|mustard|겨자/i },
+    rx:/gochujang|고추장|doenjang|된장|soy sauce|간장|ssamjang|쌈장|fish sauce|anchovy sauce|tuna sauce|액젓|멸치액젓|까나리|vinegar|식초|sesame oil|참기름|perilla oil|들기름|salt\b|소금\b|pepper\b|후추|dressing|드레싱|oyster sauce|굴소스|다시다|국간장|양념장|\bmayonnaise\b|\bmayo\b|마요네즈|\bwasabi\b|와사비|\bbibim sauce\b|비빔소스|\bhot sauce\b|핫소스|\bpasta sauce\b|파스타소스|\bmarinade\b|마리네이드|\bseasoning sauce\b|양념소스|ketchup|케첩|mustard|겨자/i },
   { type:"Korean Food > Health & Supplements",
     rx:/vitamin|비타민|probiotics|유산균|protein powder|protein\b|프로틴|단백질 파우더|collagen(?!.*cream|.*serum)|콜라겐(?!.*크림|.*세럼)|red ginseng|홍삼|omega\s*3?|오메가\s*3?|arginine|아르기닌|루테인|영양제|보충제/i },
   { type:"Korean Food > Fresh Produce",
-    rx:/친환경|유기농|무농약|fresh produce|vegetable|fruit|bean sprouts|mung bean sprouts|콩나물|숙주|깻잎\b|\bperilla leaf\b|치커리|상추\b|배추|오이\b|배\b|사과\b|딸기\b|포도\b|수박\b|참외\b|복숭아\b|귤\b|감\b|미나리|쑥갓|브로콜리|토마토|양파\b|마늘\b|애호박|당근\b|감자\b|고구마\b|lemon|lemons|grape|grapes|apple|apples|pear|pears|cabbage|lettuce|sesame leaf|\bfresh ginger\b|생강\b|\bdried ginger\b|건생강|\bwild thistle\b|곤드레|엉겅퀴|\bgeongondeure\b/i },
+    rx:/친환경|유기농|무농약|fresh produce|vegetable|fruit|bean sprouts|mung bean sprouts|콩나물|숙주|깻잎\b|\bperilla leaf\b|치커리|상추\b|배추|오이\b|배\b|사과\b|딸기\b|포도\b|수박\b|참외\b|복숭아\b|귤\b|감\b|미나리|쑥갓|브로콜리|토마토|양파\b|마늘\b|애호박|당근\b|감자\b|고구마\b|lemon|lemons|grape|grapes|apple|apples|pear|pears|cabbage|lettuce|sesame leaf|\bfresh ginger\b|생강\b|\bdried ginger\b|건생강|\bwild thistle\b|곤드레|엉겅퀴/i },
   { type:"Korean Food > Bread & Bakery",
-    rx:/bread\b|bakery|pancake mix|jeon mix|korean pancake|식빵|빵\b|크루아상|바게트|베이글|머핀|스콘|toast bread|sandwich bread|croissant|bagel|muffin|scone|roll cake|카스테라/i },
+    rx:/bread\b|bakery|식빵|빵\b|크루아상|바게트|베이글|머핀|스콘|toast bread|sandwich bread|croissant|bagel|muffin|scone|roll cake|카스테라|pastry|danish/i },
+  // ⚠️ Snacks 먼저 (Packaged Foods보다 앞) — 뜯어서 바로 먹는 간식류
   { type:"Korean Food > Snacks & Chips",
-    rx:/chips|cracker|cookie|biscuit|candy|gummy|jelly candy|popcorn|snack\b|cereal\b|nurungji snack|rice puff|snack puff|콘칲|칩\b|과자|스낵|사탕|젤리(?!.*vitamin)|쿠키|비스킷|팝콘|강냉이|뻥튀기|나쵸|빼빼로|새우깡|꼬북칩|홈런볼|오징어집|꼬깔콘|프링글|누룽지(?!.*탕)/i },
+    rx:/chips|cracker|cookie|biscuit|candy|gummy|jelly candy|popcorn|snack\b|rice puff|snack puff|energy bar|granola bar|protein bar|chocolate|초콜릿|콘칲|칩\b|과자|스낵|사탕|젤리(?!.*vitamin)|쿠키|비스킷|팝콘|강냉이|뻥튀기|나쵸|빼빼로|새우깡|꼬북칩|홈런볼|오징어집|꼬깔콘|프링글|누룽지칩|누룽지(?!.*죽)|누룽지과자|쌀과자|곡물과자|스낵바|에너지바/i },
+  // ⚠️ Packaged Foods = 식사/즉석조리용만 (김/차/밀가루/건재료 제외)
   { type:"Korean Food > Packaged Foods",
-    rx:/ramen|라면|noodle|국수\b|instant|즉석|frozen|냉동|dumpling|만두|tteokbokki|떡볶이|porridge|죽\b|soup base|국물|\bbroth\b|육수|\bcooked rice\b|즉석밥|햇반|hetbahn|\binstant rice\b|\bmeal kit\b|밀키트|\bpancake mix\b|부침가루|핫케이크믹스|\bbrown sugar\b|설탕\b|\bstock powder\b|육수분말|curry|카레|ready.to.eat|barley rice|sprouted|냉면|비빔밥|순대|라이스누들|쌀국수|우동\b|당면|스프\b/i },
+    rx:/ramen|라면|instant noodle|noodle meal|국수\b|udon|우동|냉면|naengmyeon|쌀국수|rice noodle|vermicelli|당면|dumpling|만두|frozen meal|냉동식품|frozen|냉동|tteokbokki|떡볶이|porridge|죽\b|pumpkin porridge|호박죽|abalone porridge|전복죽|instant meal|즉석식품|ready.to.eat|즉석밥|햇반|cooked rice|instant rice|meal kit|밀키트|curry|카레|bibimbap|비빔밥|soup\b|soup base|국물|broth|육수|sundae\b|순대/i },
   // ── Beauty ────────────────────────────────────────────────────────────
   { type:"Beauty > Sun Care",
     rx:/sunscreen|sun cream|sunblock|\bspf\b|uv protection|선크림|선블록|자외선차단/i },
@@ -52,42 +54,32 @@ const RULES = [
   { type:"Beauty > Skincare",
     rx:/face cleanser|cleanser|foam cleanser|face toner|toner|face serum|serum(?!.*hair)|\bgel lotion\b|겔로션|moisturizer|all-in-one|facial cream|cream(?!.*body)|face lotion|ampoule|facial essence|essence(?!.*hair)|\bsoothing pads?\b|진정패드|\btrouble pads?\b|트러블패드|\bacne pads?\b|여드름패드|dokdo|round lab|dalba|mediheal|skin1004|anua|torriden|cosrx|클렌저|폼클렌징|토너|앰플|세럼(?!.*헤어)|에센스(?!.*헤어)|수분크림|아이크림|비비크림|쿠션(?!.*방석)|파운데이션|미스트(?!.*헤어|.*car)/i },
   // ── Baby & Kids ───────────────────────────────────────────────────────
-  { type:"Baby & Kids > Baby Care",
-    rx:/diaper|baby lotion|baby shampoo|baby wipe|기저귀|아기로션|물티슈(?!.*일반)|젖병/i },
-  { type:"Baby & Kids > Toys & Games",
-    rx:/장난감|블록(?!.*수납)|퍼즐(?!.*성인)|보드게임|toy|building block/i },
-  // ── Pet ───────────────────────────────────────────────────────────────
+  { type:"Baby & Kids > Baby Care",   rx:/diaper|baby lotion|baby shampoo|baby wipe|기저귀|아기로션|물티슈(?!.*일반)|젖병/i },
+  { type:"Baby & Kids > Toys & Games",rx:/장난감|블록(?!.*수납)|퍼즐(?!.*성인)|보드게임|toy|building block/i },
   { type:"Pet Supplies",
     rx:/dog food|cat food|dog treat|pet food|강아지사료|고양이사료|반려동물|펫푸드|강아지간식/i },
-  // ── Stationery ────────────────────────────────────────────────────────
   { type:"Stationery & Office",
     rx:/ballpoint pen|pencil|eraser|scissors|tape\b|notebook(?!.*laptop)|marker|볼펜|연필|지우개|가위\b|테이프\b|노트(?!북 컴퓨터)|형광펜|포스트잇|크레용|크레파스/i },
-  // ── Automotive ────────────────────────────────────────────────────────
   { type:"Automotive",
     rx:/car air freshener|car diffuser|car shampoo|car wash|car wax|car neck pillow|car cup holder|car sunvisor|car seat|windshield|washer fluid|wiper|tire\b|vehicle|automotive|자동차|차량용|카샴푸|카워시|차량 방향|자동차 방향|선바이저|컵홀더.*차|차.*방향/i },
-  // ── Fashion ───────────────────────────────────────────────────────────
   { type:"Fashion > Swimwear & Beachwear", rx:/swimwear|bikini|rashguard|수영복|래쉬가드|비키니/i },
   { type:"Fashion > Shoes & Sandals",      rx:/sneakers|sandals|slippers|high heels|운동화|샌들|슬리퍼|구두/i },
   { type:"Fashion > Kids Clothing",        rx:/아동복|유아복|kids wear|children wear/i },
   { type:"Fashion > Women's Clothing",     rx:/women's clothing|여성복|원피스|블라우스|치마/i },
   { type:"Fashion > Men's Clothing",       rx:/men's clothing|남성복|셔츠(?!.*스킨)/i },
   { type:"Fashion > Accessories",          rx:/가방\b|지갑|모자\b|벨트\b|액세서리|bag(?!.*tea)/i },
-  // ── Sports ────────────────────────────────────────────────────────────
   { type:"Sports & Outdoors > Golf",                  rx:/golf|골프/i },
   { type:"Sports & Outdoors > Swimming",              rx:/수경|킥판|수영모|swim goggles|kickboard|swim cap/i },
   { type:"Sports & Outdoors > Outdoor & Camping",     rx:/텐트|침낭|캠핑|랜턴(?!.*무드)|camping|sleeping bag/i },
   { type:"Sports & Outdoors > Exercise & Fitness",    rx:/dumbbell|yoga mat|resistance band|pilates|덤벨|요가|필라테스|운동밴드|폼롤러/i },
-  // ── Home ──────────────────────────────────────────────────────────────
   { type:"Home & Living > Kitchenware",
     rx:/frying pan|rice cooker|kitchen knife|냄비|프라이팬|도마|주방칼|밀폐용기|락앤락|주전자/i },
   { type:"Home & Living > Household Supplies",
     rx:/laundry detergent|dish soap|toilet paper|cleaner|세제(?!.*헤어)|섬유유연제|주방세제|화장지|청소포|탈취/i },
   { type:"Home & Living > Home & Interior",
     rx:/인테리어|가구|쿠션(?!.*팩트)|수납|담요|홈데코/i },
-  // ── Flowers ───────────────────────────────────────────────────────────
   { type:"Flowers & Gifts",  rx:/비누꽃|조화|프리저브드|soap flower|꽃다발|bouquet|선물세트/i },
-  // ── $1 Bakery ─────────────────────────────────────────────────────────
-  { type:"$1 Bakery", rx:/\$1.*bakery|\$1.*korea|1달러.*베이커리/i },
+  { type:"$1 Bakery",        rx:/\$1.*bakery|\$1.*korea|1달러.*베이커리/i },
 ];
 
 const FOOD_W = /(\d+(?:\.\d+)?)\s*(g|ml)\s*[,，x×*]\s*(\d+)\s*(개|팩|봉|캔|병|박스|세트)?/i;
@@ -103,24 +95,17 @@ function ruleClassify(title="", tags="") {
 
 // ── 2차 Rescue Rules (Other 줄이기 전용) ────────────────────────────────────
 const OTHER_RESCUE_RULES = [
-  // Beauty - Skincare 확장
   { type:"Beauty > Skincare",
     rx:/mascara|foundation|primer|concealer|compact powder|\bpact\b|lip tint|\btint\b|makeup base|eye shadow|eyeshadow|palette|blusher|cleansing foam|cleansing oil|peeling gel|soothing gel|gel cream|\bpad\b|\bpatch\b|mask pack|팩|틴트|마스카라|파운데이션/i },
-  // Health & Supplements
   { type:"Korean Food > Health & Supplements",
     rx:/capsule|tablet|softgel|supplement|probiotic|enzyme|\biron\b|\bzinc\b|\bomega\b|\bmsm\b|propolis|\bvitamin\b|콜라겐|영양제|캡슐|정\b/i },
-  // Food Ingredients
-  { type:"Korean Food > Packaged Foods",
-    rx:/\bflour\b|\bpowder\b|\bstarch\b|corn syrup|extract(?!.*cream)|seasoning|rice cake|\bseaweed\b|\bpasta\b|\bnoodle\b|\boil\b|\btea\b|가루|분말|시럽|오일|국수|파스타/i },
-  // Home & Living
+  // Snacks fallback — 스낵바/에너지바/쌀과자/누룽지칩 포함
+  { type:"Korean Food > Snacks & Chips",
+    rx:/\bcracker\b|\bbiscuit\b|\bcookie\b|\bsnack\b|\bgum\b|chewing gum|캔디|과자|비스킷|스낵바|에너지바|쌀과자|누룽지칩/i },
   { type:"Home & Living > Home & Interior",
     rx:/organizer|storage|hook|hanger|adhesive|curtain|rod|\brack\b|\bbasket\b|container|bathroom accessory|sink accessory|수납|정리함|걸이|행거/i },
-  // Automotive 소형
   { type:"Automotive",
     rx:/visor|\bmirror\b|\bholder\b|\bclip\b|dashboard|cabin filter|air freshener|sunshade|차량용|자동차용|\bfilter\b/i },
-  // Snacks fallback
-  { type:"Korean Food > Snacks & Chips",
-    rx:/\bcracker\b|\bbiscuit\b|\bcookie\b|\bsnack\b|\bgum\b|chewing gum|캔디|과자|비스킷/i },
 ];
 
 function rescueClassify(title="", tags="") {
@@ -357,7 +342,21 @@ const RETRY_PROMPT = `The following product data still contains Korean character
 Return JSON only: {"title_en":"...","description_en":"...","options":[{"name":"...","values":["..."]}],"tags_en":["..."]}
 No Korean allowed in any field.`;
 
-const AI_TYPE_PROMPT = `Classify this product into exactly ONE of these types. NEVER output "life". Prefer conservative classification. Reply with ONLY the type name:\n${TYPES.join("\n")}`;
+const AI_TYPE_PROMPT = `Classify this product into exactly ONE of these types. NEVER output "life". Prefer conservative classification. Reply with ONLY the type name.
+
+Key distinction - Korean Food > Snacks & Chips vs Korean Food > Packaged Foods:
+- Snacks & Chips: ready-to-eat items (chips, crackers, cookies, candy, gummies, popcorn, rice snacks, nurungji chips, energy bars)
+- Packaged Foods: meal or cooking-based items (ramen, dumplings, frozen food, instant rice, meal kits, porridge, curry, soup base)
+
+Rules:
+- Nurungji chips / nurungji snack → Snacks (NOT Packaged)
+- Plain nurungji → Snacks (default safer)
+- Dried seaweed / kim / miyeok → NOT Packaged (leave as Other if unsure)
+- Herbal tea / barley tea / corn tea → NOT Packaged (Other or Beverage)
+- Flour / powder / starch → NOT Packaged (ingredient, leave as Other)
+- Pancake mix → NOT Packaged
+
+${TYPES.join("\n")}`;
 
 
 function normalizeKey(v="") {
@@ -744,9 +743,12 @@ export default function Classifier() {
           finalType = aiType;
         }
 
-        // 식품 키워드 있는데 Other이면 Packaged Foods fallback
+        // 식품 키워드 있어도 Packaged Foods 강제 금지 → rescue 먼저
         const looksFoodLike = /food|김치|라면|과자|간장|식초|만두|떡볶이|국수|빵|쿠키|젤리|사탕|snack|ramen|sauce|vinegar|dumpling|bread|cookie|candy/i.test(`${p.title} ${p.tags}`);
-        if (finalType === "Other" && looksFoodLike) finalType = "Korean Food > Packaged Foods";
+        if (finalType === "Other" && looksFoodLike) {
+          const foodRescue = rescueClassify(p.title, p.tags);
+          if (foodRescue) finalType = foodRescue.type;
+        }
 
         // ── 2차: Rescue Rule (Other 전용) ──────────────────────────────────
         if (finalType === "Other") {
