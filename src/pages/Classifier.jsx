@@ -101,6 +101,36 @@ function ruleClassify(title="", tags="") {
   return null;
 }
 
+// ── 2차 Rescue Rules (Other 줄이기 전용) ────────────────────────────────────
+const OTHER_RESCUE_RULES = [
+  // Beauty - Skincare 확장
+  { type:"Beauty > Skincare",
+    rx:/mascara|foundation|primer|concealer|compact powder|\bpact\b|lip tint|\btint\b|makeup base|eye shadow|eyeshadow|palette|blusher|cleansing foam|cleansing oil|peeling gel|soothing gel|gel cream|\bpad\b|\bpatch\b|mask pack|팩|틴트|마스카라|파운데이션/i },
+  // Health & Supplements
+  { type:"Korean Food > Health & Supplements",
+    rx:/capsule|tablet|softgel|supplement|probiotic|enzyme|\biron\b|\bzinc\b|\bomega\b|\bmsm\b|propolis|\bvitamin\b|콜라겐|영양제|캡슐|정\b/i },
+  // Food Ingredients
+  { type:"Korean Food > Packaged Foods",
+    rx:/\bflour\b|\bpowder\b|\bstarch\b|corn syrup|extract(?!.*cream)|seasoning|rice cake|\bseaweed\b|\bpasta\b|\bnoodle\b|\boil\b|\btea\b|가루|분말|시럽|오일|국수|파스타/i },
+  // Home & Living
+  { type:"Home & Living > Home & Interior",
+    rx:/organizer|storage|hook|hanger|adhesive|curtain|rod|\brack\b|\bbasket\b|container|bathroom accessory|sink accessory|수납|정리함|걸이|행거/i },
+  // Automotive 소형
+  { type:"Automotive",
+    rx:/visor|\bmirror\b|\bholder\b|\bclip\b|dashboard|cabin filter|air freshener|sunshade|차량용|자동차용|\bfilter\b/i },
+  // Snacks fallback
+  { type:"Korean Food > Snacks & Chips",
+    rx:/\bcracker\b|\bbiscuit\b|\bcookie\b|\bsnack\b|\bgum\b|chewing gum|캔디|과자|비스킷/i },
+];
+
+function rescueClassify(title="", tags="") {
+  const text = `${title} ${tags}`.toLowerCase();
+  for (const rule of OTHER_RESCUE_RULES) {
+    if (rule.rx.test(text)) return { type: rule.type, src: "rescue" };
+  }
+  return null;
+}
+
 function estimateWeight(title) {
   const m = title.match(/(\d+(?:\.\d+)?)\s*(g|ml)\s*[,，x×*]\s*(\d+)/i);
   if (m) return (parseFloat(m[1]) * parseInt(m[3])) / 1000;
@@ -612,6 +642,27 @@ export default function Classifier() {
         // 식품 키워드 있는데 Other이면 Packaged Foods fallback
         const looksFoodLike = /food|김치|라면|과자|간장|식초|만두|떡볶이|국수|빵|쿠키|젤리|사탕|snack|ramen|sauce|vinegar|dumpling|bread|cookie|candy/i.test(`${p.title} ${p.tags}`);
         if (finalType === "Other" && looksFoodLike) finalType = "Korean Food > Packaged Foods";
+
+        // ── 2차: Rescue Rule (Other 전용) ──────────────────────────────────
+        if (finalType === "Other") {
+          const rescue = rescueClassify(p.title, p.tags);
+          if (rescue) { finalType = rescue.type; p.ruleSrc = "rescue"; }
+        }
+
+        // ── 3차: AI 재분류 (여전히 Other인 경우만) ─────────────────────────
+        if (finalType === "Other") {
+          try {
+            const retryRaw = await claude(
+              `Classify this product into exactly ONE type. NEVER output "life" or "Other" unless truly unclassifiable. Reply with ONLY the type name:\n${TYPES.join("\n")}`,
+              `Title: ${p.titleEn || p.title}\nOriginal: ${p.title}`,
+              60
+            );
+            const nt = normalizeType(retryRaw.trim());
+            if (nt && ALLOWED_TYPES.has(nt) && nt.toLowerCase() !== "life") {
+              finalType = nt; p.ruleSrc = "ai-retry";
+            }
+          } catch(_) {}
+        }
 
         const needsReview = REVIEW_TYPES.has(finalType);
         const shipping=calcShipping(p.weightKg);
