@@ -21,94 +21,83 @@ const TYPES = [
 // ── Rule-based classifier (우선순위 가이드 기준) ──────────────────────────────
 // 순서 중요: 겹치는 키워드는 위에 있는 룰이 먼저 적용됨
 const RULES = [
-  // ① Kimchi — 가장 명확
+  // ── Korean Food: strongest first ─────────────────────────────────────
   { type:"Korean Food > Kimchi",
     rx:/kimchi|kimchee|김치|깍두기|kkakdugi|총각김치|열무김치|동치미|백김치/i },
-  // ② Banchan
   { type:"Korean Food > Banchan",
-    rx:/banchan|namul|muchim|jorim|반찬|나물\b|무침|조림|장아찌|멸치볶음|깻잎(?!.*기름)/i },
-  // ③ Sauces & Condiments
+    rx:/banchan|반찬|namul|나물\b|muchim|무침|jorim|조림|장아찌|멸치볶음|콩자반|오징어채볶음|깻잎장아찌|깻잎무침|젓갈/i },
   { type:"Korean Food > Sauces & Condiments",
-    rx:/gochujang|doenjang|soy sauce|ssamjang|fish sauce|anchovy sauce|tuna sauce|고추장|된장|간장|쌈장|참기름|들기름|식초|소금\b|굴소스|다시다|국간장|멸치액젓|액젓|참치소스|까나리/i },
-  // ④ Health & Supplements
+    rx:/gochujang|고추장|doenjang|된장|soy sauce|간장|ssamjang|쌈장|fish sauce|anchovy sauce|tuna sauce|액젓|멸치액젓|까나리|vinegar|식초|sesame oil|참기름|perilla oil|들기름|salt\b|소금\b|pepper\b|후추|dressing|드레싱|oyster sauce|굴소스|다시다|국간장|양념장/i },
   { type:"Korean Food > Health & Supplements",
-    rx:/vitamin|probiotics|protein powder|collagen|red ginseng|비타민|유산균|오메가3?|콜라겐(?!.*크림|.*세럼)|홍삼|아르기닌|단백질 파우더|프로틴|영양제|보충제|루테인/i },
-  // ⑤ Fresh Produce
+    rx:/vitamin|비타민|probiotics|유산균|protein powder|protein\b|프로틴|단백질 파우더|collagen(?!.*cream|.*serum)|콜라겐(?!.*크림|.*세럼)|red ginseng|홍삼|omega\s*3?|오메가\s*3?|arginine|아르기닌|루테인|영양제|보충제/i },
   { type:"Korean Food > Fresh Produce",
-    rx:/친환경|유기농|무농약|깻잎\b|치커리|상추\b|배추|오이\b|배\s|사과\b|딸기\b|포도\b|수박\b|참외\b|복숭아\b|귤\b|감\b|미나리|쑥갓|브로콜리|토마토|양파\b|마늘\b|애호박|당근\b|감자\b|고구마\b/i },
-  // ⑥ Bread & Bakery (과자류보다 먼저 — cake/muffin 겹침 방지)
+    rx:/친환경|유기농|무농약|fresh produce|vegetable|fruit|bean sprouts|mung bean sprouts|콩나물|숙주|깻잎\b|치커리|상추\b|배추|오이\b|배\b|사과\b|딸기\b|포도\b|수박\b|참외\b|복숭아\b|귤\b|감\b|미나리|쑥갓|브로콜리|토마토|양파\b|마늘\b|애호박|당근\b|감자\b|고구마\b|lemon|lemons|grape|grapes|apple|apples|pear|pears|cabbage|lettuce|sesame leaf/i },
   { type:"Korean Food > Bread & Bakery",
-    rx:/식빵|빵\b|크루아상|바게트|베이글|머핀|스콘|toast bread|sandwich bread/i },
-  // ⑦ Snacks & Chips
+    rx:/bread\b|bakery|식빵|빵\b|크루아상|바게트|베이글|머핀|스콘|toast bread|sandwich bread|croissant|bagel|muffin|scone|roll cake|카스테라/i },
   { type:"Korean Food > Snacks & Chips",
-    rx:/chips|cracker|cookie|biscuit|candy|gummy|jelly candy|popcorn|콘칲|칩\b|과자|스낵|사탕|젤리(?!.*vitamin)|쿠키|비스킷|팝콘|강냉이|뻥튀기|나쵸|빼빼로|새우깡|꼬북칩|홈런볼|오징어집|꼬깔콘|프링글/i },
-  // ⑧ Packaged Foods (넓은 기본 식품)
+    rx:/chips|cracker|cookie|biscuit|candy|gummy|jelly candy|popcorn|snack\b|cereal\b|nurungji snack|콘칲|칩\b|과자|스낵|사탕|젤리(?!.*vitamin)|쿠키|비스킷|팝콘|강냉이|뻥튀기|나쵸|빼빼로|새우깡|꼬북칩|홈런볼|오징어집|꼬깔콘|프링글|누룽지(?!.*탕)/i },
   { type:"Korean Food > Packaged Foods",
-    rx:/ramen|noodle|instant|frozen|dumpling|tteokbokki|soup base|porridge|curry|라면|냉동|만두|떡볶이|죽\b|즉석밥|햇반|국수\b|냉면|비빔밥|순대|라이스누들|쌀국수|우동\b|당면|스프\b/i },
-  // ⑨ Food brand catch-all (식품 브랜드명 있으면 Packaged Foods)
-  { type:"Korean Food > Packaged Foods",
-    rx:/오뚜기|농심|삼양|빙그레|크라운(?!.*화장)|청우식품|동원|청정원|풀무원|샘표|하림|남양유업|매일유업/i },
-  // ── Beauty (순서 중요) ──
-  // ⑩ Sun Care
+    rx:/ramen|라면|noodle|국수\b|instant|즉석|frozen|냉동|dumpling|만두|tteokbokki|떡볶이|porridge|죽\b|soup base|국물|curry|카레|rice pack|즉석밥|햇반|냉면|비빔밥|순대|라이스누들|쌀국수|우동\b|당면|스프\b|meal kit|밀키트/i },
+  // ── Beauty ────────────────────────────────────────────────────────────
   { type:"Beauty > Sun Care",
     rx:/sunscreen|sun cream|sunblock|\bspf\b|uv protection|선크림|선블록|자외선차단/i },
-  // ⑪ Mask Packs
   { type:"Beauty > Mask Packs",
     rx:/sheet mask|sleeping mask|clay mask|nose pack|마스크팩|시트마스크|슬리핑마스크|클레이마스크|코팩/i },
-  // ⑫ Hair Care (shampoo 먼저 — 카샴푸 제외)
   { type:"Beauty > Hair Care",
-    rx:/hair shampoo|hair conditioner|hair mask|hair serum|scalp|샴푸(?!.*카|.*차량)|린스\b|헤어 트리트먼트|헤어마스크|두피|탈모샴푸/i },
-  // ⑬ Body Care
+    rx:/hair shampoo|hair conditioner|hair mask|hair serum|scalp|샴푸(?!.*카|.*차량)|린스\b|컨디셔너|헤어 트리트먼트|헤어마스크|두피|탈모샴푸/i },
   { type:"Beauty > Body Care",
     rx:/body wash|body lotion|hand cream|toothpaste|mouthwash|바디워시|바디로션|핸드크림|치약|구강청결제|가글/i },
-  // ── Automotive — 향수/디퓨저보다 먼저 검사 (차량 방향제 오분류 방지) ──
-  { type:"Automotive",
-    rx:/car air freshener|car diffuser|car shampoo|car wash|car wax|car neck pillow|car cup holder|car sunvisor|car seat|windshield|wiper|tire\b|vehicle|자동차|차량용|카샴푸|카워시|차량 방향|자동차 방향|선바이저|컵홀더.*차|차.*방향/i },
-  // ── Beauty Perfume (차량 제외) ──
   { type:"Beauty > Perfume & Fragrance",
-    rx:/eau de parfum|eau de toilette|reed diffuser|body mist(?!.*car)|perfume(?!.*car)|향수|퍼퓸|룸 디퓨저/i },
-  // ⑮ Skincare (가장 넓음 — 마지막에)
+    rx:/eau de parfum|eau de toilette|reed diffuser|body mist(?!.*car)|perfume(?!.*car)|fragrance mist(?!.*car)|향수|퍼퓸|룸 디퓨저/i },
   { type:"Beauty > Skincare",
-    rx:/face cleanser|face toner|face serum|facial cream|face lotion|ampoule|facial essence|클렌저|폼클렌징|토너|앰플|세럼(?!.*헤어|.*hair)|에센스(?!.*헤어|.*hair)|수분크림|아이크림|비비크림|쿠션(?!.*방석)|파운데이션|미스트(?!.*헤어)/i },
-  // ── Baby & Kids ──
-  { type:"Baby & Kids > Baby Care",   rx:/diaper|baby lotion|baby shampoo|baby wipe|기저귀|아기로션|물티슈(?!.*일반)|젖병/i },
-  { type:"Baby & Kids > Toys & Games",rx:/장난감|블록(?!.*수납)|퍼즐(?!.*성인)|보드게임|toy|building block/i },
-  // ── Pet ──
-  { type:"Pet Supplies",              rx:/dog food|cat food|dog treat|pet food|강아지사료|고양이사료|반려동물|펫푸드|강아지간식/i },
-  // ── Stationery ──
-  { type:"Stationery & Office",       rx:/ballpoint pen|pencil|eraser|scissors|tape\b|notebook(?!.*laptop)|marker|볼펜|연필|지우개|가위\b|테이프\b|노트(?!북 컴퓨터)|형광펜|포스트잇|크레용|크레파스/i },
-  // ── Automotive ──
-  { type:"Automotive",                rx:/car wax|car wash|tire|wiper|자동차|차량용|카워시/i },
-  // ── Fashion ──
+    rx:/face cleanser|cleanser|foam cleanser|face toner|toner|face serum|serum(?!.*hair)|facial cream|cream(?!.*body)|face lotion|ampoule|facial essence|essence(?!.*hair)|클렌저|폼클렌징|토너|앰플|세럼(?!.*헤어)|에센스(?!.*헤어)|수분크림|아이크림|비비크림|쿠션(?!.*방석)|파운데이션|미스트(?!.*헤어|.*car)/i },
+  // ── Baby & Kids ───────────────────────────────────────────────────────
+  { type:"Baby & Kids > Baby Care",
+    rx:/diaper|baby lotion|baby shampoo|baby wipe|기저귀|아기로션|물티슈(?!.*일반)|젖병/i },
+  { type:"Baby & Kids > Toys & Games",
+    rx:/장난감|블록(?!.*수납)|퍼즐(?!.*성인)|보드게임|toy|building block/i },
+  // ── Pet ───────────────────────────────────────────────────────────────
+  { type:"Pet Supplies",
+    rx:/dog food|cat food|dog treat|pet food|강아지사료|고양이사료|반려동물|펫푸드|강아지간식/i },
+  // ── Stationery ────────────────────────────────────────────────────────
+  { type:"Stationery & Office",
+    rx:/ballpoint pen|pencil|eraser|scissors|tape\b|notebook(?!.*laptop)|marker|볼펜|연필|지우개|가위\b|테이프\b|노트(?!북 컴퓨터)|형광펜|포스트잇|크레용|크레파스/i },
+  // ── Automotive ────────────────────────────────────────────────────────
+  { type:"Automotive",
+    rx:/car air freshener|car diffuser|car shampoo|car wash|car wax|car neck pillow|car cup holder|car sunvisor|car seat|windshield|washer fluid|wiper|tire\b|vehicle|automotive|자동차|차량용|카샴푸|카워시|차량 방향|자동차 방향|선바이저|컵홀더.*차|차.*방향/i },
+  // ── Fashion ───────────────────────────────────────────────────────────
   { type:"Fashion > Swimwear & Beachwear", rx:/swimwear|bikini|rashguard|수영복|래쉬가드|비키니/i },
   { type:"Fashion > Shoes & Sandals",      rx:/sneakers|sandals|slippers|high heels|운동화|샌들|슬리퍼|구두/i },
   { type:"Fashion > Kids Clothing",        rx:/아동복|유아복|kids wear|children wear/i },
   { type:"Fashion > Women's Clothing",     rx:/women's clothing|여성복|원피스|블라우스|치마/i },
   { type:"Fashion > Men's Clothing",       rx:/men's clothing|남성복|셔츠(?!.*스킨)/i },
   { type:"Fashion > Accessories",          rx:/가방\b|지갑|모자\b|벨트\b|액세서리|bag(?!.*tea)/i },
-  // ── Sports ──
-  { type:"Sports & Outdoors > Golf",       rx:/golf|골프/i },
-  { type:"Sports & Outdoors > Swimming",   rx:/수경|킥판|수영모|swim goggles|kickboard|swim cap/i },
-  { type:"Sports & Outdoors > Outdoor & Camping", rx:/텐트|침낭|캠핑|랜턴(?!.*무드)|camping|sleeping bag/i },
-  { type:"Sports & Outdoors > Exercise & Fitness", rx:/dumbbell|yoga mat|resistance band|pilates|덤벨|요가|필라테스|운동밴드|폼롤러/i },
-  // ── Home ──
-  { type:"Home & Living > Kitchenware",        rx:/frying pan|rice cooker|kitchen knife|냄비|프라이팬|도마|주방칼|밀폐용기|락앤락|주전자/i },
-  { type:"Home & Living > Household Supplies", rx:/laundry detergent|dish soap|toilet paper|세제(?!.*헤어)|섬유유연제|주방세제|화장지|청소포|탈취/i },
-  { type:"Home & Living > Home & Interior",    rx:/인테리어|가구|쿠션(?!.*방석 없을때)|수납|담요|홈데코/i },
-  // ── Flowers ──
+  // ── Sports ────────────────────────────────────────────────────────────
+  { type:"Sports & Outdoors > Golf",                  rx:/golf|골프/i },
+  { type:"Sports & Outdoors > Swimming",              rx:/수경|킥판|수영모|swim goggles|kickboard|swim cap/i },
+  { type:"Sports & Outdoors > Outdoor & Camping",     rx:/텐트|침낭|캠핑|랜턴(?!.*무드)|camping|sleeping bag/i },
+  { type:"Sports & Outdoors > Exercise & Fitness",    rx:/dumbbell|yoga mat|resistance band|pilates|덤벨|요가|필라테스|운동밴드|폼롤러/i },
+  // ── Home ──────────────────────────────────────────────────────────────
+  { type:"Home & Living > Kitchenware",
+    rx:/frying pan|rice cooker|kitchen knife|냄비|프라이팬|도마|주방칼|밀폐용기|락앤락|주전자/i },
+  { type:"Home & Living > Household Supplies",
+    rx:/laundry detergent|dish soap|toilet paper|cleaner|세제(?!.*헤어)|섬유유연제|주방세제|화장지|청소포|탈취/i },
+  { type:"Home & Living > Home & Interior",
+    rx:/인테리어|가구|쿠션(?!.*팩트)|수납|담요|홈데코/i },
+  // ── Flowers ───────────────────────────────────────────────────────────
   { type:"Flowers & Gifts",  rx:/비누꽃|조화|프리저브드|soap flower|꽃다발|bouquet|선물세트/i },
-  // ── $1 Bakery (자체 상품만) ──
-  { type:"$1 Bakery",        rx:/\$1.*bakery|\$1.*korea|1달러.*베이커리/i },
+  // ── $1 Bakery ─────────────────────────────────────────────────────────
+  { type:"$1 Bakery", rx:/\$1.*bakery|\$1.*korea|1달러.*베이커리/i },
 ];
 
 const FOOD_W = /(\d+(?:\.\d+)?)\s*(g|ml)\s*[,，x×*]\s*(\d+)\s*(개|팩|봉|캔|병|박스|세트)?/i;
 
-function ruleClassify(title) {
-  if (FOOD_W.test(title)) {
-    for (const r of RULES.slice(0,9)) { if (r.rx.test(title)) return { type:r.type, src:"rule" }; }
-    return { type:"Korean Food > Packaged Foods", src:"rule-weight" };
+// 분류용 — FOOD_W와 완전히 분리, tags도 같이 검사
+function ruleClassify(title="", tags="") {
+  const text = `${title} ${tags}`.trim();
+  for (const rule of RULES) {
+    if (rule.rx.test(text)) return { type: rule.type, src: "rule" };
   }
-  for (const r of RULES) { if (r.rx.test(title)) return { type:r.type, src:"rule" }; }
   return null;
 }
 
@@ -165,7 +154,9 @@ function normalizeType(t="") {
 // 광고성 문구 제거 + 90자 제한
 function cleanTitle(t="") {
   let s = t.trim()
-    .replace(/(?:^|\s)premium(?:\s|$)/gi, " ")
+    .replace(/\s*[-–—]+\s*(?:premium|long.lasting|durable|authentic|natural|healthy|light and delicious|sweet and fresh|crisp and sweet|refreshing|elegant|high.quality|deep cleaning|easy application|convenient|versatile|compatible with.*)?(?:quality|formula|solution|product|item|set)?(?:\s*[,.].*)?$/gi, "")
+    .replace(/(?:^|\s)premium\s*/gi, " ")
+    .replace(/\s*[-–—]\s*(?:for|perfect|great|easy|suitable).*$/gi, "")
     .replace(/(?:\s|^)perfect for .*$/gi, "")
     .replace(/(?:\s|^)great for .*$/gi, "")
     .replace(/(?:\s|^)easy to use.*$/gi, "")
@@ -173,40 +164,56 @@ function cleanTitle(t="") {
     .replace(/(?:\s|^)for cooking.*$/gi, "")
     .replace(/(?:\s|^)fresh and crisp.*$/gi, "")
     .replace(/(?:\s|^)high quality.*$/gi, "")
+    .replace(/(?:\s|^)long-lasting.*scent.*$/gi, "")
+    .replace(/(?:\s|^)compatible with.*$/gi, "")
     .replace(/[–—]+/g, " - ")
     .replace(/\s+/g, " ").trim();
+  // 대시로 끝나면 제거
+  s = s.replace(/\s*[-–—]\s*$/, "").trim();
   return s.length > 90 ? s.slice(0, 90).trim() : s;
 }
+
+// 검수 필요 카테고리
+const REVIEW_TYPES = new Set(["Korean Food > Packaged Foods", "Other"]);
 
 // AI 결과 후처리: type 보정 + title 정리 + life 차단
 function postProcess(rawProduct, aiResult) {
   const sourceTitle = rawProduct?.title || "";
-  const combined = [sourceTitle, rawProduct?.tags || ""].join(" ");
+  const sourceTags  = rawProduct?.tags  || "";
 
-  let finalType = normalizeType(aiResult?.type || "");
+  let finalType  = normalizeType(aiResult?.type || "");
   let finalTitle = cleanTitle(aiResult?.title_en || sourceTitle);
   const confidence = Number(aiResult?.confidence || 0);
 
-  // 허용 카테고리 아니면 룰로 재분류
+  const strongRule = ruleClassify(sourceTitle, sourceTags);
+
+  // 1) 허용 카테고리 아니면 rule → Other
   if (!ALLOWED_TYPES.has(finalType)) {
-    const ruleResult = ruleClassify(combined);
-    finalType = ruleResult?.type || "Other";
+    finalType = strongRule?.type || "Other";
   }
 
-  // life 절대 차단
+  // 2) life 절대 차단
   if (!finalType || finalType.toLowerCase() === "life") {
-    const ruleResult = ruleClassify(combined);
-    finalType = ruleResult?.type || "Other";
+    finalType = strongRule?.type || "Other";
   }
 
-  // confidence 낮거나 Other/Packaged Foods이면 강한 룰로 덮어쓰기
-  const strongRule = ruleClassify(combined);
-  if (strongRule && (confidence < 0.75 || finalType === "Other" || finalType === "Korean Food > Packaged Foods")) {
+  // 3) AI 매우 불확실(< 0.60)할 때만 rule 덮어쓰기
+  if (strongRule && confidence < 0.60) {
     finalType = strongRule.type;
   }
 
-  // title이 너무 길거나 광고문이면 원본으로 대체
-  if (finalTitle.length > 80 || /perfect for|great for|easy to use|for cooking/i.test(finalTitle)) {
+  // 4) AI가 Packaged Foods인데 rule이 더 구체적이면 보정
+  if (strongRule && finalType === "Korean Food > Packaged Foods" && strongRule.type !== "Korean Food > Packaged Foods") {
+    finalType = strongRule.type;
+  }
+
+  // 5) AI가 Other인데 rule 있으면 rule 사용
+  if (strongRule && finalType === "Other") {
+    finalType = strongRule.type;
+  }
+
+  // 6) title 너무 길거나 광고문이면 원본으로 복구
+  if (finalTitle.length > 80 || /perfect for|great for|easy to use|for cooking|premium quality/i.test(finalTitle)) {
     finalTitle = cleanTitle(sourceTitle);
   }
 
@@ -445,7 +452,7 @@ export default function Classifier() {
 
     setStatus("⚡ 규칙 기반 분류 중...");
     const pre=products.map(p=>{
-      const rc=ruleClassify(p.title);
+      const rc=ruleClassify(p.title, p.tags);
       const wKg=Math.max(estimateWeight(p.title)??(DEF_W[rc?.type]||0.5),0.1);
       const brandTags=detectBrands(p.title+" "+p.tags);
       return {...p,ruleType:rc?.type||null,ruleSrc:rc?.src||"ai",weightKg:wKg,brandTags};
@@ -514,15 +521,26 @@ export default function Classifier() {
           }
         }catch(_){}
 
-        let finalType=p.ruleType||aiType||p.originalType||"Other";
-        finalType=normalizeType(finalType);
-        if(!ALLOWED_TYPES.has(finalType)||finalType.toLowerCase()==="life"){
-          finalType=ruleClassify(p.title)?.type||"Other";
+        let finalType = p.ruleType || aiType || normalizeType(p.originalType || "") || "Other";
+
+        if (!ALLOWED_TYPES.has(finalType) || finalType.toLowerCase() === "life") {
+          finalType = ruleClassify(p.title, p.tags)?.type || "Other";
         }
+
+        // Other인데 AI가 유효한 타입 갖고 있으면 AI 존중
+        if (finalType === "Other" && aiType && ALLOWED_TYPES.has(aiType) && aiType.toLowerCase() !== "life") {
+          finalType = aiType;
+        }
+
+        // 식품 키워드 있는데 Other이면 Packaged Foods fallback
+        const looksFoodLike = /food|김치|라면|과자|간장|식초|만두|떡볶이|국수|빵|쿠키|젤리|사탕|snack|ramen|sauce|vinegar|dumpling|bread|cookie|candy/i.test(`${p.title} ${p.tags}`);
+        if (finalType === "Other" && looksFoodLike) finalType = "Korean Food > Packaged Foods";
+
+        const needsReview = REVIEW_TYPES.has(finalType);
         const shipping=calcShipping(p.weightKg);
         const origPrice=parseFloat(p.price)||0;
         const suggested=origPrice>0?(origPrice+shipping).toFixed(2):null;
-        const result={...p,newType:finalType,titleEn,description,optionsEn,tagsEn,shipping,origPrice,suggested,confidence:p.ruleType?0.98:aiType?0.85:0.5,src:p.ruleSrc||(aiType?"ai":"fallback")};
+        const result={...p,newType:finalType,titleEn,description,optionsEn,tagsEn,shipping,origPrice,suggested,needsReview,confidence:p.ruleType?0.98:aiType?0.85:0.5,src:p.ruleSrc||(aiType?"ai":"fallback")};
         rMapRef.current={...rMapRef.current,[p.handle]:result};
         rArrRef.current=[...rArrRef.current,result];
         setRMap({...rMapRef.current}); setResults([...rArrRef.current]);
@@ -656,7 +674,7 @@ export default function Classifier() {
                       {tab==="type"&&<>
                         <td style={s.td}><span style={s.nKr}>{r.title}</span></td>
                         <td style={s.td}><span style={{...s.typeOld,...(tc?s.typeW:{})}}>{r.originalType||"—"}</span></td>
-                        <td style={s.td}><span style={{...s.pill,background:CAT_COLORS[r.newType]||"#999"}}>{r.newType}</span>{tc&&<span style={s.mark}>✓</span>}</td>
+                        <td style={s.td}><span style={{...s.pill,background:CAT_COLORS[r.newType]||"#999"}}>{r.newType}</span>{tc&&<span style={s.mark}>✓</span>}{r.needsReview&&<span style={s.reviewMark}>검수</span>}</td>
                         <td style={s.td}><span style={{...s.srcB,...(r.src?.includes("rule")?s.srcRule:r.src==="ai"?s.srcAI:s.srcFall)}}>{r.src?.includes("rule")?"규칙":r.src==="ai"?"AI":"기본"}</span></td>
                       </>}
                       {tab==="title"&&<>
@@ -751,6 +769,7 @@ const s = {
   typeW:{color:"#E74C3C",background:"#fff0ee"},
   pill:{fontSize:10,fontWeight:700,color:"#fff",padding:"3px 8px",borderRadius:20,whiteSpace:"nowrap",display:"inline-block"},
   mark:{fontSize:10,color:"#27AE60",fontWeight:800,marginLeft:5},
+  reviewMark:{fontSize:10,color:"#E67E22",fontWeight:700,marginLeft:5,background:"#fff8ee",padding:"1px 5px",borderRadius:4},
   srcB:{fontSize:10,fontWeight:700,padding:"2px 7px",borderRadius:4},
   srcRule:{background:"#e8f8ee",color:"#27AE60"},
   srcAI:{background:"#e8f0ff",color:"#2980B9"},
