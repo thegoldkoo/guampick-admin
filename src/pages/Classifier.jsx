@@ -35,14 +35,14 @@ const RULES = [
   { type:"Korean Food > Bread & Bakery",
     rx:/bread\b|bakery|pancake mix|jeon mix|korean pancake|식빵|빵\b|크루아상|바게트|베이글|머핀|스콘|toast bread|sandwich bread|croissant|bagel|muffin|scone|roll cake|카스테라/i },
   { type:"Korean Food > Snacks & Chips",
-    rx:/chips|cracker|cookie|biscuit|candy|gummy|jelly candy|popcorn|snack\b|cereal\b|nurungji snack|rice puff|snack puff|sugar\b|brown sugar|sweetener|설탕|흑설탕|콘칲|칩\b|과자|스낵|사탕|젤리(?!.*vitamin)|쿠키|비스킷|팝콘|강냉이|뻥튀기|나쵸|빼빼로|새우깡|꼬북칩|홈런볼|오징어집|꼬깔콘|프링글|누룽지(?!.*탕)/i },
+    rx:/chips|cracker|cookie|biscuit|candy|gummy|jelly candy|popcorn|snack\b|cereal\b|nurungji snack|rice puff|snack puff|콘칲|칩\b|과자|스낵|사탕|젤리(?!.*vitamin)|쿠키|비스킷|팝콘|강냉이|뻥튀기|나쵸|빼빼로|새우깡|꼬북칩|홈런볼|오징어집|꼬깔콘|프링글|누룽지(?!.*탕)/i },
   { type:"Korean Food > Packaged Foods",
     rx:/ramen|라면|noodle|국수\b|instant|즉석|frozen|냉동|dumpling|만두|tteokbokki|떡볶이|porridge|죽\b|soup base|국물|\bbroth\b|육수|\bcooked rice\b|즉석밥|햇반|hetbahn|\binstant rice\b|\bmeal kit\b|밀키트|\bpancake mix\b|부침가루|핫케이크믹스|\bbrown sugar\b|설탕\b|\bstock powder\b|육수분말|curry|카레|ready.to.eat|barley rice|sprouted|냉면|비빔밥|순대|라이스누들|쌀국수|우동\b|당면|스프\b/i },
   // ── Beauty ────────────────────────────────────────────────────────────
   { type:"Beauty > Sun Care",
     rx:/sunscreen|sun cream|sunblock|\bspf\b|uv protection|선크림|선블록|자외선차단/i },
   { type:"Beauty > Mask Packs",
-    rx:/sheet mask|sleeping mask|clay mask|nose pack|soothing pad|acne pad|trouble pad|마스크팩|시트마스크|슬리핑마스크|클레이마스크|코팩/i },
+    rx:/sheet mask|sleeping mask|clay mask|nose pack|마스크팩|시트마스크|슬리핑마스크|클레이마스크|코팩/i },
   { type:"Beauty > Hair Care",
     rx:/hair shampoo|hair conditioner|hair mask|hair serum|scalp|샴푸(?!.*카|.*차량)|린스\b|컨디셔너|헤어 트리트먼트|헤어마스크|두피|탈모샴푸/i },
   { type:"Beauty > Body Care",
@@ -330,6 +330,78 @@ No Korean allowed in any field.`;
 const AI_TYPE_PROMPT = `Classify this product into exactly ONE of these types. NEVER output "life". Prefer conservative classification. Reply with ONLY the type name:\n${TYPES.join("\n")}`;
 
 
+// ── 운영 태그 생성 ────────────────────────────────────────────────────────────
+function _nt(text="") { return String(text).toLowerCase().replace(/\s+/g," ").trim(); }
+function _addTag(s, t) { if(t) s.add(t); }
+
+function detectTemp(title="", type="") {
+  const t = _nt(`${title} ${type}`);
+  if (/frozen|냉동/.test(t)) return "temp:frozen";
+  if (/chilled|refrigerated|냉장/.test(t)) return "temp:chilled";
+  if (/kimchi|김치/.test(t)) return "temp:chilled";
+  return "temp:room";
+}
+
+function detectShip(weightKg=0, title="", type="") {
+  const t = _nt(`${title} ${type}`);
+  if (weightKg > 3 || /bulk|box\b|detergent|toilet paper|washer fluid/.test(t)) return "ship:bulky";
+  if (weightKg <= 0.35) return "ship:light";
+  if (weightKg <= 1.0)  return "ship:medium";
+  if (weightKg <= 3.0)  return "ship:heavy";
+  return "ship:bulky";
+}
+
+function detectTarget(title="", type="", tags="") {
+  const t = _nt(`${title} ${type} ${tags}`);
+  const out = [];
+  if (/kimchi|김치|banchan|반찬|tteokbokki|bibigo|샘표/.test(t)) out.push("target:korean");
+  if (/snack|chips|mayo|hot sauce|instant/.test(t)) out.push("target:filipino");
+  if (/bulk|family pack|car |automotive/.test(t)) out.push("target:military");
+  if (out.length === 0) out.push("target:general");
+  return out;
+}
+
+function detectPriority(product) {
+  const type  = product.newType || "";
+  const title = _nt(product.titleEn || "");
+  const w     = product.weightKg || 0;
+  if (type === "Other") return "priority:low";
+  if (["Korean Food > Snacks & Chips","Korean Food > Kimchi","Beauty > Skincare"].includes(type)) return "priority:hero";
+  if (/ramen|라면|instant rice|햇반/.test(title)) return "priority:hero";
+  if (w > 3) return "priority:low";
+  return "priority:normal";
+}
+
+function detectCategoryDetail(type="") {
+  if (type.includes("Kimchi"))    return ["food:kimchi"];
+  if (type.includes("Banchan"))   return ["food:banchan"];
+  if (type.includes("Sauces"))    return ["food:sauce"];
+  if (type.includes("Snacks"))    return ["food:snack"];
+  if (type.includes("Bakery"))    return ["food:bakery"];
+  if (type.includes("Packaged"))  return ["food:instant"];
+  if (type.includes("Skincare"))  return ["beauty:skincare"];
+  if (type.includes("Hair"))      return ["beauty:hair"];
+  return [];
+}
+
+function detectReview(product) {
+  if (product.newType === "Other")        return "review:manual";
+  if ((product.confidence || 0) < 0.6)   return "review:manual";
+  if (hasKorean(product.titleEn || ""))   return "review:manual";
+  return "review:auto";
+}
+
+function generateOperationalTags(product) {
+  const tags = new Set();
+  _addTag(tags, detectTemp(product.titleEn, product.newType));
+  _addTag(tags, detectShip(product.weightKg, product.titleEn, product.newType));
+  _addTag(tags, detectPriority(product));
+  _addTag(tags, detectReview(product));
+  detectTarget(product.titleEn, product.newType, product.tags).forEach(t => _addTag(tags, t));
+  detectCategoryDetail(product.newType).forEach(t => _addTag(tags, t));
+  return [...tags];
+}
+
 function calcShipping(kg) { return Math.ceil(Math.max(kg, 0.1)) * 3; }
 
 function downloadCSV(rawRows, headers, resultMap, applyPrice) {
@@ -359,8 +431,12 @@ function downloadCSV(rawRows, headers, resultMap, applyPrice) {
         if(o3ni>=0&&row[o3ni]) nr[o3ni]=translateOptName(row[o3ni]);
       }
       if(bi>=0&&r.description) nr[bi]=(row[bi]||"")+`<div style="margin-top:16px;padding-top:12px;border-top:1px solid #eee"><p>${r.description}</p></div>`;
-      const extraTags=[...(r.brandTags||[]),...(r.tagsEn||[]),...(applyPrice&&r.suggested?["shipping-included"]:[])];
-      if(tagi>=0&&extraTags.length) nr[tagi]=mergeTags(row[tagi],extraTags);
+      const extraTags=[
+        ...(r.brandTags||[]),
+        ...(r.tagsEn||[]),
+        ...(r.opTags||[]),
+        ...(applyPrice&&r.suggested?["shipping-included"]:[])
+      ];      if(tagi>=0&&extraTags.length) nr[tagi]=mergeTags(row[tagi],extraTags);
       if(applyPrice&&pi>=0&&r.suggested) nr[pi]=r.suggested;
     }
     return [...nr, r.weightKg?.toFixed(2)||"", `$${r.shipping?.toFixed(2)||"0"}`, r.origPrice>0?`$${r.origPrice.toFixed(2)}`:"", r.suggested?`$${r.suggested}`:""];
@@ -541,7 +617,14 @@ export default function Classifier() {
         const shipping=calcShipping(p.weightKg);
         const origPrice=parseFloat(p.price)||0;
         const suggested=origPrice>0?(origPrice+shipping).toFixed(2):null;
-        const result={...p,newType:finalType,titleEn,description,optionsEn,tagsEn,shipping,origPrice,suggested,needsReview,confidence:p.ruleType?0.98:aiType?0.85:0.5,src:p.ruleSrc||(aiType?"ai":"fallback")};
+        const result={
+          ...p, newType:finalType, titleEn, description, optionsEn, tagsEn,
+          shipping, origPrice, suggested, needsReview,
+          confidence: p.ruleType ? 0.98 : aiType ? 0.85 : 0.5,
+          src: p.ruleSrc || (aiType ? "ai" : "fallback"),
+          usedDefaultWeight: estimateWeight(p.title) == null,
+        };
+        result.opTags = generateOperationalTags(result);
         rMapRef.current={...rMapRef.current,[p.handle]:result};
         rArrRef.current=[...rArrRef.current,result];
         setRMap({...rMapRef.current}); setResults([...rArrRef.current]);
