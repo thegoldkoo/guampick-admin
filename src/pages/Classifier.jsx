@@ -467,7 +467,7 @@ function estimateVariantWeight(title="", opt1val="", opt2val="", opt3val="") {
   return null;
 }
 
-function downloadCSV(rawRows, headers, resultMap, applyPrice) {
+function downloadCSV(rawRows, headers, resultMap, applyPrice, translateOptions=false) {
   // ── 재고 관련 컬럼 완전 제외 (Shopify 재고 초기화 방지) ──────────────────
   const SKIP_COLS = new Set([
     "Variant Inventory Qty",
@@ -500,13 +500,15 @@ function downloadCSV(rawRows, headers, resultMap, applyPrice) {
     if(ti>=0) nr[ti]=r.titleEn||r.title;
     if(yi>=0) nr[yi]=r.newType;
 
-    // 옵션값 번역: 모든 variant 행
+    // 옵션값 번역: translateOptions=true일 때만 (기존 상품 재고 보호)
     const curO1 = o1vi>=0 ? (row[o1vi]||"") : "";
     const curO2 = o2vi>=0 ? (row[o2vi]||"") : "";
     const curO3 = o3vi>=0 ? (row[o3vi]||"") : "";
-    if(o1vi>=0&&curO1) nr[o1vi]=translateOptVal(curO1);
-    if(o2vi>=0&&curO2) nr[o2vi]=translateOptVal(curO2);
-    if(o3vi>=0&&curO3) nr[o3vi]=translateOptVal(curO3);
+    if(translateOptions) {
+      if(o1vi>=0&&curO1) nr[o1vi]=translateOptVal(curO1);
+      if(o2vi>=0&&curO2) nr[o2vi]=translateOptVal(curO2);
+      if(o3vi>=0&&curO3) nr[o3vi]=translateOptVal(curO3);
+    }
 
     // ── variant별 무게 + 배송비 + 가격 계산 ──────────────────────────────
     // r.title 말고 원본 row 제목 사용 (이중계산 방지)
@@ -528,9 +530,9 @@ function downloadCSV(rawRows, headers, resultMap, applyPrice) {
     if(gramsI>=0) nr[gramsI]=Math.round(varWeightKg*1000);
 
     if(isFirst){
-      if(r.optionsEn?.length){
+      if(r.optionsEn?.length && translateOptions){
         r.optionsEn.forEach((opt,idx)=>{ const ni=[o1ni,o2ni,o3ni][idx]; if(ni>=0&&opt.name) nr[ni]=opt.name; });
-      } else {
+      } else if(translateOptions) {
         if(o1ni>=0&&row[o1ni]) nr[o1ni]=translateOptName(row[o1ni]);
         if(o2ni>=0&&row[o2ni]) nr[o2ni]=translateOptName(row[o2ni]);
         if(o3ni>=0&&row[o3ni]) nr[o3ni]=translateOptName(row[o3ni]);
@@ -570,6 +572,7 @@ export default function Classifier() {
   const [filter,    setFilter]    = useState("전체");
   const [onlyMod,   setOnlyMod]   = useState(false);
   const [applyP,    setApplyP]    = useState(true);
+  const [transOpts, setTransOpts] = useState(false); // 기존 상품 재고 보호 위해 기본 OFF
   const [status,    setStatus]    = useState("");
   const fileRef=useRef(); const rMapRef=useRef({}); const rArrRef=useRef([]);
 
@@ -802,6 +805,17 @@ export default function Classifier() {
             <input type="checkbox" checked={applyP} onChange={e=>setApplyP(e.target.checked)}/>
             Variant Price에 <b>배송비 포함 가격</b> 적용
           </label>
+          <div style={{marginTop:10,paddingTop:10,borderTop:"1px solid #f0f0f0"}}>
+            <label style={{display:"flex",alignItems:"center",gap:8,fontSize:13,cursor:"pointer"}}>
+              <input type="checkbox" checked={transOpts} onChange={e=>setTransOpts(e.target.checked)}/>
+              옵션명 / 옵션값 영문 번역
+            </label>
+            <div style={{fontSize:11,marginTop:4,marginLeft:22,color:transOpts?"#E74C3C":"#27AE60"}}>
+              {transOpts
+                ? "⚠️ 기존 상품 재고 0 초기화 위험 — 신규 상품에만 사용"
+                : "✅ OFF (기본값) — 기존 재고 안전 유지"}
+            </div>
+          </div>
         </div>
       )}
 
@@ -825,8 +839,8 @@ export default function Classifier() {
               <span style={s.sumTitle}>{done?`완료 — ${results.length}개`:`처리 중... ${results.length}/${products.length}`}</span>
               {done&&(
                 <div style={{display:"flex",gap:8}}>
-                  <button style={{...s.dlBtn,background:"#fff",color:"#111",border:"1.5px solid #ddd"}} onClick={()=>downloadCSV(rawRows,headers,rMap,false)}>참고용</button>
-                  <button style={s.dlBtn} onClick={()=>downloadCSV(rawRows,headers,rMap,true)}>⬇ Shopify CSV</button>
+                  <button style={{...s.dlBtn,background:"#fff",color:"#111",border:"1.5px solid #ddd"}} onClick={()=>downloadCSV(rawRows,headers,rMap,false,transOpts)}>참고용</button>
+                  <button style={s.dlBtn} onClick={()=>downloadCSV(rawRows,headers,rMap,true,transOpts)}>⬇ Shopify CSV</button>
                 </div>
               )}
             </div>
