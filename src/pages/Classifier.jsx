@@ -505,12 +505,19 @@ function downloadCSV(rawRows, headers, resultMap, applyPrice) {
     if(o2vi>=0&&curO2) nr[o2vi]=translateOptVal(curO2);
     if(o3vi>=0&&curO3) nr[o3vi]=translateOptVal(curO3);
 
-    // variant별 무게 + 배송비 + 가격 계산
-    const varWeight = estimateVariantWeight(r.title||"", curO1, curO2, curO3) ?? (DEF_W[r.newType]||0.5);
+    // ── variant별 무게 + 배송비 + 가격 계산 ──────────────────────────────
+    // r.title 말고 원본 row 제목 사용 (이중계산 방지)
+    const rowTitle = row[ti] || r.title || "";
+    const varWeight = estimateVariantWeight(rowTitle, curO1, curO2, curO3) ?? (DEF_W[r.newType]||0.5);
     const varWeightKg = Math.max(varWeight, 0.1);
     const varShipping = calcShipping(varWeightKg);
     const varOrigPrice = parseFloat(row[pi]||"0")||0;
     const varSuggested = varOrigPrice>0 ? (varOrigPrice+varShipping).toFixed(2) : null;
+
+    // 디버그: 옵션별 값 확인 (개발용 — 나중에 제거 가능)
+    if(process.env.NODE_ENV !== "production") {
+      console.log(`[${row[hi]}] opt="${curO1||"-"}" | ${varWeightKg.toFixed(2)}kg → $${varShipping.toFixed(2)} | orig=$${varOrigPrice} → $${varSuggested||"-"}`);
+    }
 
     // 가격: 모든 variant 행
     if(applyPrice&&pi>=0&&varSuggested) nr[pi]=varSuggested;
@@ -739,7 +746,11 @@ export default function Classifier() {
           usedDefaultWeight: estimateWeight(p.title) == null,
         };
         result.opTags = generateOperationalTags(result);
-        rMapRef.current={...rMapRef.current,[p.handle]:result};
+        rMapRef.current={
+          ...rMapRef.current,
+          [p.handle]: result,                    // handle 기준 (type/title용)
+          [`${p.handle}_${p.opt1vals.join("|")}`]: result, // 옵션 기준 (향후 확장용)
+        };
         rArrRef.current=[...rArrRef.current,result];
         setRMap({...rMapRef.current}); setResults([...rArrRef.current]);
       }));
