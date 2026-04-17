@@ -1,0 +1,59 @@
+{% comment %}
+  GuamPick — Shipping Included Badge
+  
+  사용법:
+  1. Shopify Admin → Online Store → Themes → Edit code
+  2. Snippets → Add new snippet → 이름: "shipping-badge"
+  3. 이 코드 전체 붙여넣기 → Save
+  
+  4. 상품 카드 템플릿에 렌더링 추가:
+     product-card.liquid (또는 card-product.liquid) 안에:
+     {% render 'shipping-badge', product: product %}
+  
+  5. 상품 상세페이지에도 추가:
+     main-product.liquid (또는 product-template.liquid) 안에:
+     {% render 'shipping-badge', product: product %}
+{% endcomment %}
+
+{% if product.tags contains 'shipping-included' %}
+  <div class="gp-shipping-badge">
+    <span class="gp-shipping-badge__icon">🚢</span>
+    <span class="gp-shipping-badge__text">Shipping Included</span>
+  </div>
+{% endif %}
+
+<style>
+  .gp-shipping-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #e8f8ee;
+    border: 1px solid #b7e4c7;
+    color: #1a7a3f;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-top: 6px;
+    letter-spacing: 0.02em;
+  }
+
+  .gp-shipping-badge__icon {
+    font-size: 14px;
+  }
+
+  /* 상품 카드용 (작게) */
+  .card-wrapper .gp-shipping-badge,
+  .product-card .gp-shipping-badge {
+    font-size: 11px;
+    padding: 3px 8px;
+  }
+
+  /* 상품 상세 페이지용 (조금 크게) */
+  .product__info-wrapper .gp-shipping-badge,
+  .product-single .gp-shipping-badge {
+    font-size: 13px;
+    padding: 5px 12px;
+    margin-bottom: 8px;
+  }
+</style>
