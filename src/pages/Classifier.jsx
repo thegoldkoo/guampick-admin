@@ -434,25 +434,90 @@ function generateOperationalTags(product) {
 
 function calcShipping(kg) { return Math.ceil(Math.max(kg, 0.1)) * 3; }
 
+// variant 행의 옵션값에서 수량 추출 (예: "3개입" → 3, "12 Pack" → 12)
+function extractQtyFromOption(val="") {
+  const m = String(val).match(/^(\d+)\s*(개입?|pack|packs|pieces?|set)/i);
+  return m ? parseInt(m[1]) : 1;
+}
+
+// variant 행 기준 무게 추정 (title 무게 × 옵션 수량)
+function estimateVariantWeight(title="", opt1val="", opt2val="", opt3val="") {
+  // title에서 단위 무게 추출 (1개 기준)
+  const baseWeight = estimateWeight(title); // kg per unit or total if no count
+
+  // 옵션값에서 수량 파악
+  const opts = [opt1val, opt2val, opt3val].filter(Boolean);
+  let maxQty = 1;
+  for (const opt of opts) {
+    const q = extractQtyFromOption(opt);
+    if (q > maxQty) maxQty = q;
+  }
+
+  // title에 "X개" 수량이 이미 포함된 경우 (예: "130g, 12개")
+  // estimateWeight가 이미 총무게를 반환하므로 추가 곱셈 불필요
+  const titleHasCount = /\d+\s*(g|ml)\s*[,，x×*]\s*\d+/i.test(title);
+
+  if (baseWeight) {
+    // title에 수량 없고 옵션에만 수량 있으면 곱함
+    if (!titleHasCount && maxQty > 1) {
+      return Math.max(baseWeight * maxQty, 0.1);
+    }
+    return Math.max(baseWeight, 0.1);
+  }
+  return null;
+}
+
 function downloadCSV(rawRows, headers, resultMap, applyPrice) {
+  // ── 재고 관련 컬럼 완전 제외 (Shopify 재고 초기화 방지) ──────────────────
+  const SKIP_COLS = new Set([
+    "Variant Inventory Qty",
+    "Variant Inventory Tracker",
+    "Variant Inventory Policy",
+    "Variant Fulfillment Service",
+  ]);
+  // 포함할 컬럼 인덱스만 추출
+  const keepIdx = headers.map((h,i)=>SKIP_COLS.has(h)?-1:i).filter(i=>i>=0);
+  const filteredHeaders = keepIdx.map(i=>headers[i]);
+
+  // 이하 모든 인덱스는 원본 headers 기준
   const seen = new Set();
   const ti=headers.indexOf("Title"), yi=headers.indexOf("Type");
   const bi=headers.indexOf("Body (HTML)"), tagi=headers.indexOf("Tags");
   const pi=headers.indexOf("Variant Price"), hi=headers.indexOf("Handle");
+  const gramsI=headers.indexOf("Variant Grams");
   const o1ni=headers.indexOf("Option1 Name"), o2ni=headers.indexOf("Option2 Name"), o3ni=headers.indexOf("Option3 Name");
   const o1vi=headers.indexOf("Option1 Value"), o2vi=headers.indexOf("Option2 Value"), o3vi=headers.indexOf("Option3 Value");
   const extraH = ["Est. Weight (kg)","Shipping ($)","Original Price","Suggested Price"];
+
   const rows = rawRows.map(row => {
-    const r = resultMap[row[hi]]; if (!r) return [...row,"","","",""];
+    const r = resultMap[row[hi]]; if (!r) return [...keepIdx.map(i=>row[i]),"","","",""];
     const nr=[...row]; const isFirst=!seen.has(row[hi]); seen.add(row[hi]);
+
+    // Title + Type: 모든 행
     if(ti>=0) nr[ti]=r.titleEn||r.title;
     if(yi>=0) nr[yi]=r.newType;
-    // Translate option VALUES in every variant row (rule-based, instant)
-    if(o1vi>=0&&row[o1vi]) nr[o1vi]=translateOptVal(row[o1vi]);
-    if(o2vi>=0&&row[o2vi]) nr[o2vi]=translateOptVal(row[o2vi]);
-    if(o3vi>=0&&row[o3vi]) nr[o3vi]=translateOptVal(row[o3vi]);
+
+    // 옵션값 번역: 모든 variant 행
+    const curO1 = o1vi>=0 ? (row[o1vi]||"") : "";
+    const curO2 = o2vi>=0 ? (row[o2vi]||"") : "";
+    const curO3 = o3vi>=0 ? (row[o3vi]||"") : "";
+    if(o1vi>=0&&curO1) nr[o1vi]=translateOptVal(curO1);
+    if(o2vi>=0&&curO2) nr[o2vi]=translateOptVal(curO2);
+    if(o3vi>=0&&curO3) nr[o3vi]=translateOptVal(curO3);
+
+    // variant별 무게 + 배송비 + 가격 계산
+    const varWeight = estimateVariantWeight(r.title||"", curO1, curO2, curO3) ?? (DEF_W[r.newType]||0.5);
+    const varWeightKg = Math.max(varWeight, 0.1);
+    const varShipping = calcShipping(varWeightKg);
+    const varOrigPrice = parseFloat(row[pi]||"0")||0;
+    const varSuggested = varOrigPrice>0 ? (varOrigPrice+varShipping).toFixed(2) : null;
+
+    // 가격: 모든 variant 행
+    if(applyPrice&&pi>=0&&varSuggested) nr[pi]=varSuggested;
+    // Variant Grams: 옵션별 무게
+    if(gramsI>=0) nr[gramsI]=Math.round(varWeightKg*1000);
+
     if(isFirst){
-      // Option NAMES (first row only)
       if(r.optionsEn?.length){
         r.optionsEn.forEach((opt,idx)=>{ const ni=[o1ni,o2ni,o3ni][idx]; if(ni>=0&&opt.name) nr[ni]=opt.name; });
       } else {
@@ -461,17 +526,15 @@ function downloadCSV(rawRows, headers, resultMap, applyPrice) {
         if(o3ni>=0&&row[o3ni]) nr[o3ni]=translateOptName(row[o3ni]);
       }
       if(bi>=0&&r.description) nr[bi]=(row[bi]||"")+`<div style="margin-top:16px;padding-top:12px;border-top:1px solid #eee"><p>${r.description}</p></div>`;
-      const extraTags=[
-        ...(r.brandTags||[]),
-        ...(r.tagsEn||[]),
-        ...(r.opTags||[]),
-        ...(applyPrice&&r.suggested?["shipping-included"]:[])
-      ];      if(tagi>=0&&extraTags.length) nr[tagi]=mergeTags(row[tagi],extraTags);
-      if(applyPrice&&pi>=0&&r.suggested) nr[pi]=r.suggested;
+      const extraTags=[...(r.brandTags||[]),...(r.tagsEn||[]),...(r.opTags||[]),...(applyPrice&&varSuggested?["shipping-included"]:[])];
+      if(tagi>=0&&extraTags.length) nr[tagi]=mergeTags(row[tagi],extraTags);
     }
-    return [...nr, r.weightKg?.toFixed(2)||"", `$${r.shipping?.toFixed(2)||"0"}`, r.origPrice>0?`$${r.origPrice.toFixed(2)}`:"", r.suggested?`$${r.suggested}`:""];
+
+    // 재고 관련 컬럼 제외하고 출력
+    return [...keepIdx.map(i=>nr[i]), varWeightKg.toFixed(2), `$${varShipping.toFixed(2)}`, varOrigPrice>0?`$${varOrigPrice.toFixed(2)}`:"", varSuggested?`$${varSuggested}`:""];
   });
-  const csv=[headers.concat(extraH),...rows].map(row=>row.map(c=>`"${String(c??"").replace(/"/g,'""')}"`).join(",")).join("\n");
+
+  const csv=[filteredHeaders.concat(extraH),...rows].map(row=>row.map(c=>`"${String(c??"").replace(/"/g,'""')}"`).join(",")).join("\n");
   const a=Object.assign(document.createElement("a"),{href:URL.createObjectURL(new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"})),download:applyPrice?"guampick_final.csv":"guampick_ref.csv"});
   a.click();
 }
