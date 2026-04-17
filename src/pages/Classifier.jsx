@@ -489,6 +489,9 @@ function downloadCSV(rawRows, headers, resultMap, applyPrice) {
   const o1vi=headers.indexOf("Option1 Value"), o2vi=headers.indexOf("Option2 Value"), o3vi=headers.indexOf("Option3 Value");
   const extraH = ["Est. Weight (kg)","Shipping ($)","Original Price","Suggested Price"];
 
+  // keepIdx 매핑 후 새 인덱스 계산
+  const newPi = keepIdx.indexOf(pi); // 필터된 배열에서의 Variant Price 위치
+
   const rows = rawRows.map(row => {
     const r = resultMap[row[hi]]; if (!r) return [...keepIdx.map(i=>row[i]),"","","",""];
     const nr=[...row]; const isFirst=!seen.has(row[hi]); seen.add(row[hi]);
@@ -519,7 +522,7 @@ function downloadCSV(rawRows, headers, resultMap, applyPrice) {
       console.log(`[${row[hi]}] opt="${curO1||"-"}" | ${varWeightKg.toFixed(2)}kg → $${varShipping.toFixed(2)} | orig=$${varOrigPrice} → $${varSuggested||"-"}`);
     }
 
-    // 가격: 모든 variant 행
+    // 가격: 모든 variant 행 — 필터된 행에 적용
     if(applyPrice&&pi>=0&&varSuggested) nr[pi]=varSuggested;
     // Variant Grams: 옵션별 무게
     if(gramsI>=0) nr[gramsI]=Math.round(varWeightKg*1000);
@@ -537,8 +540,12 @@ function downloadCSV(rawRows, headers, resultMap, applyPrice) {
       if(tagi>=0&&extraTags.length) nr[tagi]=mergeTags(row[tagi],extraTags);
     }
 
-    // 재고 관련 컬럼 제외하고 출력
-    return [...keepIdx.map(i=>nr[i]), varWeightKg.toFixed(2), `$${varShipping.toFixed(2)}`, varOrigPrice>0?`$${varOrigPrice.toFixed(2)}`:"", varSuggested?`$${varSuggested}`:""];
+    // 필터된 행 출력 + 추가 컬럼
+    const filteredRow = keepIdx.map(i=>nr[i]);
+    // 필터된 행에서 가격 다시 적용 (keepIdx 재매핑 후)
+    if(applyPrice && newPi>=0 && varSuggested) filteredRow[newPi]=varSuggested;
+
+    return [...filteredRow, varWeightKg.toFixed(2), `$${varShipping.toFixed(2)}`, varOrigPrice>0?`$${varOrigPrice.toFixed(2)}`:"", varSuggested?`$${varSuggested}`:""];
   });
 
   const csv=[filteredHeaders.concat(extraH),...rows].map(row=>row.map(c=>`"${String(c??"").replace(/"/g,'""')}"`).join(",")).join("\n");
