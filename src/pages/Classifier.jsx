@@ -21,6 +21,22 @@ const TYPES = [
 // ── Rule-based classifier (우선순위 가이드 기준) ──────────────────────────────
 // 순서: 떡볶이 → Snacks/Packaged → Bakery → Health → Sauces → Fresh → Beauty → 기타
 const RULES = [
+  // ── 최우선 1: 생활용품 (뷰티/식품 키워드와 혼동 방지) ─────────────────
+  { type:"Home & Living > Household Supplies",
+    rx:/\bdetergent\b|laundry detergent|washing machine cleaner|fabric softener|capsule detergent|dish soap(?!.*beauty)|zipper bag|dishwashing|dr\.?\s*beckmann|snuggle|\bdowny\b|세탁세제|세탁조세제|섬유유연제|\btoothbrush\b|\btoothpaste\b|\bdental\b|mouthwash|dental floss|\boral.?b\b|yusimol|median|치약|칫솔|구강청결제|가글|치실/i },
+  { type:"Beauty > Body Care",
+    rx:/body wash|body lotion|body scrub|body oil|body butter|hand cream|hand lotion|hand wash|바디워시|바디로션|바디스크럽|핸드크림|핸드로션/i },
+  { type:"Home & Living > Kitchenware",
+    rx:/\bscrubber\b|scouring pad|ziploc|dish cloth|\bgloves?\b(?!.*beauty|.*hand cream)|지퍼백|수세미/i },
+
+  // ── 최우선 2: 식용 기름/양념 (헤어오일보다 먼저) ──────────────────────
+  { type:"Korean Food > Sauces & Condiments",
+    rx:/sesame oil|perilla oil|참기름|들기름|\bsalt\b(?!.*hair|.*beauty|.*scrub|.*body)|소금(?!.*bath|.*body)/i },
+
+  // ── 최우선 3: 꽃/선물 (soap 단독 세정제 오염 방지) ───────────────────
+  { type:"Flowers & Gifts",
+    rx:/soap flower|비누꽃|preserved flower|\bbouquet\b|꽃다발|peony.*(?:bouquet|flower|gift)|rose.*bouquet|조화|프리저브드/i },
+
   // ── 뷰티 최우선 차단 ──────────────────────────────────────────────────
   // 염색약/헤어컬러 — 스킨케어로 빠지기 전에 먼저 잡음
   { type:"Beauty > Hair Care",
@@ -64,7 +80,7 @@ const RULES = [
 
   // Fresh Produce — 진짜 신선식품만
   { type:"Korean Food > Fresh Produce",
-    rx:/친환경|유기농|무농약|fresh vegetable|fresh fruit|fresh produce|야채|채소|과일|bean sprouts|mung bean sprouts|콩나물|숙주|깻잎|perilla leaf|치커리|상추|배추|오이|미나리|쑥갓|브로콜리|토마토|양파|마늘|애호박|당근|감자(?!.*chip)|고구마(?!.*chip|.*snack)|fresh ginger|생강|wild thistle|곤드레|엉겅퀴|chives|쪽파|부추|leek|taro|mushroom(?!.*snack|.*chip)|버섯(?!.*스낵|.*칩)|tofu|두부|fresh\s+(?:apple|grape|orange|lemon|pear|blueberr|strawberr|melon|watermelon|mango)|GAP.*(?:berry|fruit|apple|grape)|chili pepper|chilli pepper|청양고추|고추(?!.*sauce|.*oil|.*paste)|kale|organic greens/i },
+    rx:/친환경|유기농|무농약|fresh vegetable|fresh fruit|fresh produce|야채|채소|과일|bean sprouts|mung bean sprouts|콩나물|숙주|깻잎|perilla leaf|치커리|상추|배추|오이|미나리|쑥갓|브로콜리|토마토|양파|마늘|애호박|당근|감자(?!.*chip)|고구마(?!.*chip|.*snack)|fresh ginger|생강|wild thistle|곤드레|엉겅퀴|chives|쪽파|부추|leek|taro|mushroom(?!.*snack|.*chip)|버섯(?!.*스낵|.*칩)|tofu|두부|fresh\s+(?:apple|grape|orange|lemon|pear|blueberr|strawberr|melon|watermelon|mango)|GAP.*(?:berry|fruit|apple|grape)|chili pepper|chilli pepper|청양고추|고추(?!.*sauce|.*oil|.*paste)|kale|organic greens|grain mix|\brice\b(?!.*cake|.*cracker|.*snack|.*ramen)|\bbarley\b(?!.*tea)|\bchestnut\b|군밤|잡곡(?!.*밥)|현미(?!.*밥|.*즉석)/i },
 
   // ── Beauty ────────────────────────────────────────────────────────────
   { type:"Beauty > Sun Care",
@@ -76,13 +92,13 @@ const RULES = [
   { type:"Beauty > Hair Care",
     rx:/hair shampoo|hair conditioner|hair mask|hair serum|hair treatment|hair oil|hair essence|hair mist|hair tonic|scalp tonic|hair loss|hair color|hair dye|bleach|perfume shampoo|perfume conditioner|염색약|염모제|탈색제|새치염색|퍼퓸 샴푸|샴푸(?!.*카|.*차량)|린스|컨디셔너|헤어 트리트먼트|헤어마스크|헤어오일|헤어에센스|두피|탈모|헤어/i },
   { type:"Beauty > Body Care",
-    rx:/body wash|body lotion|hand cream|toothbrush|toothpaste|mouthwash|바디워시|바디로션|핸드크림|치약|구강청결제|가글|칫솔/i },
+    rx:/body wash|body lotion|body scrub|body oil|body butter|hand cream|hand lotion|hand wash|바디워시|바디로션|바디스크럽|핸드크림|핸드로션/i },
   // Perfume — shampoo/conditioner 제외
   { type:"Beauty > Perfume & Fragrance",
     rx:/perfume(?!.*shampoo|.*conditioner|.*hair)|eau de parfum|eau de toilette|reed diffuser|cologne|body spray(?!.*hair)|fragrance mist(?!.*hair)|향수|퍼퓸|룸 디퓨저/i },
   // Skincare — all-in-one/cushion/waterproof 제거, mist 추가
   { type:"Beauty > Skincare",
-    rx:/face cleanser|cleanser(?!.*powder|.*food)|foam cleanser|face toner|toner(?!.*food)|face serum|serum(?!.*hair|.*food)|gel lotion|겔로션|moisturizer(?!.*food)|facial cream(?!.*cake|.*food)|cream(?!.*body|.*cake|.*ice|.*pie|.*food|.*치즈|.*크림빵)|face lotion|ampoule(?!.*food)|facial essence(?!.*cooking|.*food)|essence(?!.*hair|.*cooking|.*food|.*vanilla|.*lemon|.*almond|.*mint|.*extract|.*oil|.*flavor|.*요리|.*식품|.*향신)|soothing pads?|진정패드|trouble pads?|acne pads?|lipstick|lip color|lip tint|lip gloss|eye shadow|eyeshadow|eyeliner|mascara|foundation(?!.*sauce)|primer(?!.*food)|concealer|pact|contour|shading|highlighter|blush|blusher|makeup|lip stick|bb cream|cc cream|tone up cream|skin care(?!.*hair|.*sunscreen)|facial mist|hydrating mist|soothing mist|thermal.*mist|dokdo|round lab|dalba|mediheal|skin1004|anua|torriden|tori.?dden|cosrx|innisfree|etude|laneige|sulwhasoo|클렌저|폼클렌징|토너|앰플|세럼(?!.*헤어)|에센스(?!.*헤어|.*요리|.*식품)|수분크림|아이크림|비비크림|파운데이션|미스트(?!.*헤어|.*car)|립스틱|틴트|아이섀도|마스카라|컨실러/i },
+    rx:/face cleanser|cleanser(?!.*powder|.*food)|foam cleanser|face toner|toner(?!.*food)|face serum|serum(?!.*hair|.*food)|gel lotion|겔로션|moisturizer(?!.*food)|facial cream(?!.*cake|.*food)|cream(?!.*body|.*cake|.*ice|.*pie|.*food|.*치즈|.*크림빵)|face lotion|ampoule(?!.*food)|facial essence(?!.*cooking|.*food)|essence(?!.*hair|.*cooking|.*food|.*vanilla|.*lemon|.*almond|.*mint|.*extract|.*oil|.*flavor|.*요리|.*식품|.*향신)|soothing pads?|진정패드|trouble pads?|acne pads?|lipstick|lip color|lip tint|lip gloss|eye shadow|eyeshadow|eyeliner|mascara|foundation(?!.*sauce)|primer(?!.*food)|concealer|pact|contour|shading|highlighter|blush|blusher|makeup|lip stick|bb cream|cc cream|tone up cream|skin care(?!.*hair|.*sunscreen)|facial mist|hydrating mist|soothing mist|thermal.*mist|dokdo|round lab|dalba|mediheal|skin1004|anua|torriden|tori.?dden|cosrx|innisfree|etude|laneige|sulwhasoo|huxley|dr\.bio|some by mi|klairs|axis.?y|dr\.jart|jungsaemmul|papa recipe|클렌저|폼클렌징|토너|앰플|세럼(?!.*헤어)|에센스(?!.*헤어|.*요리|.*식품)|수분크림|아이크림|비비크림|파운데이션|미스트(?!.*헤어|.*car)|립스틱|틴트|아이섀도|마스카라|컨실러/i },
   // Baby Care — 강화
   { type:"Baby & Kids > Baby Care",
     rx:/baby|infant|newborn|toddler|baby lotion|baby shampoo|baby wash|baby cream|baby oil|baby powder|baby wipe|baby toothpaste|baby toothbrush|floatie|infant formula|baby formula|follow.?up formula|stage\s*[123]\s+formula|newborn formula|milk powder(?!.*protein)|baby bib|burp cloth|baby bottle|baby nipple|pacifier|teether|baby swim|baby float|diaper|기저귀|아기로션|물티슈(?!.*일반)|젖병|분유|유아용|신생아|아기|베이비|아동용/i },
@@ -109,7 +125,7 @@ const RULES = [
   // Home Interior — seat cushion/방석 추가
   { type:"Home & Living > Home & Interior",
     rx:/인테리어|가구|seat cushion|chair cushion|sofa cushion|방석|소파 쿠션|의자 쿠션|쿠션 커버|수납|담요|홈데코|blind|roller screen|artificial tree|stool|shoe horn|organizer|storage box|hook|hanger(?!.*clothes)|걸이|행거/i },
-  { type:"Flowers & Gifts",  rx:/비누꽃|조화|프리저브드|soap flower|꽃다발|bouquet|선물세트|gift set/i },
+  { type:"Flowers & Gifts",  rx:/비누꽃|조화|프리저브드|soap flower|꽃다발|\bbouquet\b|선물세트|gift set|peony|preserved flower|flower.*arrangement|arrangement.*flower/i },
   { type:"$1 Bakery",        rx:/\$1.*bakery|\$1.*korea|1달러.*베이커리/i },
 ];
 
@@ -152,6 +168,17 @@ function isMaskPackText(text="") {
 function ruleClassify(title="", tags="") {
   const text = `${title} ${tags}`.trim();
   const lower = text.toLowerCase();
+
+  // 0-1. 뷰티 브랜드 — 다른 키워드보다 먼저 (오분류 90% 방지)
+  if (/huxley|dr\.bio|some by mi|somebymi|\bklairs\b|axis.?y|dr\.jart|jungsaemmul|papa recipe|torriden|tori.?dden|round lab|roundlab|skin1004|\banua\b|\bcosrx\b|mediheal|\bdalba\b|innisfree|laneige|sulwhasoo|etude/i.test(text)) {
+    // 브랜드 제품인데 Hair Care 키워드가 있으면 Hair Care
+    if (/shampoo|conditioner|hair mask|scalp|샴푸|컨디셔너|헤어/i.test(text))
+      return { type: "Beauty > Hair Care", src: "rule-brand-hair" };
+    // Sun Care
+    if (/\bspf\b|sunscreen|sun cream|sun stick/i.test(text))
+      return { type: "Beauty > Sun Care", src: "rule-brand-sun" };
+    return { type: "Beauty > Skincare", src: "rule-brand" };
+  }
 
   // 0. Baby 먼저 (분유 등 milk powder가 food로 빠지는 문제 방지)
   if (/\bbaby\b|\binfant\b|\bnewborn\b|\btoddler\b|infant formula|baby formula|stage.{0,5}formula|stick formula|분유|아기|유아|신생아|베이비/.test(lower)) {
@@ -199,6 +226,8 @@ const OTHER_RESCUE_RULES = [
   // Snacks fallback — 스낵바/에너지바/쌀과자/누룽지칩 포함
   { type:"Korean Food > Snacks & Chips",
     rx:/\bcracker\b|\bbiscuit\b|\bcookie\b|\bsnack\b|\bgum\b|chewing gum|캔디|과자|비스킷|스낵바|에너지바|쌀과자|누룽지칩/i },
+  { type:"Home & Living > Household Supplies",
+    rx:/detergent|laundry|fabric softener|scrubber|수세미|dish soap|toothbrush|toothpaste|dental|mouthwash|oral.?b|세탁|치약|칫솔|구강/i },
   { type:"Home & Living > Home & Interior",
     rx:/organizer|storage|hook|hanger|adhesive|curtain|rod|\brack\b|\bbasket\b|container|bathroom accessory|sink accessory|수납|정리함|걸이|행거/i },
   { type:"Automotive",
