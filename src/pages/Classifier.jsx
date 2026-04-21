@@ -896,14 +896,14 @@ function getVariantPreview(product) {
 
 function downloadCSV(rawRows, headers, resultMap, applyPrice, translateOptions=false) {
   // ── 재고 컬럼 완전 제외 (Shopify 재고 초기화 방지) ───────────────────────
-  const SKIP_COLS = new Set([
-    "Variant Inventory Tracker",
-    "Variant Inventory Policy","Variant Fulfillment Service",
-    // Qty는 제거하지 않고 999로 채움 (솔드아웃 방지)
-  ]);
+  // 재고 컬럼 포함 — StoreBot 수량 그대로 사용
+  // Qty: StoreBot 원본값 유지 / Tracker·Policy·Fulfillment는 명시적으로 설정
+  const SKIP_COLS = new Set([]);
   const keepIdx = headers.map((h,i)=>SKIP_COLS.has(h)?-1:i).filter(i=>i>=0);
   const filteredHeaders = keepIdx.map(i=>headers[i]);
-  const invQtyIdx = headers.indexOf("Variant Inventory Qty");
+  const invTrackerIdx  = headers.indexOf("Variant Inventory Tracker");
+  const invPolicyIdx   = headers.indexOf("Variant Inventory Policy");
+  const invFulfillIdx  = headers.indexOf("Variant Fulfillment Service");
 
   // ── 인덱스 (원본 headers 기준) ───────────────────────────────────────────
   const idx = {
@@ -1002,9 +1002,13 @@ function downloadCSV(rawRows, headers, resultMap, applyPrice, translateOptions=f
     // ── 필터된 행 출력 ────────────────────────────────────────────────────
     const filteredRow = keepIdx.map(i=>nr[i]);
     if(applyPrice&&newPi>=0&&varSuggested) filteredRow[newPi]=varSuggested;
-    // Inventory Qty → 999 (솔드아웃 방지)
-    const filtQtyIdx = keepIdx.indexOf(invQtyIdx);
-    if(filtQtyIdx>=0) filteredRow[filtQtyIdx]="999";
+    // 재고 tracker/policy/fulfillment 명시적 설정 (Qty는 StoreBot 원본값 유지)
+    const filtTrackerIdx = keepIdx.indexOf(invTrackerIdx);
+    const filtPolicyIdx  = keepIdx.indexOf(invPolicyIdx);
+    const filtFulfillIdx = keepIdx.indexOf(invFulfillIdx);
+    if(filtTrackerIdx>=0) filteredRow[filtTrackerIdx] = "shopify";
+    if(filtPolicyIdx>=0)  filteredRow[filtPolicyIdx]  = "deny";
+    if(filtFulfillIdx>=0) filteredRow[filtFulfillIdx] = "manual";
 
     return [
       ...filteredRow,
