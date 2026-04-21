@@ -75,7 +75,7 @@ const RULES = [
 
   // Health — protein bar 포함, energy bar 포함
   { type:"Korean Food > Health & Supplements",
-    rx:/vitamin|비타민|probiotics|유산균|protein powder|protein|프로틴|단백질 파우더|protein bar|energy bar|granola bar|collagen(?!.*cream|.*serum)|콜라겐(?!.*크림|.*세럼)|red ginseng|홍삼|omega\s*3?|오메가\s*3?|arginine|아르기닌|루테인|영양제|보충제|honey stick|honey jelly|홍삼스틱|건강젤리|health jelly|health supplement|diet supplement/i },
+    rx:/vitamin|비타민|probiotics|유산균|protein powder|protein\b(?!.*shampoo|.*conditioner|.*hair.*color|.*dye|.*hair.*treatment)|프로틴|단백질 파우더|protein bar|energy bar|granola bar|collagen(?!.*cream|.*serum|.*eye|.*foundation|.*mask|.*cleanser|.*lotion|.*toner|.*ampoule|.*mist|.*foam)|콜라겐(?!.*크림|.*세럼|.*아이|.*파운|.*마스크|.*클렌)|red ginseng|홍삼|omega\s*3?|오메가\s*3?|arginine|아르기닌|루테인|영양제|보충제|honey stick|honey jelly|홍삼스틱|건강젤리|health jelly|health supplement|diet supplement/i },
 
   // Sauces
   { type:"Korean Food > Sauces & Condiments",
@@ -117,7 +117,7 @@ const RULES = [
   { type:"Sports & Outdoors > Outdoor & Camping",     rx:/텐트|침낭|캠핑|랜턴(?!.*무드)|camping|sleeping bag/i },
   { type:"Sports & Outdoors > Exercise & Fitness",    rx:/dumbbell|yoga mat|resistance band|pilates|덤벨|요가|필라테스|운동밴드|폼롤러/i },
   { type:"Home & Living > Kitchenware",
-    rx:/frying pan|rice cooker|kitchen knife|chopsticks?|cutting board|냄비|프라이팬|도마|주방칼|밀폐용기|락앤락|주전자|젓가락|tableware|강판|그라인더/i },
+    rx:/frying pan|rice cooker|kitchen knife|chopsticks?\b|cutting board|\bpasta bowl\b|ceramic.*bowl|melamine.*bowl|\bceramic.*dish\b|tableware|냄비|프라이팬|도마|주방칼|밀폐용기|락앤락|주전자|젓가락|강판|그라인더|그릇\b/i },
   { type:"Home & Living > Household Supplies",
     rx:/laundry detergent|dish soap|toilet paper|trash can|waste bin|tissue|wet wipe(?!.*car)|floor mat|bath mat|doormat|non-slip|sealant|cable tie|cleaner|세제(?!.*헤어)|섬유유연제|주방세제|화장지|청소포|탈취|쓰레기통|휴지통|매트/i },
   // Home Interior — seat cushion/방석 추가
@@ -137,8 +137,16 @@ const BLOCK_RULES = [
     rx:/\bsauce\b|\bfood\b|ramen|snack|cake(?!.*face|.*pack)|pie\b|bread|kimchi|\bsoup\b|\bstock\b(?!.*ings)|cooking|baking|seasoning|detergent|laundry|kitchen|utensil/i },
   { block:"Korean Food > Fresh Produce",
     rx:/chips|snack|jelly|porridge|cake|pie|cookie|cracker|\bdrink\b|\bjuice\b(?!.*lemon)|roasted|dried(?!.*herb)|frozen(?!.*vegetable|.*veggie|.*veg\b)|instant/i },
+  // Packaged Foods에서 그릇/식기/차 차단
+  { block:"Korean Food > Packaged Foods",
+    rx:/\bbowl\b(?!.*soup|.*rice|.*porridge)|pasta bowl|ceramic.*dish|melamine.*bowl|soup bowl(?!.*soup mix)|\btea\b(?!.*bag.*soup|.*base)|barley tea|corn tea|green tea|herbal tea/i },
   { block:"Korean Food > Sauces & Condiments",
     rx:/grinder|cutter|chopper|tool|utensil|machine|device|maker/i },
+  { block:"Korean Food > Health & Supplements",
+    rx:/capsule detergent|laundry capsule|detergent.*capsule|capsule.*laundry|fabric.*capsule|세탁.*캡슐|캡슐.*세탁|세제.*캡슐|fabric softener/i },
+  // oil 키워드가 있어도 헤어/스킨케어/보충제면 Sauces 차단
+  { block:"Korean Food > Sauces & Condiments",
+    rx:/hair oil|cleansing oil|body oil|oil-free|oil free|oil-in|argan oil|baobab oil|mct oil|hemp.*oil|fish oil(?!.*sauce)|krill oil|softgel|capsule(?!.*detergent)|oil.*hair|oil.*essence.*hair|oil.*serum|marker|pen|stationery|detergent|lotion|moisturi/i },
 ];
 
 function isBlocked(type, text) {
@@ -168,13 +176,57 @@ function ruleClassify(title="", tags="") {
   const lower = text.toLowerCase();
 
   // 0-0. 명확한 충돌 케이스 먼저 해결
-  // perfume + shampoo/hair → Hair Care (향수 샴푸 오염 방지)
+
+  // ① all-in-one + 세제/세탁 → Household (Skincare 오염 방지 최우선)
+  if (/all.in.one/i.test(lower) && /detergent|laundry|capsule.*wash|fabric|세제|세탁/i.test(lower)) {
+    return { type: "Home & Living > Household Supplies", src: "rule-aio-detergent" };
+  }
+  // ② all-in-one + 주방도구/슬라이서 → Kitchenware
+  if (/all.in.one/i.test(lower) && /slicer|chopper|mandoline|kitchen.*tool|주방/i.test(lower)) {
+    return { type: "Home & Living > Kitchenware", src: "rule-aio-kitchen" };
+  }
+  // ③ all-in-one + 문구/stationery → Stationery
+  if (/all.in.one/i.test(lower) && /pencil|stationery|pen.*set|문구/i.test(lower)) {
+    return { type: "Stationery & Office", src: "rule-aio-stationery" };
+  }
+  // ④ all-in-one + 골프/스포츠 → Sports
+  if (/all.in.one/i.test(lower) && /golf|pouch|bag.*sport|waterproof.*bag/i.test(lower)) {
+    return { type: "Sports & Outdoors > Golf", src: "rule-aio-golf" };
+  }
+  // ⑤ all-in-one + 비타민/면역/건강보조 → Health
+  if (/all.in.one/i.test(lower) && /vitamin|multivitamin|immune|supplement|tablet|capsule/i.test(lower) && !/detergent|laundry|fabric/i.test(lower)) {
+    return { type: "Korean Food > Health & Supplements", src: "rule-aio-health" };
+  }
+
+  // ⑥ perfume + detergent/laundry/capsule세제 → Household (Fragrance 오염 방지)
+  if (/perfume/i.test(lower) && /detergent|laundry|capsule.*clean|세제|세탁|fabric/i.test(lower)) {
+    return { type: "Home & Living > Household Supplies", src: "rule-perfume-detergent" };
+  }
+  // ⑦ perfume + shampoo/conditioner/hair → Hair Care
   if (/perfume/i.test(lower) && /shampoo|conditioner|\bhair\b/i.test(lower)) {
     return { type: "Beauty > Hair Care", src: "rule-perfume-hair" };
   }
-  // body mist → Fragrance
+  // ⑧ body mist → Fragrance (hair 제외)
   if (/\bbody mist\b/i.test(lower) && !/hair/i.test(lower)) {
     return { type: "Beauty > Fragrance", src: "rule-body-mist" };
+  }
+
+  // ⑨ BB cream / CC cream + SPF → Skincare (Sun Care 아님)
+  if (/\bbb cream\b|\bcc cream\b/i.test(lower)) {
+    return { type: "Beauty > Skincare", src: "rule-bb-cream" };
+  }
+  // ⑩ sunglasses / goggles → Accessories (Sun Care 아님)
+  if (/sunglasses|\bgoggles\b|선글라스/i.test(lower)) {
+    return { type: "Fashion > Accessories", src: "rule-sunglasses" };
+  }
+
+  // ⑪ car + visor/mirror/dashboard → Automotive
+  if (/\bcar\b|차량용/i.test(lower) && /visor|mirror|dashboard|suction/i.test(lower)) {
+    return { type: "Automotive", src: "rule-car" };
+  }
+  // ⑫ noodle bowl / ramen bowl → Kitchenware (Ramen & Noodles 아님)
+  if (/noodle.*bowl|ramen.*bowl|\bbowl set\b|bone china.*bowl|ceramic.*bowl|melamine.*bowl/i.test(lower)) {
+    return { type: "Home & Living > Kitchenware", src: "rule-noodle-bowl" };
   }
   // tteokbokki / rice cake spicy → Packaged (snack으로 빠지는 것 강제 차단)
   if (/tteokbokki|떡볶이|rice cake.*spicy|spicy.*rice cake|korean rice cake/i.test(lower)) {
@@ -1035,6 +1087,9 @@ function finalFallback(title="", tags="") {
   if (/infant formula|baby formula|follow.?up formula|newborn formula|stage.{0,5}formula|stick formula|milk powder(?!.*protein)/.test(t)) return "Baby & Kids > Baby Care";
   if (/\bbaby\b|\binfant\b|\btoddler\b|diaper|baby bib|burp cloth|pacifier|teether|baby bottle|baby swim|swim float|아기|유아|분유|기저귀|베이비/.test(t)) return "Baby & Kids > Baby Care";
   if (/frozen.*veg|frozen.*mix.*veg|mixed.*frozen.*veg|냉동.*야채|냉동.*채소|냉동.*믹스/.test(t)) return "Korean Food > Packaged Foods";
+  if (/frozen.*seafood|seafood.*frozen|assorted.*seafood|frozen.*shrimp|frozen.*clam/.test(t)) return "Korean Food > Packaged Foods";
+  if (/thermal.*mist|spring water.*mist|avene.*mist|moisture.*mist|soothing.*mist|hydrating.*mist|ampoule.*mist/.test(t)) return "Beauty > Skincare";
+  if (/black soybean|seoritae|서리태|검정콩/.test(t)) return "Korean Food > Fresh Produce";
   // 염색약
   if (/hair dye|hair color|bleach|염색약|염모제|탈색제/.test(t)) return "Beauty > Hair Care";
   if (/shampoo|conditioner|treatment|hair mask|rinse|샴푸|헤어/.test(t)) return "Beauty > Hair Care";
