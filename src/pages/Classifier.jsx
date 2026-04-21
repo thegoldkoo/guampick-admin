@@ -318,11 +318,87 @@ function hasKorean(text="") { return /[가-힣]/.test(String(text)); }
 function nws(text="") { return String(text).replace(/\s+/g," ").trim(); }
 
 function translateOptName(name="") { return OPTION_NAME_MAP[nws(name)] || nws(name); }
+// 단위 번역 (옵션값 전용)
+const UNIT_MAP_OPT = {
+  "정":"Tablet","캡슐":"Capsule","포":"Pouch","팩":"Pack",
+  "병":"Bottle","캔":"Can","봉":"Bag","박스":"Box",
+  "개":"Piece","세트":"Set","매":"Sheet","장":"Sheet","회분":"Serving",
+};
+const COLOR_KR_MAP = {
+  "라이트베이지":"Light Beige","뉴트럴베이지":"Neutral Beige","내추럴베이지":"Natural Beige",
+  "아이보리":"Ivory","베이지":"Beige","핑크베이지":"Pink Beige","쿨베이지":"Cool Beige",
+  "웜베이지":"Warm Beige","샌드베이지":"Sand Beige","베어":"Bear","코튼":"Cotton",
+  "라이트":"Light","내추럴":"Natural","뉴트럴":"Neutral","글로우":"Glow",
+  "러블리":"Lovely","클리어":"Clear","쿨":"Cool","웜":"Warm",
+};
+
+function tuOpt(num, unit) {
+  const en = UNIT_MAP_OPT[unit];
+  if (!en) return num + unit;
+  const n = parseInt(num, 10);
+  return `${num} ${n > 1 ? en + "s" : en}`;
+}
+
 function translateOptVal(value="") {
-  let c = nws(value);
+  const c = nws(value);
   if (OPTION_VALUE_MAP[c]) return OPTION_VALUE_MAP[c];
-  c = c.replace(/^(\d+)\s*개$/, (_, n) => `${n} ${n==="1"?"Piece":"Pieces"}`);
-  c = c.replace(/^(\d+)\s*개입$/, "$1 Pack");
+  const t = c;
+  let m;
+
+  m = t.match(/^(\d+)세트$/);
+  if (m) return m[1] + (parseInt(m[1])>1?" Sets":" Set");
+
+  m = t.match(/^기저귀\s+(\d+)단계\s+(\d+)매$/);
+  if (m) return `Diaper Size ${m[1]}, ${m[2]} Sheets`;
+
+  m = t.match(/^기저귀\s+(신생아|소형|초소형)\s+(\d+)매$/);
+  if (m) return `Diaper Newborn, ${m[2]} Sheets`;
+
+  m = t.match(/^(\d+)단계\(조산아전용\)\s*[×x*]\s*(\d+)\s*개입?$/);
+  if (m) return `Newborn Size (Preemie), ${m[2]} Pack${parseInt(m[2])>1?"s":""}`;
+
+  m = t.match(/^(\d+)단계\s*[×x*]\s*(\d+)\s*매$/);
+  if (m) return `Size ${m[1]}, ${m[2]} Sheets`;
+
+  m = t.match(/^(\d+)단계$/);
+  if (m) return `Size ${m[1]}`;
+
+  m = t.match(/^(\d+)\s*매\s*[×x*]\s*(\d+)\s*개입?$/);
+  if (m) return `${m[1]} Sheets, ${m[2]} Pack${parseInt(m[2])>1?"s":""}`;
+
+  m = t.match(/^\(상\)\s*(.+)$/);
+  if (m) return "(Grade A) " + translateOptVal(m[1]);
+
+  m = t.match(/^(\d+(?:\.\d+)?(?:ml|g|kg|l|mg))\s*[×x*]\s*(\d+)\s*박스$/i);
+  if (m) return `${m[1]}, ${m[2]} Box${parseInt(m[2])>1?"es":""}`;
+
+  m = t.match(/^(\d+)\s*회분\s*[×x*]\s*(\d+)\s*박스$/);
+  if (m) return `${m[1]} Servings, ${m[2]} Box${parseInt(m[2])>1?"es":""}`;
+
+  m = t.match(/^(\d+(?:\.\d+)?(?:ml|g|kg|l|mg))\s*[×x*]\s*(\d+)\s*(봉|포|병|캔|팩)$/i);
+  if (m) { const ue=UNIT_MAP_OPT[m[3]]||m[3]; const n=parseInt(m[2]); return `${m[1]}, ${m[2]} ${n>1?ue+"s":ue}`; }
+
+  m = t.match(/^(\d+)\s*(정|캡슐|포)\s*[×x*]\s*(\d+)\s*개입?$/);
+  if (m) return tuOpt(m[1],m[2]) + `, ${m[3]} Pack${parseInt(m[3])>1?"s":""}`;
+
+  m = t.match(/^(\d{2})\s*([가-힣]+)\s*[×x*]\s*(\d+)\s*(개|세트)입?$/);
+  if (m) { const enC=COLOR_KR_MAP[m[2]]||m[2]; const ue=UNIT_MAP_OPT[m[4]]||m[4]; const n=parseInt(m[3]); return `${m[1]} ${enC}, ${m[3]} ${n>1?ue+"s":ue}`; }
+
+  m = t.match(/^(\d{2})\s+([가-힣]+)\s*[×x*]\s*(\d+)\s*세트$/);
+  if (m) { const n=parseInt(m[3]); return `${m[1]} ${COLOR_KR_MAP[m[2]]||m[2]}, ${m[3]} Set${n>1?"s":""}`; }
+
+  m = t.match(/^(\d+(?:\.\d+)?(?:ml|g|kg|l|mg))\s*[×x*]\s*(\d+)\s*개입?$/i);
+  if (m) return `${m[1]}, ${m[2]} Pack${parseInt(m[2])>1?"s":""}`;
+
+  m = t.match(/^(\d+)\s*(정|캡슐|포|병|캔|봉|박스|매|장)$/);
+  if (m) return tuOpt(m[1],m[2]);
+
+  m = t.match(/^(\d+)\s*개입$/);
+  if (m) return m[1] + " Pack" + (parseInt(m[1])>1?"s":"");
+
+  m = t.match(/^(\d+)\s*개$/);
+  if (m) return m[1] + (parseInt(m[1])>1?" Pieces":" Piece");
+
   return c;
 }
 function dedupeArr(arr=[]) { return [...new Set(arr.map(v=>nws(v)).filter(Boolean))]; }
