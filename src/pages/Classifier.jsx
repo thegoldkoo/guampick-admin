@@ -21,6 +21,14 @@ const TYPES = [
 // ── Rule-based classifier (우선순위 가이드 기준) ──────────────────────────────
 // 순서: Snacks/Packaged/Bakery/Health 먼저 → Fresh Produce 나중 (재료명 오분류 방지)
 const RULES = [
+  // ── 뷰티 우선 차단 (식품 오분류 방지) ────────────────────────────────
+  { type:"Beauty > Hair Care",
+    rx:/hair oil|hair essence|hair serum|hair mist|scalp tonic|hair dye|hair color|hair bleach|hair perm|헤어 오일|헤어 에센스|헤어 세럼|두피 토닉|헤어다이|헤어컬러/i },
+  { type:"Beauty > Skincare",
+    rx:/foundation(?!.*sauce)|cushion foundation|bb cream|cc cream|makeup base|tone up cream|sun cushion|파운데이션|쿠션 파운데이션|베이스 메이크업/i },
+  // ── Kitchenware (Sauces보다 먼저 — grinder/chopper 오분류 방지) ──────
+  { type:"Home & Living > Kitchenware",
+    rx:/grinder|pepper mill|salt grinder|chopper|peeler|slicer|kitchen tool|utensil|garlic press|가위형 커터|다지기|채칼/i },
   // ── Korean Food ───────────────────────────────────────────────────────
   { type:"Korean Food > Kimchi",
     rx:/kimchi|kimchee|김치|깍두기|kkakdugi|총각김치|열무김치|동치미|백김치/i },
@@ -53,7 +61,7 @@ const RULES = [
 
   // ── Beauty ────────────────────────────────────────────────────────────
   { type:"Beauty > Sun Care",
-    rx:/sunscreen|sun cream|sunblock|\bspf\b|uv protection|선크림|선블록|자외선차단/i },
+    rx:/sunscreen|sun cream|sunblock|sun cushion|\bspf\b|uv protection|uv shield|선크림|선블록|자외선차단|선쿠션/i },
   { type:"Beauty > Mask Packs",
     rx:/sheet mask|sleeping mask|clay mask|nose pack|modeling pack|마스크팩|시트마스크|슬리핑마스크|클레이마스크|코팩|모델링팩/i },
   { type:"Beauty > Hair Care",
@@ -65,7 +73,7 @@ const RULES = [
   { type:"Beauty > Skincare",
     rx:/face cleanser|cleanser(?!.*powder|.*food)|foam cleanser|face toner|toner(?!.*food)|face serum|serum(?!.*hair|.*food)|\bgel lotion\b|겔로션|moisturizer(?!.*food)|all-in-one(?!.*food)|facial cream(?!.*cake|.*food)|cream(?!.*body|.*cake|.*ice|.*pie|.*food|.*치즈|.*크림빵)|face lotion|ampoule(?!.*food)|facial essence(?!.*cooking|.*food)|essence(?!.*hair|.*cooking|.*food|.*vanilla|.*lemon|.*almond|.*mint|.*extract|.*oil|.*flavor|.*요리|.*식품|.*향신)|\bsoothing pads?\b|진정패드|\btrouble pads?\b|\bacne pads?\b|lipstick|lip color|lip tint|lip gloss|eye shadow|eyeshadow|eyeliner|mascara|foundation(?!.*sauce)|primer(?!.*food)|concealer|\bpact\b|contour|shading\b|highlighter|blush|blusher|makeup|lip stick|bb cream|cc cream|skin care(?!.*hair|.*sunscreen)|dokdo|round lab|dalba|mediheal|skin1004|anua|torriden|tori.?dden|cosrx|innisfree|etude|laneige|sulwhasoo|클렌저|폼클렌징|토너|앰플|세럼(?!.*헤어)|에센스(?!.*헤어|.*요리|.*식품)|수분크림|아이크림|비비크림|쿠션(?!.*방석)|파운데이션|미스트(?!.*헤어|.*car)|립스틱|틴트|아이섀도|마스카라|컨실러/i },
   // ── Baby & Kids ───────────────────────────────────────────────────────
-  { type:"Baby & Kids > Baby Care",   rx:/diaper|baby lotion|baby shampoo|baby wipe|floatie|기저귀|아기로션|물티슈(?!.*일반)|젖병/i },
+  { type:"Baby & Kids > Baby Care",   rx:/diaper|baby lotion|baby shampoo|baby wipe|floatie|infant formula|baby formula|follow.?up formula|stage\s*[123]\s+formula|newborn formula|milk powder(?!.*protein)|baby bib|burp cloth|baby bottle|baby nipple|pacifier|teether|baby swim|baby float|기저귀|아기로션|물티슈(?!.*일반)|젖병|분유|유아용|신생아|아기/i },
   { type:"Baby & Kids > Toys & Games",rx:/장난감|블록(?!.*수납)|퍼즐(?!.*성인)|보드게임|toy|building block|coloring book/i },
   { type:"Pet Supplies",              rx:/dog food|cat food|dog treat|pet food|강아지사료|고양이사료|반려동물|펫푸드|강아지간식/i },
   { type:"Stationery & Office",
@@ -128,6 +136,8 @@ function ruleClassify(title="", tags="") {
 const OTHER_RESCUE_RULES = [
   { type:"Korean Food > Sauces & Condiments",
     rx:/teriyaki|tartare|dashida|다시다|\bstock\b(?!.*market)|bouillon|chipotle|yeondu|youndoo|worcestershire|hoisin|ponzu|mirin|미림|간장소스|양념간장|cooking sauce|dipping sauce|dippin/i },
+  { type:"Beauty > Hair Care",
+    rx:/shampoo|conditioner|treatment|hair mask|hair pack|hair dye|hair color|rinse|scalp shampoo|헤어팩|트리트먼트|컨디셔너|샴푸/i },
   { type:"Beauty > Skincare",
     rx:/mascara|foundation|primer|concealer|compact powder|\bpact\b|lip tint|\btint\b|makeup base|eye shadow|eyeshadow|palette|blusher|cleansing foam|cleansing oil|peeling gel|soothing gel|gel cream|\bpad\b|\bpatch\b|mask pack|팩|틴트|마스카라|파운데이션/i },
   { type:"Korean Food > Health & Supplements",
@@ -288,16 +298,18 @@ const OPTION_VALUE_MAP = {
   "파랑":"Blue","블루":"Blue","초록":"Green","그린":"Green","노랑":"Yellow","옐로우":"Yellow",
   "분홍":"Pink","핑크":"Pink","회색":"Gray","그레이":"Gray","갈색":"Brown","브라운":"Brown",
   "보라":"Purple","퍼플":"Purple","베이지":"Beige","네이비":"Navy","민트":"Mint","오렌지":"Orange",
+  "하늘색":"Sky Blue","금색":"Gold","골드":"Gold","은색":"Silver","실버":"Silver",
   // Sizes
-  "소":"Small","중":"Medium","대":"Large","특대":"X-Large","특소":"X-Small",
-  "대용량":"Large Size","소용량":"Small Size",
+  "소":"Small","소형":"Small","중":"Medium","중형":"Medium","대":"Large","대형":"Large",
+  "특대":"X-Large","특소":"X-Small","대용량":"Large Size","소용량":"Small Size",
   // Flavors
   "매운맛":"Spicy","순한맛":"Mild","오리지널":"Original","기본":"Basic","혼합":"Mixed",
+  "달콤한":"Sweet","짭짤한":"Savory","새콤한":"Tangy",
   // Storage
   "냉동":"Frozen","냉장":"Chilled","실온":"Room Temperature",
   // Product types
   "본품":"Main Product","리필":"Refill","단품":"Single Item","세트":"Set","1+1":"Buy 1 Get 1",
-  "증정품":"Gift Item","샘플":"Sample","패키지":"Package",
+  "증정품":"Gift Item","샘플":"Sample","패키지":"Package","선물세트":"Gift Set",
   // Misc
   "없음":"None","기타":"Other","선택":"Select",
 };
@@ -503,21 +515,36 @@ function calcShipping(kg) { return Math.ceil(Math.max(kg, 0.1)) * 3; }
 
 // variant 행의 옵션값에서 수량 추출 (예: "3개입" → 3, "12 Pack" → 12)
 function extractQtyFromOption(val="") {
-  const s = String(val).trim();
+  const s = String(val).trim().toLowerCase();
 
-  // "50ml × 3개", "280g × 2개"
-  let m = s.match(/[×x\*]\s*(\d+)\s*개/i);
+  let m = s.match(/[×x*]\s*(\d+)\s*개/);
   if (m) return parseInt(m[1], 10);
 
-  // "130g, 12개"
-  m = s.match(/,\s*(\d+)\s*개/i);
+  m = s.match(/,\s*(\d+)\s*개/);
   if (m) return parseInt(m[1], 10);
 
-  // "12개입", "6개입", "6 pack", "3 pieces"
-  m = s.match(/(\d+)\s*개입/i);
+  m = s.match(/(\d+)\s*개입/);
   if (m) return parseInt(m[1], 10);
 
-  m = s.match(/(\d+)\s*(pack|packs|pieces?|set)\b/i);
+  m = s.match(/(\d+)\s*(pack|packs|piece|pieces|set|sets)\b/);
+  if (m) return parseInt(m[1], 10);
+
+  m = s.match(/(?:pack|set|case|bundle)\s+of\s+(\d+)/);
+  if (m) return parseInt(m[1], 10);
+
+  m = s.match(/(\d+)\s*[- ]?count\b/);
+  if (m) return parseInt(m[1], 10);
+
+  m = s.match(/(\d+)\s*pk\b/);
+  if (m) return parseInt(m[1], 10);
+
+  m = s.match(/(\d+)\s*ea\b/);
+  if (m) return parseInt(m[1], 10);
+
+  m = s.match(/qty\s*(\d+)/);
+  if (m) return parseInt(m[1], 10);
+
+  m = s.match(/[x×]\s*(\d+)\b/);
   if (m) return parseInt(m[1], 10);
 
   return 1;
@@ -792,6 +819,25 @@ export default function Classifier() {
 
   const onDrop=(e)=>{e.preventDefault();setDrag(false);const f=e.dataTransfer.files[0];if(f)parseFile(f);};
 
+
+function finalFallback(title="", tags="") {
+  const t = `${title} ${tags}`.toLowerCase();
+  if (/infant formula|baby formula|follow.?up formula|newborn formula|stage.{0,5}formula|stick formula|milk powder/.test(t)) return "Baby & Kids > Baby Care";
+  if (/baby swim|swim float|inflatable.*baby|baby.*float|baby.*tube/.test(t)) return "Baby & Kids > Baby Care";
+  if (/diaper|baby bib|burp cloth|pacifier|teether|baby bottle|baby nipple/.test(t)) return "Baby & Kids > Baby Care";
+  if (/shampoo|conditioner|treatment|hair mask|hair dye|hair color|rinse/.test(t)) return "Beauty > Hair Care";
+  if (/foundation|bb cream|cc cream|cushion|concealer|mascara|lip tint|sun cushion/.test(t)) return "Beauty > Skincare";
+  if (/spf|sunscreen|sun cream|uv protection/.test(t)) return "Beauty > Sun Care";
+  if (/lotion|moisturizer|moisturising|skin care for men|men grooming/.test(t)) return "Beauty > Skincare";
+  if (/sauce|dressing|teriyaki|chipotle|stock|bouillon|dashida/.test(t)) return "Korean Food > Sauces & Condiments";
+  if (/snack|chips|cookie|cracker|candy|gummy|jelly/.test(t)) return "Korean Food > Snacks & Chips";
+  if (/bread|cake|bagel|castella|bakery/.test(t)) return "Korean Food > Bread & Bakery";
+  if (/mix powder|vegetable.*powder|fruit.*blend|superfood/.test(t)) return "Korean Food > Health & Supplements";
+  if (/vitamin|supplement|collagen|probiotic/.test(t)) return "Korean Food > Health & Supplements";
+  if (/apple|orange|kiwi|grape|strawberry|blueberry|mango|cabbage|onion|garlic/.test(t)) return "Korean Food > Fresh Produce";
+  return "Other";
+}
+
   const start=async()=>{
     if(!products.length||running) return;
     setRunning(true); setDone(false); rMapRef.current={}; rArrRef.current=[]; setResults([]); setRMap({});
@@ -912,6 +958,11 @@ export default function Classifier() {
               finalType = nt; p.ruleSrc = "ai-retry";
             }
           } catch(_) {}
+        }
+
+        // 최후 fallback — 여전히 Other이면 키워드 기반 강제 분류
+        if (finalType === "Other") {
+          finalType = finalFallback(p.title, p.tags);
         }
 
         const needsReview = REVIEW_TYPES.has(finalType);
