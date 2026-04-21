@@ -582,7 +582,9 @@ function downloadCSV(rawRows, headers, resultMap, applyPrice, translateOptions=f
         ...(r.brandTags||[]),
         ...(r.tagsEn||[]),
         ...(r.opTags||[]),
-        ...(applyPrice&&varSuggested?["shipping-included"]:[]),
+        ...(applyPrice
+          ? (varSuggested ? ["shipping-included"] : ["shipping-separate"])
+          : [])
       ];
       if(idx.tagi>=0&&extraTags.length) nr[idx.tagi]=mergeTags(row[idx.tagi],extraTags);
 
