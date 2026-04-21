@@ -63,7 +63,7 @@ const RULES = [
   { type:"Beauty > Perfume & Fragrance",
     rx:/eau de parfum|eau de toilette|reed diffuser|body mist(?!.*car)|perfume(?!.*car)|fragrance mist(?!.*car)|향수|퍼퓸|룸 디퓨저/i },
   { type:"Beauty > Skincare",
-    rx:/face cleanser|cleanser|foam cleanser|face toner|toner|face serum|serum(?!.*hair)|\bgel lotion\b|겔로션|moisturizer|all-in-one|facial cream|cream(?!.*body)|face lotion|ampoule|facial essence|essence(?!.*hair)|\bsoothing pads?\b|진정패드|\btrouble pads?\b|\bacne pads?\b|lipstick|lip color|lip tint|lip gloss|eye shadow|eyeshadow|eyeliner|mascara|foundation|primer|concealer|\bpact\b|contour|shading\b|highlighter|blush|blusher|makeup|lip stick|bb cream|cc cream|skin care(?!.*hair|.*sunscreen)|dokdo|round lab|dalba|mediheal|skin1004|anua|torriden|tori.?dden|cosrx|innisfree|etude|laneige|sulwhasoo|클렌저|폼클렌징|토너|앰플|세럼(?!.*헤어)|에센스(?!.*헤어)|수분크림|아이크림|비비크림|쿠션(?!.*방석)|파운데이션|미스트(?!.*헤어|.*car)|립스틱|틴트|아이섀도|마스카라|컨실러/i },
+    rx:/face cleanser|cleanser(?!.*powder|.*food)|foam cleanser|face toner|toner(?!.*food)|face serum|serum(?!.*hair|.*food)|\bgel lotion\b|겔로션|moisturizer(?!.*food)|all-in-one(?!.*food)|facial cream(?!.*cake|.*food)|cream(?!.*body|.*cake|.*ice|.*pie|.*food|.*치즈|.*크림빵)|face lotion|ampoule(?!.*food)|facial essence(?!.*cooking|.*food)|essence(?!.*hair|.*cooking|.*food|.*vanilla|.*lemon|.*almond|.*mint|.*extract|.*oil|.*flavor|.*요리|.*식품|.*향신)|\bsoothing pads?\b|진정패드|\btrouble pads?\b|\bacne pads?\b|lipstick|lip color|lip tint|lip gloss|eye shadow|eyeshadow|eyeliner|mascara|foundation(?!.*sauce)|primer(?!.*food)|concealer|\bpact\b|contour|shading\b|highlighter|blush|blusher|makeup|lip stick|bb cream|cc cream|skin care(?!.*hair|.*sunscreen)|dokdo|round lab|dalba|mediheal|skin1004|anua|torriden|tori.?dden|cosrx|innisfree|etude|laneige|sulwhasoo|클렌저|폼클렌징|토너|앰플|세럼(?!.*헤어)|에센스(?!.*헤어|.*요리|.*식품)|수분크림|아이크림|비비크림|쿠션(?!.*방석)|파운데이션|미스트(?!.*헤어|.*car)|립스틱|틴트|아이섀도|마스카라|컨실러/i },
   // ── Baby & Kids ───────────────────────────────────────────────────────
   { type:"Baby & Kids > Baby Care",   rx:/diaper|baby lotion|baby shampoo|baby wipe|floatie|기저귀|아기로션|물티슈(?!.*일반)|젖병/i },
   { type:"Baby & Kids > Toys & Games",rx:/장난감|블록(?!.*수납)|퍼즐(?!.*성인)|보드게임|toy|building block|coloring book/i },
@@ -83,7 +83,7 @@ const RULES = [
   { type:"Sports & Outdoors > Outdoor & Camping",     rx:/텐트|침낭|캠핑|랜턴(?!.*무드)|camping|sleeping bag/i },
   { type:"Sports & Outdoors > Exercise & Fitness",    rx:/dumbbell|yoga mat|resistance band|pilates|덤벨|요가|필라테스|운동밴드|폼롤러/i },
   { type:"Home & Living > Kitchenware",
-    rx:/frying pan|rice cooker|kitchen knife|chopsticks?\b|cutting board|냄비|프라이팬|도마|주방칼|밀폐용기|락앤락|주전자|젓가락|tableware/i },
+    rx:/frying pan|rice cooker|kitchen knife|chopsticks?\\b|cutting board|grinder|cutter(?!.*paper)|chopper|peeler|slicer|kitchen tool|utensil|냄비|프라이팬|도마|주방칼|밀폐용기|락앤락|주전자|젓가락|tableware|강판|채칼|필러|그라인더/i },
   { type:"Home & Living > Household Supplies",
     rx:/laundry detergent|dish soap|toilet paper|trash can|waste bin|tissue|wet wipe(?!.*car)|floor mat|bath mat|doormat|non-slip|sealant|cable tie|cleaner|세제(?!.*헤어)|섬유유연제|주방세제|화장지|청소포|탈취|쓰레기통|휴지통|매트\b/i },
   { type:"Home & Living > Home & Interior",
@@ -94,17 +94,40 @@ const RULES = [
 
 const FOOD_W = /(\d+(?:\.\d+)?)\s*(g|ml)\s*[,，x×*]\s*(\d+)\s*(개|팩|봉|캔|병|박스|세트)?/i;
 
-// 분류용 — FOOD_W와 완전히 분리, tags도 같이 검사
+// ── 절대 우선 차단 (카테고리 오염 방지) ─────────────────────────────────────
+const BLOCK_RULES = [
+  // Beauty > Skincare에 음식 키워드 차단
+  { block:"Beauty > Skincare",
+    rx:/\bsauce\b|\bfood\b|ramen|snack|cake(?!.*face|.*pack)|pie\b|bread|kimchi|\bsoup\b|\bstock\b(?!.*ings)|cooking|baking|seasoning/i },
+  // Fresh Produce에 가공식품 차단
+  { block:"Korean Food > Fresh Produce",
+    rx:/chips|snack|jelly|porridge|cake|pie|cookie|cracker|\bdrink\b|\bjuice\b(?!.*lemon)|roasted|dried(?!.*herb)|frozen|instant/i },
+  // Sauces에 도구/기기 차단
+  { block:"Korean Food > Sauces & Condiments",
+    rx:/grinder|cutter|chopper|tool|utensil|machine|device|maker/i },
+];
+
+function isBlocked(type, text) {
+  return BLOCK_RULES.some(b => b.block === type && b.rx.test(text));
+}
+
+// 분류용 — tags도 같이 검사, 블록 룰 적용
 function ruleClassify(title="", tags="") {
   const text = `${title} ${tags}`.trim();
   for (const rule of RULES) {
-    if (rule.rx.test(text)) return { type: rule.type, src: "rule" };
+    if (rule.rx.test(text)) {
+      if (!isBlocked(rule.type, text)) {
+        return { type: rule.type, src: "rule" };
+      }
+    }
   }
   return null;
 }
 
 // ── 2차 Rescue Rules (Other 줄이기 전용) ────────────────────────────────────
 const OTHER_RESCUE_RULES = [
+  { type:"Korean Food > Sauces & Condiments",
+    rx:/teriyaki|tartare|dashida|다시다|\bstock\b(?!.*market)|bouillon|chipotle|yeondu|youndoo|worcestershire|hoisin|ponzu|mirin|미림|간장소스|양념간장|cooking sauce|dipping sauce|dippin/i },
   { type:"Beauty > Skincare",
     rx:/mascara|foundation|primer|concealer|compact powder|\bpact\b|lip tint|\btint\b|makeup base|eye shadow|eyeshadow|palette|blusher|cleansing foam|cleansing oil|peeling gel|soothing gel|gel cream|\bpad\b|\bpatch\b|mask pack|팩|틴트|마스카라|파운데이션/i },
   { type:"Korean Food > Health & Supplements",
@@ -389,7 +412,9 @@ function detectTemp(title="", type="") {
 
 function detectShip(weightKg=0, title="", type="") {
   const t = _nt(`${title} ${type}`);
-  if (weightKg > 3 || /bulk|box\b|detergent|toilet paper|washer fluid/.test(t)) return "ship:bulky";
+  if (weightKg > 5 || /bulk|box\b|detergent|toilet paper|washer fluid/.test(t)) return "ship:avoid";
+  if (weightKg > 3) return "ship:bulky";
+  if (weightKg < 0.3) return "ship:super_light";
   if (weightKg <= 0.35) return "ship:light";
   if (weightKg <= 1.0)  return "ship:medium";
   if (weightKg <= 3.0)  return "ship:heavy";
@@ -436,14 +461,41 @@ function detectReview(product) {
   return "review:auto";
 }
 
+// 판매 관련 태그 (매출 직결)
+function detectSalesTags(product) {
+  const t = _nt(product.titleEn || "");
+  const tags = [];
+  if (/ramen|라면/.test(t))            tags.push("best:ramen");
+  if (/kimchi|김치/.test(t))           tags.push("best:kimchi");
+  if (/snack|chips|cookie/.test(t))    tags.push("best:snack");
+  if (/protein|diet|low.calorie/.test(t)) tags.push("trend:diet");
+  if (/spicy/.test(t))                 tags.push("trend:spicy");
+  if (/korean/.test(t))                tags.push("trend:kfood");
+  if (/bulk|box|family/.test(t))       tags.push("buyer:family");
+  return tags;
+}
+
+// 상품 가치 태그 (원본 태그/타입 기반 — cleanTitle이 premium 제거하므로)
+function detectValue(product) {
+  const type = product.newType || "";
+  const tags = product.tags || "";
+  // 원본 태그에 organic, premium 있으면
+  if (/organic|유기농|친환경/.test(tags)) return "value:premium";
+  if (/health|supplement|홍삼|red ginseng/.test(type)) return "value:premium";
+  if (/\$1|1달러/.test(type)) return "value:budget";
+  return "value:standard";
+}
+
 function generateOperationalTags(product) {
   const tags = new Set();
   _addTag(tags, detectTemp(product.titleEn, product.newType));
   _addTag(tags, detectShip(product.weightKg, product.titleEn, product.newType));
   _addTag(tags, detectPriority(product));
   _addTag(tags, detectReview(product));
+  _addTag(tags, detectValue(product));
   detectTarget(product.titleEn, product.newType, product.tags).forEach(t => _addTag(tags, t));
   detectCategoryDetail(product.newType).forEach(t => _addTag(tags, t));
+  detectSalesTags(product).forEach(t => _addTag(tags, t));
   return [...tags];
 }
 
@@ -503,6 +555,38 @@ function estimateVariantWeight(title="", opt1val="", opt2val="", opt3val="") {
   }
 
   return null;
+}
+
+
+function getVariantPreview(product) {
+  const allV1 = product.opt1vals?.length ? product.opt1vals : [""];
+  const allV2 = product.opt2vals?.length ? product.opt2vals : [""];
+  const allV3 = product.opt3vals?.length ? product.opt3vals : [""];
+
+  let maxWeight = 0.1;
+
+  for (const v1 of allV1) {
+    for (const v2 of allV2) {
+      for (const v3 of allV3) {
+        const w =
+          estimateVariantWeight(product.title || "", v1, v2, v3) ??
+          estimateWeight(product.title || "") ??
+          DEF_W[product.ruleType || product.originalType || ""] ??
+          0.5;
+        if (w > maxWeight) maxWeight = w;
+      }
+    }
+  }
+
+  const shipping = calcShipping(maxWeight);
+  const origPrice = parseFloat(product.price || "0") || 0;
+  const suggested = origPrice > 0 ? (origPrice + shipping).toFixed(2) : null;
+
+  return {
+    previewWeightKg: maxWeight,
+    previewShipping: shipping,
+    previewSuggested: suggested,
+  };
 }
 
 function downloadCSV(rawRows, headers, resultMap, applyPrice, translateOptions=false) {
@@ -713,11 +797,19 @@ export default function Classifier() {
     setRunning(true); setDone(false); rMapRef.current={}; rArrRef.current=[]; setResults([]); setRMap({});
 
     setStatus("⚡ 규칙 기반 분류 중...");
-    const pre=products.map(p=>{
-      const rc=ruleClassify(p.title, p.tags);
-      const wKg=Math.max(estimateWeight(p.title)??(DEF_W[rc?.type]||0.5),0.1);
-      const brandTags=detectBrands(p.title+" "+p.tags);
-      return {...p,ruleType:rc?.type||null,ruleSrc:rc?.src||"ai",weightKg:wKg,brandTags};
+    const pre = products.map(p => {
+      const rc = ruleClassify(p.title, p.tags);
+      const brandTags = detectBrands(p.title + " " + p.tags);
+      const preview = getVariantPreview({ ...p, ruleType: rc?.type || null });
+      return {
+        ...p,
+        ruleType: rc?.type || null,
+        ruleSrc: rc?.src || "ai",
+        weightKg: preview.previewWeightKg,
+        brandTags,
+        previewShipping: preview.previewShipping,
+        previewSuggested: preview.previewSuggested,
+      };
     });
 
     const BATCH=8;
@@ -823,9 +915,9 @@ export default function Classifier() {
         }
 
         const needsReview = REVIEW_TYPES.has(finalType);
-        const shipping=calcShipping(p.weightKg);
-        const origPrice=parseFloat(p.price)||0;
-        const suggested=origPrice>0?(origPrice+shipping).toFixed(2):null;
+        const origPrice = parseFloat(p.price) || 0;
+        const shipping = p.previewShipping ?? calcShipping(p.weightKg);
+        const suggested = p.previewSuggested ?? (origPrice > 0 ? (origPrice + shipping).toFixed(2) : null);
         const result={
           ...p, newType:finalType, titleEn, description, optionsEn, tagsEn,
           shipping, origPrice, suggested, needsReview,
@@ -972,7 +1064,7 @@ export default function Classifier() {
                   <th style={s.th}>#</th><th style={s.th}>이미지</th>
                   {tab==="type"    &&<><th style={s.th}>상품명</th><th style={s.th}>기존</th><th style={s.th}>→ 새 Type</th><th style={s.th}>출처</th></>}
                   {tab==="title"   &&<><th style={s.th}>원본</th><th style={s.th}>→ 영문명</th><th style={s.th}>상세설명</th></>}
-                  {tab==="shipping"&&<><th style={s.th}>영문명</th><th style={s.th}>무게</th><th style={s.th}>배송비</th><th style={s.th}>현재가</th><th style={s.th}>→ 제안가</th></>}
+                  {tab==="shipping"&&<><th style={s.th}>영문명</th><th style={s.th}>대표 무게</th><th style={s.th}>대표 배송비</th><th style={s.th}>현재가</th><th style={s.th}>→ 대표 제안가</th></>}
                   {tab==="tags"    &&<><th style={s.th}>상품명</th><th style={s.th}>감지 브랜드</th><th style={s.th}>추가 태그</th></>}
                   <th style={s.th}>신뢰도</th>
                 </tr>
