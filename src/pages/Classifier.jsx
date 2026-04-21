@@ -19,66 +19,75 @@ const TYPES = [
 ];
 
 // ── Rule-based classifier (우선순위 가이드 기준) ──────────────────────────────
-// Snacks가 Packaged Foods보다 먼저 — 순서 중요
+// 순서: Snacks/Packaged/Bakery/Health 먼저 → Fresh Produce 나중 (재료명 오분류 방지)
 const RULES = [
   // ── Korean Food ───────────────────────────────────────────────────────
   { type:"Korean Food > Kimchi",
     rx:/kimchi|kimchee|김치|깍두기|kkakdugi|총각김치|열무김치|동치미|백김치/i },
   { type:"Korean Food > Banchan",
-    rx:/banchan|반찬|namul|나물\b|muchim|무침|jorim|조림|장아찌|멸치볶음|콩자반|오징어채볶음|깻잎장아찌|깻잎무침|젓갈|dried radish|무말랭이|pickled shallot|장아찌|cheonggukjang|청국장|doenjang stew|된장찌개(?!.*seasoning)/i },
-  { type:"Korean Food > Sauces & Condiments",
-    rx:/gochujang|고추장|doenjang|된장|soy sauce|간장|ssamjang|쌈장|fish sauce|anchovy sauce|tuna sauce|액젓|멸치액젓|까나리|vinegar|식초|sesame oil|참기름|perilla oil|들기름|salt\b|소금\b|pepper\b|후추|dressing|드레싱|oyster sauce|굴소스|다시다|국간장|양념장|\bmayonnaise\b|\bmayo\b|마요네즈|\bwasabi\b|와사비|\bhot sauce\b|핫소스|\bpasta sauce\b|\bmarinade\b|마리네이드|양념소스|ketchup|케첩|mustard|겨자|steak sauce|maple syrup|\bsyrup\b|시럽|flavor enhancer|미원|chili oil|고추기름|chili sauce|umami|smoked sauce|bbq sauce/i },
-  { type:"Korean Food > Health & Supplements",
-    rx:/vitamin|비타민|probiotics|유산균|protein powder|protein\b|프로틴|단백질 파우더|collagen(?!.*cream|.*serum)|콜라겐(?!.*크림|.*세럼)|red ginseng|홍삼|omega\s*3?|오메가\s*3?|arginine|아르기닌|루테인|영양제|보충제/i },
-  { type:"Korean Food > Fresh Produce",
-    rx:/친환경|유기농|무농약|fresh produce|bean sprouts|mung bean sprouts|콩나물|숙주|깻잎\b|\bperilla leaf\b|치커리|상추\b|배추|오이\b|배\b|사과\b|딸기\b|포도\b|수박\b|참외\b|복숭아\b|귤\b|감\b|미나리|쑥갓|브로콜리|토마토|양파\b|마늘\b|애호박|당근\b|감자\b|고구마\b|lemon|lemons|grape|grapes|apple|apples|pear|pears|cabbage|lettuce|sesame leaf|\bfresh ginger\b|생강\b|\bdried ginger\b|건생강|\bwild thistle\b|곤드레|엉겅퀴|chives|쪽파|부추|leek|blueberr|블루베리|taro|토란|mushroom|버섯|melon|멜론|참외|watermelon|수박|cucumber|오이|tofu|두부|orange|오렌지|tangerine|mandarin|chestnut|sweet potato|potatoes?\b|감자\b|potato\b|고구마|chili pepper|chilli pepper|청양고추|고추\b|pepper(?!.*spray|.*sauce|.*steak)/i },
-  { type:"Korean Food > Bread & Bakery",
-    rx:/bread\b|bakery|식빵|빵\b|크루아상|바게트|베이글|머핀|스콘|toast bread|sandwich bread|croissant|bagel|muffin|scone|roll cake|카스테라|pastry|danish|morning roll|jam\b(?!.*band)|잼\b/i },
-  // ⚠️ Snacks 먼저 — 뜯어서 바로 먹는 것
+    rx:/banchan|반찬|namul|나물\b|muchim|무침|jorim|조림|장아찌|멸치볶음|콩자반|오징어채볶음|깻잎장아찌|깻잎무침|젓갈|dried radish|무말랭이|cheonggukjang|청국장|dried rapeseed|rapeseed greens|wild greens|건나물|건조나물/i },
+
+  // ⚠️ Snacks 먼저 (Fresh Produce보다 앞) — 재료명 오분류 방지
   { type:"Korean Food > Snacks & Chips",
-    rx:/chips|cracker|cookie|biscuit|candy|gummy|jelly candy|popcorn|snacks?\b|rice puff|snack puff|energy bar|granola bar|protein bar|chocolate|초콜릿|콘칲|칩\b|과자|스낵|사탕|젤리(?!.*vitamin)|쿠키|비스킷|팝콘|강냉이|뻥튀기|나쵸|빼빼로|새우깡|꼬북칩|홈런볼|오징어집|꼬깔콘|프링글|누룽지칩|누룽지(?!.*죽)|누룽지과자|쌀과자|곡물과자|스낵바|에너지바|roasted seaweed|seaweed snack|김스낵|lollipop|gummy bear|mixed nuts|\bnuts\b|almonds?\b|walnuts?\b|cereal\b|yukwa|유과|강정|\bpuffed\b/i },
+    rx:/chips|cracker|cookie|biscuit|candy|gummy|jelly candy|popcorn|snacks?\b|rice puff|snack puff|energy bar|granola bar|protein bar|chocolate|초콜릿|콘칲|칩\b|과자|스낵|사탕|젤리(?!.*vitamin)|쿠키|비스킷|팝콘|강냉이|뻥튀기|나쵸|빼빼로|새우깡|꼬북칩|홈런볼|오징어집|꼬깔콘|프링글|누룽지칩|누룽지(?!.*죽)|누룽지과자|쌀과자|곡물과자|스낵바|에너지바|roasted seaweed|seaweed snack|김스낵|lollipop|mixed nuts|\bnuts\b|almonds?\b|walnuts?\b|cereal\b|yukwa|유과|강정|fruit snack|honey snack|confectionery|nut mix|trail mix|haitai|orion\b|lotte\b(?!.*hotel)|\bcrown\b(?!.*cork)|haetae|grilled.*seaweed|seasoned.*seaweed|gimtae|laver snack/i },
+
   // ⚠️ Packaged Foods = 식사/즉석조리용만
   { type:"Korean Food > Packaged Foods",
-    rx:/ramen|라면|jjajang|짜장|instant noodle|noodle meal|국수\b|udon|우동|냉면|naengmyeon|rice noodle|vermicelli|당면|dumpling|만두|frozen meal|냉동식품|frozen|냉동|tteokbokki|떡볶이|porridge|죽\b|pumpkin porridge|호박죽|instant meal|즉석식품|ready.to.eat|즉석밥|햇반|cooked rice|instant rice|meal kit|밀키트|curry|카레|bibimbap|비빔밥|soup\b(?!.*base)|soup base|broth|육수|sundae\b|순대|pasta\b(?!.*sauce)|noodles?\b(?!.*snack)/i },
+    rx:/ramen|라면|jjajang|짜장|instant noodle|noodle meal|국수\b|udon|우동|냉면|naengmyeon|rice noodle|vermicelli|당면|dumpling|만두|frozen meal|냉동식품|frozen\b(?!.*yogurt|.*fruit|.*berry)|냉동|tteokbokki|떡볶이|porridge|죽\b|pumpkin porridge|호박죽|instant meal|즉석식품|ready.to.eat|즉석밥|햇반|cooked rice|instant rice|meal kit|밀키트|curry|카레|bibimbap|비빔밥|soup\b(?!.*base)|soup base|broth|육수|sundae\b|순대|pasta\b(?!.*sauce)|brown rice(?!.*snack)|multigrain rice|cooked.*rice|rice meal|영양밥|잡곡밥|현미밥/i },
+
+  // Bakery — pancake mix 포함
+  { type:"Korean Food > Bread & Bakery",
+    rx:/bread\b|bakery|식빵|빵\b|크루아상|바게트|베이글|머핀|스콘|toast bread|sandwich bread|croissant|bagel|muffin|scone|roll cake|카스테라|pastry|danish|hotcake mix|pancake mix|cake mix|베이킹 믹스|sprinkles|topping sugar|decor sugar/i },
+
+  // Health — honey stick 추가
+  { type:"Korean Food > Health & Supplements",
+    rx:/vitamin|비타민|probiotics|유산균|protein powder|protein\b|프로틴|단백질 파우더|collagen(?!.*cream|.*serum)|콜라겐(?!.*크림|.*세럼)|red ginseng|홍삼|omega\s*3?|오메가\s*3?|arginine|아르기닌|루테인|영양제|보충제|honey stick|honey jelly|홍삼스틱|건강젤리|health jelly/i },
+
+  // Sauces & Condiments
+  { type:"Korean Food > Sauces & Condiments",
+    rx:/gochujang|고추장|doenjang|된장|soy sauce|간장|ssamjang|쌈장|fish sauce|anchovy sauce|tuna sauce|액젓|멸치액젓|까나리|vinegar|식초|sesame oil|참기름|perilla oil|들기름|salt\b|소금\b|pepper\b(?!.*spray|.*snack|.*chips)|후추|dressing|드레싱|oyster sauce|굴소스|다시다|국간장|양념장|\bmayonnaise\b|\bmayo\b|마요네즈|\bwasabi\b|와사비|\bhot sauce\b|핫소스|\bpasta sauce\b|\bmarinade\b|마리네이드|양념소스|ketchup|케첩|mustard|겨자|steak sauce|maple syrup|\bsyrup\b(?!.*snack|.*chips)|시럽|flavor enhancer|미원|chili oil|고추기름|chili sauce|bbq sauce|peanut butter|\boil\b(?!.*snack)|식용유|cooking oil|canola oil|olive oil|참기름|들기름/i },
+
+  // ⚠️ Fresh Produce — 진짜 신선식품만 (재료명 단독 제외)
+  { type:"Korean Food > Fresh Produce",
+    rx:/친환경|유기농|무농약|fresh vegetable|fresh fruit|fresh produce|야채|채소|과일\b|bean sprouts|mung bean sprouts|콩나물|숙주|깻잎\b|\bperilla leaf\b|치커리|상추\b|배추\b|오이\b|배\b(?!.*pear snack|.*배칩)|미나리|쑥갓|브로콜리\b|토마토\b|양파\b|마늘\b|애호박|당근\b|감자\b(?!.*chip)|고구마\b(?!.*chip|.*snack)|\bfresh ginger\b|생강\b|\bwild thistle\b|곤드레|엉겅퀴|chives|쪽파|부추|leek|taro\b|mushroom\b(?!.*snack|.*chip)|버섯\b(?!.*스낵|.*칩)|tofu|두부|fresh\s+(?:apple|grape|orange|lemon|pear|blueberr|strawberr|melon|watermelon|mango)|\bGAP\b.*(?:berry|fruit|apple|grape)|chili pepper|chilli pepper|청양고추|고추\b(?!.*sauce|.*oil|.*paste)|kale|organic greens|rapeseed greens|wild vegetable|mountain vegetable|나물(?!.*무침|.*볶음)/i },
+
   // ── Beauty ────────────────────────────────────────────────────────────
   { type:"Beauty > Sun Care",
     rx:/sunscreen|sun cream|sunblock|\bspf\b|uv protection|선크림|선블록|자외선차단/i },
   { type:"Beauty > Mask Packs",
     rx:/sheet mask|sleeping mask|clay mask|nose pack|modeling pack|마스크팩|시트마스크|슬리핑마스크|클레이마스크|코팩|모델링팩/i },
   { type:"Beauty > Hair Care",
-    rx:/hair shampoo|hair conditioner|hair mask|hair serum|hair treatment|hair loss|scalp|샴푸(?!.*카|.*차량)|린스\b|컨디셔너|헤어 트리트먼트|헤어마스크|두피|탈모|헤어/i },
+    rx:/hair shampoo|hair conditioner|hair mask|hair serum|hair treatment|hair loss|hair towel|microfiber.*hair|\\btowel\\b(?!.*paper|.*kitchen)|scalp|샴푸(?!.*카|.*차량)|린스\b|컨디셔너|헤어 트리트먼트|헤어마스크|두피|탈모|헤어/i },
   { type:"Beauty > Body Care",
     rx:/body wash|body lotion|hand cream|toothbrush|toothpaste|mouthwash|바디워시|바디로션|핸드크림|치약|구강청결제|가글|칫솔/i },
   { type:"Beauty > Perfume & Fragrance",
     rx:/eau de parfum|eau de toilette|reed diffuser|body mist(?!.*car)|perfume(?!.*car)|fragrance mist(?!.*car)|향수|퍼퓸|룸 디퓨저/i },
-  // Beauty > Skincare — 메이크업 포함 확장
   { type:"Beauty > Skincare",
-    rx:/face cleanser|cleanser|foam cleanser|face toner|toner|face serum|serum(?!.*hair)|\bgel lotion\b|겔로션|moisturizer|all-in-one|facial cream|cream(?!.*body)|face lotion|ampoule|facial essence|essence(?!.*hair)|\bsoothing pads?\b|진정패드|\btrouble pads?\b|\bacne pads?\b|lipstick|lip color|lip tint|lip gloss|eye shadow|eyeshadow|eyeliner|mascara|foundation|primer|concealer|\bpact\b|contour|shading\b|highlighter|blush|blusher|cushion puff|makeup|makeover|lip liner|lip stick|bb cream|cc cream|eye stick|shimmer shadow|hair shadow|sebum powder|icing color|food coloring(?!.*bak)|skin care(?!.*hair|.*sunscreen)|dokdo|round lab|dalba|mediheal|skin1004|anua|torriden|tori.?dden|toridun|cosrx|innisfree|etude|laneige|sulwhasoo|클렌저|폼클렌징|토너|앰플|세럼(?!.*헤어)|에센스(?!.*헤어)|수분크림|아이크림|비비크림|쿠션(?!.*방석)|파운데이션|미스트(?!.*헤어|.*car)|립스틱|틴트|아이섀도|마스카라|컨실러/i },
+    rx:/face cleanser|cleanser|foam cleanser|face toner|toner|face serum|serum(?!.*hair)|\bgel lotion\b|겔로션|moisturizer|all-in-one|facial cream|cream(?!.*body)|face lotion|ampoule|facial essence|essence(?!.*hair)|\bsoothing pads?\b|진정패드|\btrouble pads?\b|\bacne pads?\b|lipstick|lip color|lip tint|lip gloss|eye shadow|eyeshadow|eyeliner|mascara|foundation|primer|concealer|\bpact\b|contour|shading\b|highlighter|blush|blusher|makeup|lip stick|bb cream|cc cream|skin care(?!.*hair|.*sunscreen)|dokdo|round lab|dalba|mediheal|skin1004|anua|torriden|tori.?dden|cosrx|innisfree|etude|laneige|sulwhasoo|클렌저|폼클렌징|토너|앰플|세럼(?!.*헤어)|에센스(?!.*헤어)|수분크림|아이크림|비비크림|쿠션(?!.*방석)|파운데이션|미스트(?!.*헤어|.*car)|립스틱|틴트|아이섀도|마스카라|컨실러/i },
   // ── Baby & Kids ───────────────────────────────────────────────────────
-  { type:"Baby & Kids > Baby Care",   rx:/diaper|baby lotion|baby shampoo|baby wipe|floatie|arm band(?!.*car)|기저귀|아기로션|물티슈(?!.*일반)|젖병|튜브(?!.*pasta)/i },
-  { type:"Baby & Kids > Toys & Games",rx:/장난감|블록(?!.*수납)|퍼즐(?!.*성인)|보드게임|toy|building block|crayons?\b|coloring book/i },
-  { type:"Pet Supplies",
-    rx:/dog food|cat food|dog treat|pet food|강아지사료|고양이사료|반려동물|펫푸드|강아지간식/i },
+  { type:"Baby & Kids > Baby Care",   rx:/diaper|baby lotion|baby shampoo|baby wipe|floatie|기저귀|아기로션|물티슈(?!.*일반)|젖병/i },
+  { type:"Baby & Kids > Toys & Games",rx:/장난감|블록(?!.*수납)|퍼즐(?!.*성인)|보드게임|toy|building block|coloring book/i },
+  { type:"Pet Supplies",              rx:/dog food|cat food|dog treat|pet food|강아지사료|고양이사료|반려동물|펫푸드|강아지간식/i },
   { type:"Stationery & Office",
-    rx:/ballpoint pen|pencil|eraser|scissors|tape\b|notebook(?!.*laptop)|marker|stapler|ledger|copier paper|kraft paper|crayons|볼펜|연필|지우개|가위\b|테이프\b|노트(?!북 컴퓨터)|형광펜|포스트잇|크레용|크레파스|스테이플러|장부/i },
+    rx:/ballpoint pen|pencil|eraser|scissors|tape\b|notebook(?!.*laptop)|marker|stapler|refill(?!.*pack)|ink cartridge|pen refill|marker refill|watercolor|paintbrush|brush set|art supply|볼펜|연필|지우개|가위\b|테이프\b|노트(?!북 컴퓨터)|형광펜|포스트잇|크레용|크레파스|스테이플러|리필|잉크/i },
   { type:"Automotive",
-    rx:/car air freshener|car diffuser|car shampoo|car wash|car wax|car neck pillow|car cup holder|car sunvisor|car seat|car drying|car hanging|car armrest|car towel|car wipe|motorcycle|windshield|washer fluid|wiper|tire\b|vehicle|automotive|자동차|차량용|카샴푸|카워시|차량 방향|선바이저|컵홀더.*차|차.*방향|오토바이|모터사이클/i },
+    rx:/car air freshener|car diffuser|car shampoo|car wash|car wax|car neck pillow|car cup holder|car sunvisor|car seat|car drying|car hanging|car armrest|car towel|motorcycle|windshield|washer fluid|wiper|tire\b|vehicle|automotive|자동차|차량용|카샴푸|카워시|차량 방향|선바이저|컵홀더.*차|오토바이/i },
   { type:"Fashion > Swimwear & Beachwear", rx:/swimwear|bikini|rashguard|수영복|래쉬가드|비키니/i },
   { type:"Fashion > Shoes & Sandals",      rx:/sneakers|sandals|slippers|high heels|운동화|샌들|슬리퍼|구두/i },
   { type:"Fashion > Kids Clothing",        rx:/아동복|유아복|kids wear|children wear/i },
   { type:"Fashion > Women's Clothing",     rx:/women's clothing|여성복|원피스|블라우스|치마/i },
   { type:"Fashion > Men's Clothing",       rx:/men's clothing|남성복|셔츠(?!.*스킨)/i },
-  { type:"Fashion > Accessories",          rx:/가방\b|지갑|모자\b|벨트\b|액세서리|bag(?!.*tea)|sunglasses|goggles(?!.*swim)|안경|선글라스/i },
+  { type:"Fashion > Accessories",          rx:/가방\b|지갑|모자\b|벨트\b|액세서리|bag(?!.*tea)|sunglasses|안경|선글라스/i },
   { type:"Sports & Outdoors > Golf",                  rx:/golf|골프/i },
   { type:"Sports & Outdoors > Swimming",              rx:/수경|킥판|수영모|swim goggles|kickboard|swim cap/i },
   { type:"Sports & Outdoors > Outdoor & Camping",     rx:/텐트|침낭|캠핑|랜턴(?!.*무드)|camping|sleeping bag/i },
   { type:"Sports & Outdoors > Exercise & Fitness",    rx:/dumbbell|yoga mat|resistance band|pilates|덤벨|요가|필라테스|운동밴드|폼롤러/i },
   { type:"Home & Living > Kitchenware",
-    rx:/frying pan|rice cooker|kitchen knife|chopstick|cutting board|냄비|프라이팬|도마|주방칼|밀폐용기|락앤락|주전자|젓가락|chopsticks?\b|tableware/i },
+    rx:/frying pan|rice cooker|kitchen knife|chopsticks?\b|cutting board|냄비|프라이팬|도마|주방칼|밀폐용기|락앤락|주전자|젓가락|tableware/i },
   { type:"Home & Living > Household Supplies",
-    rx:/laundry detergent|dish soap|toilet paper|trash can|waste bin|garbage can|tissue|wet wipe(?!.*car)|floor mat|bath mat|doormat|doorstep mat|floor rug|non-slip|bath rug|sealant|cable tie|cleaner|세제(?!.*헤어)|섬유유연제|주방세제|화장지|청소포|탈취|쓰레기통|휴지통|매트\b|바닥매트/i },
+    rx:/laundry detergent|dish soap|toilet paper|trash can|waste bin|tissue|wet wipe(?!.*car)|floor mat|bath mat|doormat|non-slip|sealant|cable tie|cleaner|세제(?!.*헤어)|섬유유연제|주방세제|화장지|청소포|탈취|쓰레기통|휴지통|매트\b/i },
   { type:"Home & Living > Home & Interior",
-    rx:/인테리어|가구|쿠션(?!.*팩트)|수납|담요|홈데코|blind|roller screen|artificial tree|mini stool|shoe horn|wood blind|\bstool\b|artificial plant|조화나무|블라인드/i },
+    rx:/인테리어|가구|쿠션(?!.*팩트)|수납|담요|홈데코|blind|roller screen|artificial tree|\bstool\b|shoe horn|organizer|storage box|hook\b|hanger(?!.*clothes)|걸이|행거/i },
   { type:"Flowers & Gifts",  rx:/비누꽃|조화|프리저브드|soap flower|꽃다발|bouquet|선물세트|gift set/i },
   { type:"$1 Bakery",        rx:/\$1.*bakery|\$1.*korea|1달러.*베이커리/i },
 ];
