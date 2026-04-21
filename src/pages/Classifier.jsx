@@ -136,7 +136,7 @@ const BLOCK_RULES = [
   { block:"Beauty > Skincare",
     rx:/\bsauce\b|\bfood\b|ramen|snack|cake(?!.*face|.*pack)|pie\b|bread|kimchi|\bsoup\b|\bstock\b(?!.*ings)|cooking|baking|seasoning|detergent|laundry|kitchen|utensil/i },
   { block:"Korean Food > Fresh Produce",
-    rx:/chips|snack|jelly|porridge|cake|pie|cookie|cracker|\bdrink\b|\bjuice\b(?!.*lemon)|roasted|dried(?!.*herb)|frozen(?!.*vegetable|.*veggie|.*veg\b)|instant/i },
+    rx:/chips|snack|jelly|porridge|cake|pie|cookie|cracker|\bdrink\b|\bjuice\b(?!.*lemon)|roasted|dried(?!.*herb)|frozen(?!.*vegetable|.*veggie|.*veg\b)|instant|\bpowder\b|\bblend\b|ready.to.eat|fried rice|rice ball|볶음밥/i },
   // Packaged Foods에서 그릇/식기/차 차단
   { block:"Korean Food > Packaged Foods",
     rx:/\bbowl\b(?!.*soup|.*rice|.*porridge)|pasta bowl|ceramic.*dish|melamine.*bowl|soup bowl(?!.*soup mix)|\btea\b(?!.*bag.*soup|.*base)|barley tea|corn tea|green tea|herbal tea/i },
@@ -218,6 +218,23 @@ function ruleClassify(title="", tags="") {
   // ⑩ sunglasses / goggles → Accessories (Sun Care 아님)
   if (/sunglasses|\bgoggles\b|선글라스/i.test(lower)) {
     return { type: "Fashion > Accessories", src: "rule-sunglasses" };
+  }
+
+  // ⑬ sprouts → Fresh Produce 통일
+  if (/bean sprouts|mung bean sprouts|soybean sprouts|콩나물|숙주|bean sprout/i.test(lower)) {
+    return { type: "Korean Food > Fresh Produce", src: "rule-sprouts" };
+  }
+  // ⑭ rice ball / fried rice / 볶음밥 → Packaged Foods 통일
+  if (/rice ball|\bfried rice\b|볶음밥|주먹밥|onigiri/i.test(lower)) {
+    return { type: "Korean Food > Packaged Foods", src: "rule-rice-meal" };
+  }
+  // ⑮ fresh + frozen/dried/powder 조합이면 Fresh 아님 (BLOCK 보완)
+  if (/\bfresh\b/i.test(lower) && /frozen|dried|powder|blend|ready.to.eat/i.test(lower)) {
+    // fresh라도 가공이면 Fresh Produce 아님 → 계속 진행
+  }
+  // ⑯ dish/kitchen → Kitchenware 분기
+  if (/\bdish\b(?!.*sauce|.*soap.*food)|kitchen gloves?|kitchen.*tool(?!.*food)/i.test(lower) && !/sauce|soap.*food/i.test(lower)) {
+    if (/\bgloves?\b/i.test(lower)) return { type: "Home & Living > Kitchenware", src: "rule-kitchen-gloves" };
   }
 
   // ⑪ car + visor/mirror/dashboard → Automotive
