@@ -25,60 +25,61 @@ const RULES = [
   { type:"Korean Food > Kimchi",
     rx:/kimchi|kimchee|김치|깍두기|kkakdugi|총각김치|열무김치|동치미|백김치/i },
   { type:"Korean Food > Banchan",
-    rx:/banchan|반찬|namul|나물\b|muchim|무침|jorim|조림|장아찌|멸치볶음|콩자반|오징어채볶음|깻잎장아찌|깻잎무침|젓갈/i },
+    rx:/banchan|반찬|namul|나물\b|muchim|무침|jorim|조림|장아찌|멸치볶음|콩자반|오징어채볶음|깻잎장아찌|깻잎무침|젓갈|dried radish|무말랭이|pickled shallot|장아찌|cheonggukjang|청국장|doenjang stew|된장찌개(?!.*seasoning)/i },
   { type:"Korean Food > Sauces & Condiments",
-    rx:/gochujang|고추장|doenjang|된장|soy sauce|간장|ssamjang|쌈장|fish sauce|anchovy sauce|tuna sauce|액젓|멸치액젓|까나리|vinegar|식초|sesame oil|참기름|perilla oil|들기름|salt\b|소금\b|pepper\b|후추|dressing|드레싱|oyster sauce|굴소스|다시다|국간장|양념장|\bmayonnaise\b|\bmayo\b|마요네즈|\bwasabi\b|와사비|\bbibim sauce\b|비빔소스|\bhot sauce\b|핫소스|\bpasta sauce\b|파스타소스|\bmarinade\b|마리네이드|\bseasoning sauce\b|양념소스|ketchup|케첩|mustard|겨자/i },
+    rx:/gochujang|고추장|doenjang|된장|soy sauce|간장|ssamjang|쌈장|fish sauce|anchovy sauce|tuna sauce|액젓|멸치액젓|까나리|vinegar|식초|sesame oil|참기름|perilla oil|들기름|salt\b|소금\b|pepper\b|후추|dressing|드레싱|oyster sauce|굴소스|다시다|국간장|양념장|\bmayonnaise\b|\bmayo\b|마요네즈|\bwasabi\b|와사비|\bhot sauce\b|핫소스|\bpasta sauce\b|\bmarinade\b|마리네이드|양념소스|ketchup|케첩|mustard|겨자|steak sauce|maple syrup|\bsyrup\b|시럽|flavor enhancer|미원|chili oil|고추기름|chili sauce|umami|smoked sauce|bbq sauce/i },
   { type:"Korean Food > Health & Supplements",
     rx:/vitamin|비타민|probiotics|유산균|protein powder|protein\b|프로틴|단백질 파우더|collagen(?!.*cream|.*serum)|콜라겐(?!.*크림|.*세럼)|red ginseng|홍삼|omega\s*3?|오메가\s*3?|arginine|아르기닌|루테인|영양제|보충제/i },
   { type:"Korean Food > Fresh Produce",
-    rx:/친환경|유기농|무농약|fresh produce|vegetable|fruit|bean sprouts|mung bean sprouts|콩나물|숙주|깻잎\b|\bperilla leaf\b|치커리|상추\b|배추|오이\b|배\b|사과\b|딸기\b|포도\b|수박\b|참외\b|복숭아\b|귤\b|감\b|미나리|쑥갓|브로콜리|토마토|양파\b|마늘\b|애호박|당근\b|감자\b|고구마\b|lemon|lemons|grape|grapes|apple|apples|pear|pears|cabbage|lettuce|sesame leaf|\bfresh ginger\b|생강\b|\bdried ginger\b|건생강|\bwild thistle\b|곤드레|엉겅퀴/i },
+    rx:/친환경|유기농|무농약|fresh produce|bean sprouts|mung bean sprouts|콩나물|숙주|깻잎\b|\bperilla leaf\b|치커리|상추\b|배추|오이\b|배\b|사과\b|딸기\b|포도\b|수박\b|참외\b|복숭아\b|귤\b|감\b|미나리|쑥갓|브로콜리|토마토|양파\b|마늘\b|애호박|당근\b|감자\b|고구마\b|lemon|lemons|grape|grapes|apple|apples|pear|pears|cabbage|lettuce|sesame leaf|\bfresh ginger\b|생강\b|\bdried ginger\b|건생강|\bwild thistle\b|곤드레|엉겅퀴|chives|쪽파|부추|leek|blueberr|블루베리|taro|토란|mushroom|버섯|melon|멜론|참외|watermelon|수박|cucumber|오이|tofu|두부|orange|오렌지|tangerine|mandarin|chestnut|sweet potato|potatoes?\b|감자\b|potato\b|고구마|chili pepper|chilli pepper|청양고추|고추\b|pepper(?!.*spray|.*sauce|.*steak)/i },
   { type:"Korean Food > Bread & Bakery",
-    rx:/bread\b|bakery|식빵|빵\b|크루아상|바게트|베이글|머핀|스콘|toast bread|sandwich bread|croissant|bagel|muffin|scone|roll cake|카스테라|pastry|danish/i },
-  // ⚠️ Snacks 먼저 (Packaged Foods보다 앞) — 뜯어서 바로 먹는 간식류
+    rx:/bread\b|bakery|식빵|빵\b|크루아상|바게트|베이글|머핀|스콘|toast bread|sandwich bread|croissant|bagel|muffin|scone|roll cake|카스테라|pastry|danish|morning roll|jam\b(?!.*band)|잼\b/i },
+  // ⚠️ Snacks 먼저 — 뜯어서 바로 먹는 것
   { type:"Korean Food > Snacks & Chips",
-    rx:/chips|cracker|cookie|biscuit|candy|gummy|jelly candy|popcorn|snack\b|rice puff|snack puff|energy bar|granola bar|protein bar|chocolate|초콜릿|콘칲|칩\b|과자|스낵|사탕|젤리(?!.*vitamin)|쿠키|비스킷|팝콘|강냉이|뻥튀기|나쵸|빼빼로|새우깡|꼬북칩|홈런볼|오징어집|꼬깔콘|프링글|누룽지칩|누룽지(?!.*죽)|누룽지과자|쌀과자|곡물과자|스낵바|에너지바/i },
-  // ⚠️ Packaged Foods = 식사/즉석조리용만 (김/차/밀가루/건재료 제외)
+    rx:/chips|cracker|cookie|biscuit|candy|gummy|jelly candy|popcorn|snacks?\b|rice puff|snack puff|energy bar|granola bar|protein bar|chocolate|초콜릿|콘칲|칩\b|과자|스낵|사탕|젤리(?!.*vitamin)|쿠키|비스킷|팝콘|강냉이|뻥튀기|나쵸|빼빼로|새우깡|꼬북칩|홈런볼|오징어집|꼬깔콘|프링글|누룽지칩|누룽지(?!.*죽)|누룽지과자|쌀과자|곡물과자|스낵바|에너지바|roasted seaweed|seaweed snack|김스낵|lollipop|gummy bear|mixed nuts|\bnuts\b|almonds?\b|walnuts?\b|cereal\b|yukwa|유과|강정|\bpuffed\b/i },
+  // ⚠️ Packaged Foods = 식사/즉석조리용만
   { type:"Korean Food > Packaged Foods",
-    rx:/ramen|라면|instant noodle|noodle meal|국수\b|udon|우동|냉면|naengmyeon|쌀국수|rice noodle|vermicelli|당면|dumpling|만두|frozen meal|냉동식품|frozen|냉동|tteokbokki|떡볶이|porridge|죽\b|pumpkin porridge|호박죽|abalone porridge|전복죽|instant meal|즉석식품|ready.to.eat|즉석밥|햇반|cooked rice|instant rice|meal kit|밀키트|curry|카레|bibimbap|비빔밥|soup\b|soup base|국물|broth|육수|sundae\b|순대/i },
+    rx:/ramen|라면|jjajang|짜장|instant noodle|noodle meal|국수\b|udon|우동|냉면|naengmyeon|rice noodle|vermicelli|당면|dumpling|만두|frozen meal|냉동식품|frozen|냉동|tteokbokki|떡볶이|porridge|죽\b|pumpkin porridge|호박죽|instant meal|즉석식품|ready.to.eat|즉석밥|햇반|cooked rice|instant rice|meal kit|밀키트|curry|카레|bibimbap|비빔밥|soup\b(?!.*base)|soup base|broth|육수|sundae\b|순대|pasta\b(?!.*sauce)|noodles?\b(?!.*snack)/i },
   // ── Beauty ────────────────────────────────────────────────────────────
   { type:"Beauty > Sun Care",
     rx:/sunscreen|sun cream|sunblock|\bspf\b|uv protection|선크림|선블록|자외선차단/i },
   { type:"Beauty > Mask Packs",
-    rx:/sheet mask|sleeping mask|clay mask|nose pack|마스크팩|시트마스크|슬리핑마스크|클레이마스크|코팩/i },
+    rx:/sheet mask|sleeping mask|clay mask|nose pack|modeling pack|마스크팩|시트마스크|슬리핑마스크|클레이마스크|코팩|모델링팩/i },
   { type:"Beauty > Hair Care",
-    rx:/hair shampoo|hair conditioner|hair mask|hair serum|scalp|샴푸(?!.*카|.*차량)|린스\b|컨디셔너|헤어 트리트먼트|헤어마스크|두피|탈모샴푸/i },
+    rx:/hair shampoo|hair conditioner|hair mask|hair serum|hair treatment|hair loss|scalp|샴푸(?!.*카|.*차량)|린스\b|컨디셔너|헤어 트리트먼트|헤어마스크|두피|탈모|헤어/i },
   { type:"Beauty > Body Care",
-    rx:/body wash|body lotion|hand cream|toothpaste|mouthwash|바디워시|바디로션|핸드크림|치약|구강청결제|가글/i },
+    rx:/body wash|body lotion|hand cream|toothbrush|toothpaste|mouthwash|바디워시|바디로션|핸드크림|치약|구강청결제|가글|칫솔/i },
   { type:"Beauty > Perfume & Fragrance",
     rx:/eau de parfum|eau de toilette|reed diffuser|body mist(?!.*car)|perfume(?!.*car)|fragrance mist(?!.*car)|향수|퍼퓸|룸 디퓨저/i },
+  // Beauty > Skincare — 메이크업 포함 확장
   { type:"Beauty > Skincare",
-    rx:/face cleanser|cleanser|foam cleanser|face toner|toner|face serum|serum(?!.*hair)|\bgel lotion\b|겔로션|moisturizer|all-in-one|facial cream|cream(?!.*body)|face lotion|ampoule|facial essence|essence(?!.*hair)|\bsoothing pads?\b|진정패드|\btrouble pads?\b|트러블패드|\bacne pads?\b|여드름패드|dokdo|round lab|dalba|mediheal|skin1004|anua|torriden|cosrx|클렌저|폼클렌징|토너|앰플|세럼(?!.*헤어)|에센스(?!.*헤어)|수분크림|아이크림|비비크림|쿠션(?!.*방석)|파운데이션|미스트(?!.*헤어|.*car)/i },
+    rx:/face cleanser|cleanser|foam cleanser|face toner|toner|face serum|serum(?!.*hair)|\bgel lotion\b|겔로션|moisturizer|all-in-one|facial cream|cream(?!.*body)|face lotion|ampoule|facial essence|essence(?!.*hair)|\bsoothing pads?\b|진정패드|\btrouble pads?\b|\bacne pads?\b|lipstick|lip color|lip tint|lip gloss|eye shadow|eyeshadow|eyeliner|mascara|foundation|primer|concealer|\bpact\b|contour|shading\b|highlighter|blush|blusher|cushion puff|makeup|makeover|lip liner|lip stick|bb cream|cc cream|eye stick|shimmer shadow|hair shadow|sebum powder|icing color|food coloring(?!.*bak)|skin care(?!.*hair|.*sunscreen)|dokdo|round lab|dalba|mediheal|skin1004|anua|torriden|tori.?dden|toridun|cosrx|innisfree|etude|laneige|sulwhasoo|클렌저|폼클렌징|토너|앰플|세럼(?!.*헤어)|에센스(?!.*헤어)|수분크림|아이크림|비비크림|쿠션(?!.*방석)|파운데이션|미스트(?!.*헤어|.*car)|립스틱|틴트|아이섀도|마스카라|컨실러/i },
   // ── Baby & Kids ───────────────────────────────────────────────────────
-  { type:"Baby & Kids > Baby Care",   rx:/diaper|baby lotion|baby shampoo|baby wipe|기저귀|아기로션|물티슈(?!.*일반)|젖병/i },
-  { type:"Baby & Kids > Toys & Games",rx:/장난감|블록(?!.*수납)|퍼즐(?!.*성인)|보드게임|toy|building block/i },
+  { type:"Baby & Kids > Baby Care",   rx:/diaper|baby lotion|baby shampoo|baby wipe|floatie|arm band(?!.*car)|기저귀|아기로션|물티슈(?!.*일반)|젖병|튜브(?!.*pasta)/i },
+  { type:"Baby & Kids > Toys & Games",rx:/장난감|블록(?!.*수납)|퍼즐(?!.*성인)|보드게임|toy|building block|crayons?\b|coloring book/i },
   { type:"Pet Supplies",
     rx:/dog food|cat food|dog treat|pet food|강아지사료|고양이사료|반려동물|펫푸드|강아지간식/i },
   { type:"Stationery & Office",
-    rx:/ballpoint pen|pencil|eraser|scissors|tape\b|notebook(?!.*laptop)|marker|볼펜|연필|지우개|가위\b|테이프\b|노트(?!북 컴퓨터)|형광펜|포스트잇|크레용|크레파스/i },
+    rx:/ballpoint pen|pencil|eraser|scissors|tape\b|notebook(?!.*laptop)|marker|stapler|ledger|copier paper|kraft paper|crayons|볼펜|연필|지우개|가위\b|테이프\b|노트(?!북 컴퓨터)|형광펜|포스트잇|크레용|크레파스|스테이플러|장부/i },
   { type:"Automotive",
-    rx:/car air freshener|car diffuser|car shampoo|car wash|car wax|car neck pillow|car cup holder|car sunvisor|car seat|windshield|washer fluid|wiper|tire\b|vehicle|automotive|자동차|차량용|카샴푸|카워시|차량 방향|자동차 방향|선바이저|컵홀더.*차|차.*방향/i },
+    rx:/car air freshener|car diffuser|car shampoo|car wash|car wax|car neck pillow|car cup holder|car sunvisor|car seat|car drying|car hanging|car armrest|car towel|car wipe|motorcycle|windshield|washer fluid|wiper|tire\b|vehicle|automotive|자동차|차량용|카샴푸|카워시|차량 방향|선바이저|컵홀더.*차|차.*방향|오토바이|모터사이클/i },
   { type:"Fashion > Swimwear & Beachwear", rx:/swimwear|bikini|rashguard|수영복|래쉬가드|비키니/i },
   { type:"Fashion > Shoes & Sandals",      rx:/sneakers|sandals|slippers|high heels|운동화|샌들|슬리퍼|구두/i },
   { type:"Fashion > Kids Clothing",        rx:/아동복|유아복|kids wear|children wear/i },
   { type:"Fashion > Women's Clothing",     rx:/women's clothing|여성복|원피스|블라우스|치마/i },
   { type:"Fashion > Men's Clothing",       rx:/men's clothing|남성복|셔츠(?!.*스킨)/i },
-  { type:"Fashion > Accessories",          rx:/가방\b|지갑|모자\b|벨트\b|액세서리|bag(?!.*tea)/i },
+  { type:"Fashion > Accessories",          rx:/가방\b|지갑|모자\b|벨트\b|액세서리|bag(?!.*tea)|sunglasses|goggles(?!.*swim)|안경|선글라스/i },
   { type:"Sports & Outdoors > Golf",                  rx:/golf|골프/i },
   { type:"Sports & Outdoors > Swimming",              rx:/수경|킥판|수영모|swim goggles|kickboard|swim cap/i },
   { type:"Sports & Outdoors > Outdoor & Camping",     rx:/텐트|침낭|캠핑|랜턴(?!.*무드)|camping|sleeping bag/i },
   { type:"Sports & Outdoors > Exercise & Fitness",    rx:/dumbbell|yoga mat|resistance band|pilates|덤벨|요가|필라테스|운동밴드|폼롤러/i },
   { type:"Home & Living > Kitchenware",
-    rx:/frying pan|rice cooker|kitchen knife|냄비|프라이팬|도마|주방칼|밀폐용기|락앤락|주전자/i },
+    rx:/frying pan|rice cooker|kitchen knife|chopstick|cutting board|냄비|프라이팬|도마|주방칼|밀폐용기|락앤락|주전자|젓가락|chopsticks?\b|tableware/i },
   { type:"Home & Living > Household Supplies",
-    rx:/laundry detergent|dish soap|toilet paper|cleaner|세제(?!.*헤어)|섬유유연제|주방세제|화장지|청소포|탈취/i },
+    rx:/laundry detergent|dish soap|toilet paper|trash can|waste bin|garbage can|tissue|wet wipe(?!.*car)|floor mat|bath mat|doormat|doorstep mat|floor rug|non-slip|bath rug|sealant|cable tie|cleaner|세제(?!.*헤어)|섬유유연제|주방세제|화장지|청소포|탈취|쓰레기통|휴지통|매트\b|바닥매트/i },
   { type:"Home & Living > Home & Interior",
-    rx:/인테리어|가구|쿠션(?!.*팩트)|수납|담요|홈데코/i },
-  { type:"Flowers & Gifts",  rx:/비누꽃|조화|프리저브드|soap flower|꽃다발|bouquet|선물세트/i },
+    rx:/인테리어|가구|쿠션(?!.*팩트)|수납|담요|홈데코|blind|roller screen|artificial tree|mini stool|shoe horn|wood blind|\bstool\b|artificial plant|조화나무|블라인드/i },
+  { type:"Flowers & Gifts",  rx:/비누꽃|조화|프리저브드|soap flower|꽃다발|bouquet|선물세트|gift set/i },
   { type:"$1 Bakery",        rx:/\$1.*bakery|\$1.*korea|1달러.*베이커리/i },
 ];
 
@@ -463,119 +464,158 @@ function extractQtyFromOption(val="") {
 
 // variant 행 기준 무게 추정 (title 무게 × 옵션 수량)
 function estimateVariantWeight(title="", opt1val="", opt2val="", opt3val="") {
-  // title에서 단위 무게 추출 (1개 기준)
-  const baseWeight = estimateWeight(title); // kg per unit or total if no count
+  const opts = [opt1val, opt2val, opt3val].filter(Boolean);
 
   // 옵션값에서 수량 파악
-  const opts = [opt1val, opt2val, opt3val].filter(Boolean);
   let maxQty = 1;
   for (const opt of opts) {
     const q = extractQtyFromOption(opt);
     if (q > maxQty) maxQty = q;
   }
 
-  // title에 "X개" 수량이 이미 포함된 경우 (예: "130g, 12개")
-  // estimateWeight가 이미 총무게를 반환하므로 추가 곱셈 불필요
-  const titleHasCount = /\d+\s*(g|ml)\s*[,，x×*]\s*\d+/i.test(title);
-
-  if (baseWeight) {
-    // title에 수량 없고 옵션에만 수량 있으면 곱함
-    if (!titleHasCount && maxQty > 1) {
-      return Math.max(baseWeight * maxQty, 0.1);
+  // title에서 "Xg × N개" 패턴 → 단위무게(g) × 옵션수량
+  const mCount = title.match(/(\d+(?:\.\d+)?)\s*(g|ml)\s*[,，x×*]\s*(\d+)/i);
+  if (mCount) {
+    const unitG = parseFloat(mCount[1]);
+    const unitW = mCount[2].toLowerCase() === "ml" ? unitG / 1000 : unitG / 1000;
+    // 옵션 수량이 있으면 단위무게 × 옵션수량, 없으면 title 전체 수량 사용
+    if (maxQty > 1) {
+      return Math.max(unitW * maxQty, 0.1);
     }
+    const titleQty = parseInt(mCount[3]);
+    return Math.max(unitW * titleQty, 0.1);
+  }
+
+  // title에서 단순 무게만 있는 경우 (예: "50ml", "1.5kg")
+  const baseWeight = estimateWeight(title);
+  if (baseWeight) {
+    if (maxQty > 1) return Math.max(baseWeight * maxQty, 0.1);
     return Math.max(baseWeight, 0.1);
   }
+
   return null;
 }
 
 function downloadCSV(rawRows, headers, resultMap, applyPrice, translateOptions=false) {
-  // ── 재고 관련 컬럼 완전 제외 (Shopify 재고 초기화 방지) ──────────────────
+  // ── 재고 컬럼 완전 제외 (Shopify 재고 초기화 방지) ───────────────────────
   const SKIP_COLS = new Set([
-    "Variant Inventory Qty",
-    "Variant Inventory Tracker",
-    "Variant Inventory Policy",
-    "Variant Fulfillment Service",
+    "Variant Inventory Qty","Variant Inventory Tracker",
+    "Variant Inventory Policy","Variant Fulfillment Service",
   ]);
-  // 포함할 컬럼 인덱스만 추출
   const keepIdx = headers.map((h,i)=>SKIP_COLS.has(h)?-1:i).filter(i=>i>=0);
   const filteredHeaders = keepIdx.map(i=>headers[i]);
 
-  // 이하 모든 인덱스는 원본 headers 기준
-  const seen = new Set();
-  const ti=headers.indexOf("Title"), yi=headers.indexOf("Type");
-  const bi=headers.indexOf("Body (HTML)"), tagi=headers.indexOf("Tags");
-  const pi=headers.indexOf("Variant Price"), hi=headers.indexOf("Handle");
-  const gramsI=headers.indexOf("Variant Grams");
-  const o1ni=headers.indexOf("Option1 Name"), o2ni=headers.indexOf("Option2 Name"), o3ni=headers.indexOf("Option3 Name");
-  const o1vi=headers.indexOf("Option1 Value"), o2vi=headers.indexOf("Option2 Value"), o3vi=headers.indexOf("Option3 Value");
+  // ── 인덱스 (원본 headers 기준) ───────────────────────────────────────────
+  const idx = {
+    ti:  headers.indexOf("Title"),
+    yi:  headers.indexOf("Type"),
+    bi:  headers.indexOf("Body (HTML)"),
+    tagi:headers.indexOf("Tags"),
+    pi:  headers.indexOf("Variant Price"),
+    hi:  headers.indexOf("Handle"),
+    gi:  headers.indexOf("Variant Grams"),
+    o1n: headers.indexOf("Option1 Name"),
+    o2n: headers.indexOf("Option2 Name"),
+    o3n: headers.indexOf("Option3 Name"),
+    o1v: headers.indexOf("Option1 Value"),
+    o2v: headers.indexOf("Option2 Value"),
+    o3v: headers.indexOf("Option3 Value"),
+    sku: headers.indexOf("Variant SKU"),
+  };
+  const newPi = keepIdx.indexOf(idx.pi); // 필터된 배열에서 Variant Price 위치
   const extraH = ["Est. Weight (kg)","Shipping ($)","Original Price","Suggested Price"];
 
-  // keepIdx 매핑 후 새 인덱스 계산
-  const newPi = keepIdx.indexOf(pi); // 필터된 배열에서의 Variant Price 위치
+  const seen = new Set();
 
   const rows = rawRows.map(row => {
-    // variantKey로 먼저 조회 (정규화), 없으면 handle fallback
-    const vk = makeVariantKey(row[hi], row[o1vi], row[o2vi], row[o3vi]);
-    const r = resultMap[vk] || resultMap[row[hi]];
+    const handle = row[idx.hi];
+
+    // variantKey 우선 조회 → handle fallback
+    const vk = makeVariantKey(handle, row[idx.o1v], row[idx.o2v], row[idx.o3v]);
+    const r = resultMap[vk] || resultMap[handle];
     if (!r) return [...keepIdx.map(i=>row[i]),"","","",""];
-    const nr=[...row]; const isFirst=!seen.has(row[hi]); seen.add(row[hi]);
 
-    // Title + Type: 모든 행
-    if(ti>=0) nr[ti]=r.titleEn||r.title;
-    if(yi>=0) nr[yi]=r.newType;
+    const nr = [...row];
+    const isFirst = !seen.has(handle);
+    seen.add(handle);
 
-    // 옵션값 번역: translateOptions=true일 때만 (기존 상품 재고 보호)
-    const curO1 = o1vi>=0 ? (row[o1vi]||"") : "";
-    const curO2 = o2vi>=0 ? (row[o2vi]||"") : "";
-    const curO3 = o3vi>=0 ? (row[o3vi]||"") : "";
+    // variant 행 여부 (옵션값 or SKU or 가격 있는 행)
+    const isVariant = !!(row[idx.o1v]||row[idx.o2v]||row[idx.o3v]||row[idx.sku]||row[idx.pi]);
+
+    // ── Title + Type: 모든 행 ─────────────────────────────────────────────
+    if(idx.ti>=0) nr[idx.ti] = r.titleEn || r.title;
+    if(idx.yi>=0) nr[idx.yi] = r.newType;
+
+    // ── 옵션값 번역: translateOptions ON일 때만 ───────────────────────────
+    const curO1 = idx.o1v>=0 ? (row[idx.o1v]||"") : "";
+    const curO2 = idx.o2v>=0 ? (row[idx.o2v]||"") : "";
+    const curO3 = idx.o3v>=0 ? (row[idx.o3v]||"") : "";
     if(translateOptions) {
-      if(o1vi>=0&&curO1) nr[o1vi]=translateOptVal(curO1);
-      if(o2vi>=0&&curO2) nr[o2vi]=translateOptVal(curO2);
-      if(o3vi>=0&&curO3) nr[o3vi]=translateOptVal(curO3);
+      if(idx.o1v>=0&&curO1) nr[idx.o1v]=translateOptVal(curO1);
+      if(idx.o2v>=0&&curO2) nr[idx.o2v]=translateOptVal(curO2);
+      if(idx.o3v>=0&&curO3) nr[idx.o3v]=translateOptVal(curO3);
     }
 
-    // ── variant별 무게 + 배송비 + 가격 계산 ──────────────────────────────
-    // r.title 말고 원본 row 제목 사용 (이중계산 방지)
-    const rowTitle = row[ti] || r.title || "";
-    const varWeight = estimateVariantWeight(rowTitle, curO1, curO2, curO3) ?? (DEF_W[r.newType]||0.5);
-    const varWeightKg = Math.max(varWeight, 0.1);
-    const varShipping = calcShipping(varWeightKg);
-    const varOrigPrice = parseFloat(row[pi]||"0")||0;
-    const varSuggested = varOrigPrice>0 ? (varOrigPrice+varShipping).toFixed(2) : null;
+    // ── variant 행: 무게 + 배송비 + 가격 계산 ────────────────────────────
+    let varWeightKg=0, varShipping=0, varOrigPrice=0, varSuggested=null;
 
-    // 디버그: 옵션별 값 확인 (개발용 — 나중에 제거 가능)
-    if(process.env.NODE_ENV !== "production") {
-      console.log(`[${row[hi]}] opt="${curO1||"-"}" | ${varWeightKg.toFixed(2)}kg → $${varShipping.toFixed(2)} | orig=$${varOrigPrice} → $${varSuggested||"-"}`);
+    if(isVariant) {
+      const rowTitle = row[idx.ti] || r.title || "";
+      const w = estimateVariantWeight(rowTitle, curO1, curO2, curO3) ?? (DEF_W[r.newType]||0.5);
+      varWeightKg = Math.max(w, 0.1);
+      varShipping = calcShipping(varWeightKg);
+      varOrigPrice = parseFloat(row[idx.pi]||"0")||0;
+      varSuggested = varOrigPrice>0 ? (varOrigPrice+varShipping).toFixed(2) : null;
+
+      // Variant Grams
+      if(idx.gi>=0) nr[idx.gi] = Math.round(varWeightKg*1000);
+      // 가격 적용
+      if(applyPrice&&idx.pi>=0&&varSuggested) nr[idx.pi] = varSuggested;
     }
 
-    // 가격: 모든 variant 행 — 필터된 행에 적용
-    if(applyPrice&&pi>=0&&varSuggested) nr[pi]=varSuggested;
-    // Variant Grams: 옵션별 무게
-    if(gramsI>=0) nr[gramsI]=Math.round(varWeightKg*1000);
+    // ── 첫 행만: 설명 + 태그 + 옵션명 ───────────────────────────────────
+    if(isFirst) {
+      if(idx.bi>=0&&r.description)
+        nr[idx.bi]=(row[idx.bi]||"")+`<div style="margin-top:16px;padding-top:12px;border-top:1px solid #eee"><p>${r.description}</p></div>`;
 
-    if(isFirst){
-      if(r.optionsEn?.length && translateOptions){
-        r.optionsEn.forEach((opt,idx)=>{ const ni=[o1ni,o2ni,o3ni][idx]; if(ni>=0&&opt.name) nr[ni]=opt.name; });
-      } else if(translateOptions) {
-        if(o1ni>=0&&row[o1ni]) nr[o1ni]=translateOptName(row[o1ni]);
-        if(o2ni>=0&&row[o2ni]) nr[o2ni]=translateOptName(row[o2ni]);
-        if(o3ni>=0&&row[o3ni]) nr[o3ni]=translateOptName(row[o3ni]);
+      const extraTags=[
+        ...(r.brandTags||[]),
+        ...(r.tagsEn||[]),
+        ...(r.opTags||[]),
+        ...(applyPrice&&varSuggested?["shipping-included"]:[]),
+      ];
+      if(idx.tagi>=0&&extraTags.length) nr[idx.tagi]=mergeTags(row[idx.tagi],extraTags);
+
+      if(translateOptions) {
+        if(r.optionsEn?.length){
+          r.optionsEn.forEach((opt,i)=>{ const ni=[idx.o1n,idx.o2n,idx.o3n][i]; if(ni>=0&&opt.name) nr[ni]=opt.name; });
+        } else {
+          if(idx.o1n>=0&&row[idx.o1n]) nr[idx.o1n]=translateOptName(row[idx.o1n]);
+          if(idx.o2n>=0&&row[idx.o2n]) nr[idx.o2n]=translateOptName(row[idx.o2n]);
+          if(idx.o3n>=0&&row[idx.o3n]) nr[idx.o3n]=translateOptName(row[idx.o3n]);
+        }
       }
-      if(bi>=0&&r.description) nr[bi]=(row[bi]||"")+`<div style="margin-top:16px;padding-top:12px;border-top:1px solid #eee"><p>${r.description}</p></div>`;
-      const extraTags=[...(r.brandTags||[]),...(r.tagsEn||[]),...(r.opTags||[]),...(applyPrice&&varSuggested?["shipping-included"]:[])];
-      if(tagi>=0&&extraTags.length) nr[tagi]=mergeTags(row[tagi],extraTags);
     }
 
-    // 필터된 행 출력 + 추가 컬럼
+    // ── 필터된 행 출력 ────────────────────────────────────────────────────
     const filteredRow = keepIdx.map(i=>nr[i]);
-    // 필터된 행에서 가격 다시 적용 (keepIdx 재매핑 후)
-    if(applyPrice && newPi>=0 && varSuggested) filteredRow[newPi]=varSuggested;
+    if(applyPrice&&newPi>=0&&varSuggested) filteredRow[newPi]=varSuggested;
 
-    return [...filteredRow, varWeightKg.toFixed(2), `$${varShipping.toFixed(2)}`, varOrigPrice>0?`$${varOrigPrice.toFixed(2)}`:"", varSuggested?`$${varSuggested}`:""];
+    return [
+      ...filteredRow,
+      isVariant ? varWeightKg.toFixed(2) : "",
+      isVariant ? `$${varShipping.toFixed(2)}` : "",
+      isVariant && varOrigPrice>0 ? `$${varOrigPrice.toFixed(2)}` : "",
+      isVariant && varSuggested ? `$${varSuggested}` : "",
+    ];
   });
 
-  const csv=[filteredHeaders.concat(extraH),...rows].map(row=>row.map(c=>`"${String(c??"").replace(/"/g,'""')}"`).join(",")).join("\n");
-  const a=Object.assign(document.createElement("a"),{href:URL.createObjectURL(new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"})),download:applyPrice?"guampick_final.csv":"guampick_ref.csv"});
+  const csv=[filteredHeaders.concat(extraH),...rows]
+    .map(row=>row.map(c=>`"${String(c??"").replace(/"/g,'""')}"`).join(",")).join("\n");
+  const a=Object.assign(document.createElement("a"),{
+    href:URL.createObjectURL(new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"})),
+    download:applyPrice?"guampick_final.csv":"guampick_ref.csv"
+  });
   a.click();
 }
 
