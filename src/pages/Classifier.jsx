@@ -24,7 +24,7 @@ const TYPES = [
 const RULES = [
   // ── 최우선 1: 생활용품 (뷰티/식품 키워드와 혼동 방지) ─────────────────
   { type:"Home & Living > Cleaning Supplies",
-    rx:/laundry detergent|fabric softener|dishwasher detergent|dishwashing.*liquid|dish soap|\bbleach\b(?!.*tooth|.*whiten|.*hair)|mold remover|mold.*spray|toilet.*cleaner|toilet.*brush|all.purpose.*cleaner|surface cleaner|floor cleaner|drain cleaner|\bclorox\b|nano.*coat.*clean|\bdowny\b|세탁.*세제|세탁액|섬유유연제|주방.*세제|식기세척|곰팡이.*제거/i },
+    rx:/laundry detergent|fabric softener|dishwasher detergent|dishwashing.*liquid|dish soap|\bbleach\b(?!.*tooth|.*whiten|.*hair)|mold remover|mold.*spray|toilet.*cleaner|toilet.*brush|all.purpose.*cleaner|surface cleaner|floor cleaner|drain cleaner|\bclorox\b|nano.*coat.*clean|\bdowny\b|세탁.*세제|세탁액|섬유유연제|주방.*세제|식기세척|곰팡이.*제거|laundry.*capsule|capsule.*laundry|laundry.*pod|washing.*pod|세탁.*캡슐|캡슐.*세탁/i },
 { type:"Home & Living > Household Supplies",
     rx:/\bdetergent\b|laundry detergent|washing machine cleaner|fabric softener|capsule detergent|dish soap(?!.*beauty)|zipper bag|dishwashing|dr\.?\s*beckmann|snuggle|\bdowny\b|세탁세제|세탁조세제|섬유유연제|\btoothbrush\b|\btoothpaste\b|\bdental\b|mouthwash|dental floss|\boral.?b\b|yusimol|median|치약|칫솔|구강청결제|가글|치실/i },
   { type:"Beauty > Body Care",
@@ -81,7 +81,7 @@ const RULES = [
 
   // ⚠️ Snacks — protein bar/energy bar 제거 (Health로 보냄)
   { type:"Korean Food > Snacks & Chips",
-    rx:/chips|cracker|cookie|biscuit|candy|gummy|jelly candy|popcorn|snacks?|rice puff|snack puff|chocolate|초콜릿|콘칲|칩|과자|스낵|사탕|젤리(?!.*vitamin)|쿠키|비스킷|팝콘|강냉이|뻥튀기|나쵸|빼빼로|새우깡|꼬북칩|홈런볼|오징어집|꼬깔콘|프링글|누룽지칩|누룽지(?!.*죽)|누룽지과자|쌀과자|곡물과자|스낵바|roasted seaweed|seaweed snack|김스낵|lollipop|mixed nuts|nuts|almonds?|walnuts?|cereal|yukwa|유과|강정|fruit snack|honey snack|confectionery|nut mix|trail mix|haitai|orion|lotte(?!.*hotel)|crown(?!.*cork)|haetae|grilled.*seaweed|seasoned.*seaweed|gimtae|laver snack|\bfranks\b|\bsausage\b(?!.*pasta)|hot dog|corn dog|mini.*sausage|cocktail.*sausage|\bgalchi mi\b|\bgalchi\b(?!.*stew)|beef.*jerky|dried.*snack.*beef|roasted.*chestnut|peanut.*roche|rocher.*peanut|\bdoughnut\b|\bdonut\b|\bmochi\b(?!.*mask|.*skin)|\bchurro\b|\bwaffle\b(?!.*maker)|twisted.*snack/i },
+    rx:/chips|cracker|cookie|biscuit|candy|gummy|jelly candy|popcorn|snacks?|rice puff|snack puff|chocolate|초콜릿|콘칲|칩|과자|스낵|사탕|젤리(?!.*vitamin)|쿠키|비스킷|팝콘|강냉이|뻥튀기|나쵸|빼빼로|새우깡|꼬북칩|홈런볼|오징어집|꼬깔콘|프링글|누룽지칩|누룽지(?!.*죽)|누룽지과자|쌀과자|곡물과자|스낵바|roasted seaweed|seaweed snack|김스낵|lollipop|mixed nuts|nuts|almonds?|walnuts?|cereal|yukwa|유과|강정|fruit snack|honey snack|confectionery|nut mix|trail mix|haitai|orion|lotte(?!.*hotel)|crown(?!.*cork)|haetae|grilled.*seaweed|seasoned.*seaweed|gimtae|laver snack|\bfranks\b|\bsausage\b(?!.*pasta)|hot dog|corn dog|mini.*sausage|cocktail.*sausage|\bgalchi mi\b|\bgalchi\b(?!.*stew)|beef.*jerky|dried.*snack.*beef|roasted.*chestnut|peanut.*roche|rocher.*peanut|doughnut|donut|\bmochi\b(?!.*mask|.*skin)|\bchurro\b|\bwaffle\b(?!.*maker)|twisted.*snack/i },
 
   // ⚠️ Packaged Foods = 식사/즉석조리용 (라면/국수류 제외 — Ramen & Noodles로)
   { type:"Korean Food > Packaged Foods",
@@ -210,7 +210,7 @@ function _forceFoodClassify(lower, title="", tags="") {
     return { type: "Korean Food > Refrigerated Foods", src: "force-refrig" };
   }
   // Beverages
-  if (/\bjuice\b(?!.*eye|.*lens)|cold brew|probiotic.*drink(?!.*tablet|.*capsule)|aloe.*drink|\bilohas\b|capri.*sun|flavored.*water(?!.*lotion)|energy drink|sports.*drink(?!.*supplement)|fruit.*tea.*(?:collection|set|pack)|honey.*tea(?!.*mask)|assorted.*tea(?!.*supplement)|\bcoffee\b.*(?:\d+ml|pack of|bottles?)|\bmilk\b.*(?:pack of \d+|\d+ml.*pack|mini.*pack|bottles?.*\d+)/i.test(lower)) {
+  if (/\bjuice\b(?!.*eye|.*lens)|cold brew|probiotic.*drink(?!.*tablet|.*capsule)|aloe.*drink|\bilohas\b|capri.*sun|flavored.*water(?!.*lotion)|energy drink|sports.*drink(?!.*supplement)|fruit.*tea.*(?:collection|set|pack)|honey.*tea(?!.*mask)|assorted.*tea(?!.*supplement)|\bcoffee\b.*(?:\d+ml|pack of|bottles?)|\bmilk\b.*(?:pack of \d+|\d+ml.*pack|mini.*pack|bottles?.*\d+)|herbal.*drink|\bdrink\b.*\d+ml|\bdrink\b.*(?:pack of \d+|\d+.*bottles?)/i.test(lower)) {
     return { type: "Korean Food > Beverages", src: "force-bev" };
   }
   // Soup → Packaged Foods
@@ -309,7 +309,10 @@ function ruleClassify(title="", tags="") {
     return { type: "Beauty > Sun Care", src: "rule-toneup-sun" };
   }
   // All-in-One (메이크업 아닌 것) → Skincare
-  if (/\ball.in.one\b/i.test(lower) && !/bb cream|foundation|cc cream|makeup/i.test(lower)) {
+  // ⚠️ 세탁/청소 제품은 제외 (Cleaning Supplies로 처리)
+  if (/\ball.in.one\b/i.test(lower) 
+      && !/bb cream|foundation|cc cream|makeup/i.test(lower)
+      && !/laundry|detergent|fabric|softener|cleaning|cleaner|disinfect|세탁|세제/i.test(lower)) {
     return { type: "Beauty > Skincare", src: "rule-aio-skin" };
   }
   // ② Makeup → Beauty > Makeup (Skincare 진입 전 차단)
