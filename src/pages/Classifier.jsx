@@ -43,7 +43,7 @@ const RULES = [
   // ── 뷰티 최우선 차단 ──────────────────────────────────────────────────
   // 염색약/헤어컬러 — 스킨케어로 빠지기 전에 먼저 잡음
   { type:"Beauty > Makeup",
-    rx:/\bfoundation\b|cushion foundation|\bbb cream\b|\bcc cream\b|\bpact\b(?!.*vitamin|.*probio)|\bconcealer\b|\bprimer\b(?!.*skincare|.*serum)|lipstick|lip gloss|lip tint|lip balm|eyeshadow|eye shadow|\bblush\b(?!.*drink|.*powder|.*blush.*cheek.*cream)|\bhighlighter\b|\beyeliner\b|\bmascara\b|setting powder|setting spray|makeup.*base|tinted.*base|bb.*cushion|cover pact|tone up cream(?!.*body)|makeup/i },
+    rx:/\bfoundation\b|cushion foundation|\bbb cream\b|\bcc cream\b(?!.*vitamin|.*probio)|\bconcealer\b|\bprimer\b(?!.*skincare|.*serum)|lipstick|lip gloss|lip tint|lip balm|eyeshadow|eye shadow|\bblush\b(?!.*drink|.*powder|.*blush.*cheek.*cream)|\bhighlighter\b|\beyeliner\b|\bmascara\b|setting powder|setting spray|makeup.*base|tinted.*base|bb.*cushion|cover pact|tone up cream(?!.*body)|makeup/i },
 { type:"Beauty > Makeup",
     rx:/파운데이션|쿠션팩트|비비크림|컨실러|립스틱|립글로스|립밤|아이섀도|블러셔|하이라이터|아이라이너|마스카라|프라이머|메이크업/i },
 { type:"Beauty > Oral Care",
@@ -51,8 +51,8 @@ const RULES = [
 { type:"Beauty > Hair Care",
     rx:/hair wax|hair gel|hair spray|hair pomade|hair gloss|hair mask|hair pack|hair serum|hair oil|hair essence|hair mist|hair tonic|styling.*wax|styling.*gel|strong hold.*spray|hair dye|hair color|hair colouring|color cream|bleach|염색약|염모제|탈색제|새치염색/i },
   // 쿠션파운데이션 — 방석 쿠션과 분리
-  { type:"Beauty > Skincare",
-    rx:/cushion foundation|쿠션 파운데이션|bb cushion|cc cushion|makeup cushion|sun cushion|air cushion/i },
+  { type:"Beauty > Sun Care",
+    rx:/sun cushion|sun.*cushion|soothing.*sun stick|moisture.*sun stick/i },
   // Kitchenware — Sauces보다 먼저
   { type:"Home & Living > Kitchenware",
     rx:/grinder|pepper mill|salt grinder|chopper|peeler|slicer|kitchen tool|utensil|garlic press|다지기|채칼/i },
@@ -119,7 +119,7 @@ const RULES = [
     rx:/perfume(?!.*shampoo|.*conditioner|.*hair)|eau de parfum|eau de toilette|reed diffuser|cologne|body spray(?!.*hair)|fragrance mist(?!.*hair)|향수|퍼퓸|룸 디퓨저/i },
   // Skincare — all-in-one/cushion/waterproof 제거, mist 추가
   { type:"Beauty > Skincare",
-    rx:/face cleanser|cleanser(?!.*powder|.*food)|foam cleanser|face toner|toner(?!.*food)|face serum|serum(?!.*hair|.*food)|gel lotion|겔로션|moisturizer(?!.*food)|facial cream(?!.*cake|.*food)|cream(?!.*body|.*cake|.*ice|.*pie|.*food|.*치즈|.*크림빵)|face lotion|ampoule(?!.*food)|facial essence(?!.*cooking|.*food)|essence(?!.*hair|.*cooking|.*food|.*vanilla|.*lemon|.*almond|.*mint|.*extract|.*oil|.*flavor|.*요리|.*식품|.*향신)|soothing pads?|진정패드|trouble pads?|acne pads?|lipstick|lip color|lip tint|lip gloss|eye shadow|eyeshadow|eyeliner|mascara|foundation(?!.*sauce)|primer(?!.*food)|concealer|pact|contour|shading|highlighter|blush|blusher|makeup|lip stick|bb cream|cc cream|tone up cream|skin care(?!.*hair|.*sunscreen)|facial mist|hydrating mist|soothing mist|thermal.*mist|dokdo|round lab|dalba|mediheal|skin1004|anua|torriden|tori.?dden|cosrx|innisfree|etude|laneige|sulwhasoo|huxley|dr\.bio|some by mi|klairs|axis.?y|dr\.jart|jungsaemmul|papa recipe|클렌저|폼클렌징|토너|앰플|세럼(?!.*헤어)|에센스(?!.*헤어|.*요리|.*식품)|수분크림|아이크림|비비크림|파운데이션|미스트(?!.*헤어|.*car)|립스틱|틴트|아이섀도|마스카라|컨실러/i },
+    rx:/face cleanser|cleanser(?!.*powder|.*food)|foam cleanser|face toner|toner(?!.*food)|face serum|serum(?!.*hair|.*food)|gel lotion|겔로션|moisturizer(?!.*food)|facial cream(?!.*cake|.*food)|cream(?!.*body|.*cake|.*ice|.*pie|.*food|.*치즈|.*크림빵)|face lotion|ampoule(?!.*food)|facial essence(?!.*cooking|.*food)|essence(?!.*hair|.*cooking|.*food|.*vanilla|.*lemon|.*almond|.*mint|.*extract|.*oil|.*flavor|.*요리|.*식품|.*향신)|soothing pads?|진정패드|trouble pads?|acne pads?|pact|skincare(?!.*hair)|facial mist|hydrating mist|soothing mist|thermal.*mist/i },
   // Baby Care — 강화
   { type:"Baby & Kids > Baby Care",
     rx:/baby|infant|newborn|toddler|baby lotion|baby shampoo|baby wash|baby cream|baby oil|baby powder|baby wipe|baby toothpaste|baby toothbrush|floatie|infant formula|baby formula|follow.?up formula|stage\s*[123]\s+formula|newborn formula|milk powder(?!.*protein)|baby bib|burp cloth|baby bottle|baby nipple|pacifier|teether|baby swim|baby float|diaper|기저귀|아기로션|물티슈(?!.*일반)|젖병|분유|유아용|신생아|아기|베이비|아동용/i },
@@ -158,7 +158,7 @@ const FOOD_W = /(\d+(?:\.\d+)?)\s*(g|ml)\s*[,，x×*]\s*(\d+)\s*(개|팩|봉|캔
 // ── 차단 룰 ─────────────────────────────────────────────────────────────────
 const BLOCK_RULES = [
   { block:"Beauty > Skincare",
-    rx:/\bsauce\b|\bfood\b|ramen|snack|cake(?!.*face|.*pack)|pie\b|bread|kimchi|\bsoup\b|\bstock\b(?!.*ings)|cooking|baking|seasoning|detergent|laundry|kitchen|utensil|toothbrush|toothpaste|\bdental\b|body cream|body lotion|body wash|hand cream|\bshampoo\b|\bconditioner\b|correction tape|pen pouch|cabin filter|scorched rice|roasted.*rice(?!.*extract)|\binsole\b|carbon.*fiber.*insole|seaweed salad|frozen.*grain|grain.*frozen|lucky pouch|\bfoundation\b|cushion.*foundation|\bbb cream\b|\bconcealer\b|lipstick|lip tint|eyeshadow|\bmascara\b/i },
+    rx:/\bsauce\b|\bfood\b|ramen|snack|cake(?!.*face|.*pack)|pie\b|bread|kimchi|\bsoup\b|\bstock\b(?!.*ings)|cooking|baking|seasoning|detergent|laundry|kitchen|utensil|toothbrush|toothpaste|\bdental\b|body cream|body lotion|body wash|hand cream|\bshampoo\b|\bconditioner\b|correction tape|pen pouch|cabin filter|scorched rice|roasted.*rice(?!.*extract)|\binsole\b|carbon.*fiber.*insole|seaweed salad|frozen.*grain|grain.*frozen|lucky pouch|\bfoundation\b|cushion.*foundation|\bbb cream\b|\bcc cream\b|\bconcealer\b|\bprimer\b|\blipstick\b|\blip gloss\b|\blip tint\b|\blip balm\b|\beyeshadow\b|\beye shadow\b|\beyeliner\b|\bmascara\b|\bblush\b(?!.*skin)|\bblusher\b|\bhighlighter\b|\bcontour\b|\bshading\b|setting powder|setting spray|makeup base|cover pact|tone up cream|air cushion|\bpact\b(?!.*vitamin)|makeup(?!.*remover)|파운데이션|립스틱|아이섀도|마스카라|컨실러/i },
   { block:"Korean Food > Fresh Produce",
     rx:/chips|snack|jelly|porridge|cake|pie|cookie|cracker|\bdrink\b|\bjuice\b(?!.*lemon)|roasted|dried(?!.*herb)|frozen(?!.*vegetable|.*veggie|.*veg\b)|instant|\bpowder\b|\bblend\b|ready.to.eat|fried rice|rice ball|볶음밥/i },
   // Packaged Foods에서 그릇/식기/차 차단
@@ -211,7 +211,7 @@ function ruleClassify(title="", tags="") {
     return { type: "Beauty > Body Care", src: "rule-block-body" };
   }
   // ② Makeup → Beauty > Makeup (Skincare 진입 전 차단)
-  if (/\bfoundation\b|cushion.*foundation|\bbb cream\b|\bcc cream\b|\bpact\b(?!.*vitamin|.*pro)|\bconcealer\b|lipstick|lip tint|eyeshadow|\beyeliner\b|\bmascara\b|setting powder|\bblush\b(?!.*skin|.*cream)|\bhighlighter\b(?!.*skin)|makeup.*base|tone.*up.*cream(?!.*body)|\btinted.*base\b/i.test(lower)) {
+  if (/\bfoundation\b|cushion.*foundation|\bbb cream\b|\bcc cream\b|\bpact\b(?!.*vitamin|.*probio)|\bconcealer\b|\bprimer\b(?!.*skincare|.*serum)|\blipstick\b|\blip gloss\b|\blip tint\b|\blip balm\b|\beyeshadow\b|\beye shadow\b|\beyeliner\b|\bmascara\b|\bsetting powder\b|\bsetting spray\b|\bblush\b(?!.*skin|.*cream|.*drink)|\bblusher\b|\bhighlighter\b(?!.*skin)|\bcontour\b|\bshading\b(?!.*effect)|makeup.*base|tone.*up.*cream(?!.*body)|\btinted.*base\b|cover pact|air cushion|파운데이션|립스틱|틴트(?!.*보조|.*용)|아이섀도|마스카라|컨실러|아이라이너/i.test(lower)) {
     return { type: "Beauty > Makeup", src: "rule-block-makeup" };
   }
   // ③ shampoo/conditioner/scalp → Hair Care
@@ -366,8 +366,13 @@ function ruleClassify(title="", tags="") {
   if (/\bbath towel\b|\bquilt cover\b|\bquilt.*case\b|hotel.*towel|combed cotton.*towel|waterproof.*quilt|extra large.*quilt/i.test(lower)) {
     return { type: "Home & Living > Household Supplies", src: "rule-towel" };
   }
+  // ② Sun Care 조기 차단 (Skincare보다 먼저)
+  if (/\bspf\b|sunscreen|sun cream|sun stick|sun milk|sun ampoule|sun.*stick.*spf|soothing.*sun.*stick|moisture.*sun/i.test(lower) && !/sun.*flower|sun.*dried|sun.*burn(?!.*protect)|sunrise|sunday/i.test(lower)) {
+    return { type: "Beauty > Sun Care", src: "rule-sun-early" };
+  }
+
   // ── Frozen Food → Korean Food > Frozen Food ─────────────────────────────────
-  if (/\bfrozen\b(?!.*yogurt|.*berry(?!.*soup)|.*fresh)/i.test(lower) && /meal|rice|dumpling|cutlet|seafood|vegetable|veg\b|veggie|shrimp|pork|beef|chicken|wing|steak|spinach|garlic|squid|fish/i.test(lower)) {
+  if (/\bfrozen\b(?!.*yogurt|.*berry(?!.*soup)|.*fresh)/i.test(lower) && /meal|rice|dumpling|cutlet|seafood|vegetable|veg\b|veggie|shrimp|pork|beef|chicken|wing|steak|spinach|garlic|squid|fish|bibimbap|stir.fried/i.test(lower)) {
     return { type: "Korean Food > Frozen Food", src: "rule-frozen-food" };
   }
   // ── Refrigerated Foods ───────────────────────────────────────────────────────
@@ -490,7 +495,7 @@ function ruleClassify(title="", tags="") {
       return { type: "Home & Living > Home & Interior", src: "rule-cushion-home" };
   }
   // waterproof 단독 → Beauty 금지
-  if (/waterproof/i.test(lower) && !/mascara|eyeliner|sun|foundation|sunscreen/i.test(lower)) {
+  if (/waterproof/i.test(lower) && !/mascara|sun|foundation|sunscreen/i.test(lower)) {
     const wRescue = rescueClassify(title, tags);
     if (wRescue) return wRescue;
   }
@@ -500,14 +505,27 @@ function ruleClassify(title="", tags="") {
     if (/cleaning|laundry|세탁|청소/i.test(lower)) return { type: "Home & Living > Household Supplies", src: "rule-gloves" };
   }
 
-  // 0-1. 뷰티 브랜드 — 다른 키워드보다 먼저 (오분류 90% 방지)
+  // 0-1. 뷰티 브랜드 — 카테고리 세분화 우선
   if (/huxley|dr\.bio|some by mi|somebymi|\bklairs\b|axis.?y|dr\.jart|jungsaemmul|papa recipe|torriden|tori.?dden|round lab|roundlab|skin1004|\banua\b|\bcosrx\b|mediheal|\bdalba\b|innisfree|laneige|sulwhasoo|etude/i.test(text)) {
-    // 브랜드 제품인데 Hair Care 키워드가 있으면 Hair Care
-    if (/shampoo|conditioner|hair mask|scalp|샴푸|컨디셔너|헤어/i.test(text))
+    // Hair Care
+    if (/shampoo|conditioner|hair mask|hair oil|hair essence|hair serum|scalp|샴푸|컨디셔너|헤어/i.test(text))
       return { type: "Beauty > Hair Care", src: "rule-brand-hair" };
+    // Body Care
+    if (/body cream|body lotion|body wash|hand cream|hand lotion|body butter|바디|핸드크림/i.test(text))
+      return { type: "Beauty > Body Care", src: "rule-brand-body" };
+    // Makeup
+    if (/foundation|bb cream|cc cream|concealer|primer|lip tint|lipstick|mascara|eyeliner|pact|blush|makeup/i.test(text))
+      return { type: "Beauty > Makeup", src: "rule-brand-makeup" };
     // Sun Care
-    if (/\bspf\b|sunscreen|sun cream|sun stick/i.test(text))
+    if (/\bspf\b|sunscreen|sun cream|sun stick|sun milk|sun cushion|sun ampoule/i.test(text))
       return { type: "Beauty > Sun Care", src: "rule-brand-sun" };
+    // Mask Packs
+    if (/mask pack|sheet mask|\bmask\b(?!.*mascara)|마스크팩/i.test(text))
+      return { type: "Beauty > Mask Packs", src: "rule-brand-mask" };
+    // Oral Care
+    if (/toothbrush|toothpaste|mouthwash|dental|구강/i.test(text))
+      return { type: "Beauty > Oral Care", src: "rule-brand-oral" };
+    // 기본 → Skincare
     return { type: "Beauty > Skincare", src: "rule-brand" };
   }
 
@@ -553,7 +571,7 @@ const OTHER_RESCUE_RULES = [
   { type:"Beauty > Hair Care",
     rx:/shampoo|conditioner|treatment|hair mask|hair pack|hair dye|hair color|rinse|scalp shampoo|헤어팩|트리트먼트|컨디셔너|샴푸/i },
   { type:"Beauty > Skincare",
-    rx:/mascara|foundation|primer|concealer|compact powder|\bpact\b|lip tint|\btint\b|makeup base|eye shadow|eyeshadow|palette|blusher|cleansing foam|cleansing oil|peeling gel|soothing gel|gel cream|\bpad\b|\bpatch\b|mask pack|팩|틴트|마스카라|파운데이션/i },
+    rx:/cleansing.*foam|cleansing.*oil|\bpad\b(?!.*launch|.*launch)|\bpatch\b(?!.*cable|.*repair)|mask pack|팩(?!.*떡|.*약|.*접착)|피부결|스킨케어|수분크림|아이크림|클렌징|필링|앰플|토너(?!.*매니큐어)/i },
   { type:"Korean Food > Health & Supplements",
     rx:/capsule|tablet|softgel|supplement|probiotic|enzyme|\biron\b|\bzinc\b|\bomega\b|\bmsm\b|propolis|\bvitamin\b|콜라겐|영양제|캡슐|정\b/i },
   // Snacks fallback — 스낵바/에너지바/쌀과자/누룽지칩 포함
@@ -1349,7 +1367,7 @@ function finalFallback(title="", tags="") {
   if (/hair dye|hair color|bleach|염색약|염모제|탈색제/.test(t)) return "Beauty > Hair Care";
   if (/shampoo|conditioner|treatment|hair mask|rinse|샴푸|헤어/.test(t)) return "Beauty > Hair Care";
   // 스킨케어
-  if (/foundation|bb cream|cc cream|concealer|mascara|lip tint|sun cushion|facial mist|soothing mist|hydrating mist/.test(t)) return "Beauty > Skincare";
+  if (/foundation|bb cream|cc cream|concealer|lip tint|sun cushion|facial mist|soothing mist|hydrating mist/.test(t)) return "Beauty > Skincare";
   if (/spf|sunscreen|sun cream|uv protection/.test(t)) return "Beauty > Sun Care";
   if (/lotion|moisturizer|skin care for men|men.*grooming/.test(t)) return "Beauty > Skincare";
   // 향수
