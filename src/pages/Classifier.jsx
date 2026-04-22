@@ -101,7 +101,7 @@ const RULES = [
 
   // Fresh Produce — 진짜 신선식품만
   { type:"Korean Food > Fresh Produce",
-    rx:/친환경|유기농|무농약|fresh vegetable|fresh fruit|fresh produce|야채|채소|과일|bean sprouts|mung bean sprouts|콩나물|숙주|깻잎|perilla leaf|치커리|상추|배추|오이|미나리|쑥갓|브로콜리|토마토|양파|마늘|애호박|zucchini|당근|carrot|감자(?!.*chip)|potato(?!.*chip|.*starch|.*flour)|고구마(?!.*chip|.*snack)|sweet potato(?!.*chip|.*snack)|fresh ginger|생강|wild thistle|곤드레|엉겅퀴|chives|쪽파|부추|leek|taro|mushroom(?!.*snack|.*chip)|버섯(?!.*스낵|.*칩)|tofu|두부|fresh\s+(?:apple|grape|orange|lemon|pear|blueberr|strawberr|melon|watermelon|mango)|GAP.*(?:berry|fruit|apple|grape)|chili pepper|chilli pepper|청양고추|고추(?!.*sauce|.*oil|.*paste)|kale|organic greens|grain mix|\bbarley\b(?!.*tea)|\bchestnut\b|군밤|잡곡(?!.*밥)|현미(?!.*밥|.*즉석)|frozen.*vegetable|frozen.*veg(?!.*sauce|.*stock)|mixed.*vegetable|vegetable.*mix(?!.*sauce)|mixed.*frozen.*veg|assorted.*vegetable|mixed.*veg.*pack|cucumber|onion(?!.*ring|.*powder.*season|.*dip|.*sauce)|melon(?!.*flavor|.*tea)|burdock|purslane/i },
+    rx:/친환경|유기농|무농약|fresh vegetable|fresh fruit|fresh produce|야채|채소|과일|bean sprouts|mung bean sprouts|콩나물|숙주|깻잎|perilla leaf|치커리|상추|배추|오이|미나리|쑥갓|브로콜리|토마토|양파|마늘|애호박|zucchini|당근|carrot|감자(?!.*chip)|potato(?!.*chip|.*starch|.*flour)|고구마(?!.*chip|.*snack)|sweet potato(?!.*chip|.*snack)|fresh ginger|생강|wild thistle|곤드레|엉겅퀴|chives|쪽파|부추|leek|taro|mushroom(?!.*snack|.*chip)|버섯(?!.*스낵|.*칩)|tofu|두부|fresh\s+(?:apple|grape|orange|lemon|pear|blueberr|strawberr|melon|watermelon|mango)|GAP.*(?:berry|fruit|apple|grape)|chili pepper|chilli pepper|청양고추|고추(?!.*sauce|.*oil|.*paste)|kale|organic greens|burdock|purslane/i },
 
   // ── Beauty ────────────────────────────────────────────────────────────
   { type:"Beauty > Sun Care",
@@ -197,9 +197,101 @@ function isMaskPackText(text="") {
   return /sheet mask|mask pack|sleeping mask|clay mask|nose pack|modeling pack|마스크팩|시트마스크/i.test(t);
 }
 
+// ── FOOD 강제 분류 함수 (food-first 블록에서 호출) ──────────────────────────
+function _forceFoodClassify(lower, title="", tags="") {
+  // Frozen Food 먼저
+  if (/\bfrozen\b(?!.*yogurt|.*berry(?!.*soup)|.*fresh)/i.test(lower) &&
+      /meal|rice|dumpling|cutlet|seafood|vegetable|veg\b|veggie|shrimp|pork|beef|chicken|wing|steak|spinach|garlic|squid|fish|bibimbap|stir.fried/i.test(lower)) {
+    return { type: "Korean Food > Frozen Food", src: "force-frozen" };
+  }
+  // Refrigerated
+  if (/(?:pork|beef|duck|chicken|lamb).*(?:cut|chilled|boneless|stew cut)|(?:chilled|refrigerated).*(?:pork|beef|meat)/i.test(lower) ||
+      /marinated.*(?:pork|beef|chicken|bulgogi|galbi)/i.test(lower)) {
+    return { type: "Korean Food > Refrigerated Foods", src: "force-refrig" };
+  }
+  // Beverages
+  if (/\bjuice\b(?!.*eye|.*lens)|cold brew|probiotic.*drink(?!.*tablet|.*capsule)|aloe.*drink|\bilohas\b|capri.*sun|flavored.*water(?!.*lotion)|energy drink|sports.*drink(?!.*supplement)|fruit.*tea.*(?:collection|set|pack)|honey.*tea(?!.*mask)|assorted.*tea(?!.*supplement)|\bcoffee\b.*(?:\d+ml|pack of|bottles?)|\bmilk\b.*(?:pack of \d+|\d+ml.*pack|mini.*pack|bottles?.*\d+)/i.test(lower)) {
+    return { type: "Korean Food > Beverages", src: "force-bev" };
+  }
+  // Soup → Packaged Foods
+  if (/\bsoup\b|hangover.*soup|instant.*soup|cream.*soup|miso.*soup|yukgaejang|seaweed.*soup(?!.*powder)|beef.*soup|radish.*soup/i.test(lower)) {
+    return { type: "Korean Food > Packaged Foods", src: "force-soup" };
+  }
+  // Ramen & Noodles
+  if (/\bramen\b|noodle|\budon\b|\bnaengmyeon\b|medium noodle|wheat noodle|instant noodle/i.test(lower)) {
+    return { type: "Korean Food > Ramen & Noodles", src: "force-ramen" };
+  }
+  // Kimchi
+  if (/\bkimchi\b|김치/i.test(lower)) {
+    return { type: "Korean Food > Kimchi", src: "force-kimchi" };
+  }
+  // Sauces
+  if (/\bsauce\b|soy sauce|\bgochujang\b|\bdoenjang\b|\bkochujang\b|\bdressing\b|\bvinegar\b|\bpaste\b(?!.*tooth)|\bcondiment\b|msg\b|seasoning(?!.*snack)|ajinomoto|miwon|furikake/i.test(lower)) {
+    return { type: "Korean Food > Sauces & Condiments", src: "force-sauce" };
+  }
+  // Snacks (tea 제외)
+  if (/snack|\bchips?\b|\bcookies?\b|\bcracker\b|\bcandy\b|\bgummy\b|\bpopcorn\b/i.test(lower)) {
+    return { type: "Korean Food > Snacks & Chips", src: "force-snack" };
+  }
+  // Tea → Beverages
+  if (/\btea\b(?!.*tree|.*tree.*oil)/i.test(lower)) {
+    return { type: "Korean Food > Beverages", src: "force-tea" };
+  }
+  // Grains/Beans → Packaged Foods or Fresh Produce
+  if (/grain.*mix|multi.grain|잡곡|오곡/i.test(lower)) {
+    return { type: "Korean Food > Packaged Foods", src: "force-grain-mix" };
+  }
+  if (/black soybean|seoritae|서리태|검정콩|white soybean|baektae|chickpea|black.eyed pea|kidney bean|soybean|soybeans/i.test(lower)) {
+    return { type: "Korean Food > Fresh Produce", src: "force-soy" };
+  }
+  if (/\bmilk\b/i.test(lower) && !/thistle|bath|lotion|formula|protein/i.test(lower)) {
+    return { type: "Korean Food > Beverages", src: "force-milk" };
+  }
+  if (/\bgrain\b/i.test(lower) && !/alcohol|skin.*extract/i.test(lower)) {
+    return { type: "Korean Food > Packaged Foods", src: "force-grain" };
+  }
+  if (/\bseafood\b/i.test(lower)) {
+    return { type: "Korean Food > Packaged Foods", src: "force-seafood" };
+  }
+  if (/vegetable|\bfruit\b(?!.*acid|.*enzyme)/i.test(lower) && !/extract.*skin|skin.*extract/i.test(lower)) {
+    return { type: "Korean Food > Fresh Produce", src: "force-veg" };
+  }
+  if (/\bbean\b/i.test(lower) && !/eye.*bag|coffee.*bean.*extract/i.test(lower)) {
+    return { type: "Korean Food > Fresh Produce", src: "force-bean" };
+  }
+  // 분류 안되면 null (다음 단계에서 처리)
+  return null;
+}
+
 function ruleClassify(title="", tags="") {
   const text = `${title} ${tags}`.trim();
   const lower = text.toLowerCase();
+
+  // ════════════════════════════════════════════════════════════════
+  // 🚨 절대 최우선 — FOOD 강제 분류 블록
+  // Beauty보다 먼저 실행 / 모든 brand/cushion 블록보다 먼저
+  // ════════════════════════════════════════════════════════════════
+  // 음식 강신호: 이 키워드가 있으면 Beauty 계열로 절대 못 감
+  const _FOOD_HARD = /\bsoup\b|\bstew\b(?!.*cut)|\bramen\b|\bnoodle\b|\bkimchi\b|\btteokbokki\b|\bbibimbap\b|\bbulgogi\b|\bgalbi\b(?!.*tteok)|\bdoenjang\b|\bgochujang\b|dumpling|\bfrozen.*(?:meal|rice|veg|dumpling|cutlet|seafood)|\bfried rice\b|hangover.*soup|yukgaejang|미역국|김치|된장|고추장|잡채|불고기|라면|만두|떡볶이/i;
+
+  // 음식 약신호: 다른 컨텍스트와 함께 체크
+  const _FOOD_SOFT = /\btea\b(?!.*tree|.*tree.*oil|.*green.*extract)|\bdrink\b(?!.*probiotic.*supplement)|\bjuice\b(?!.*eye.*care|.*lens)|\bsnack\b|beverage|\bcoffee\b(?!.*scrub|.*body.*scrub)|\bmilk\b(?!.*thistle|.*bath|.*mist|.*lotion|.*formula|.*protein)|\bgrain\b(?!.*alcohol|.*extract.*skin)|soybean|seafood(?!.*collagen)|\bvegetable(?!.*extract.*skin)|\bfruit\b(?!.*acid|.*enzyme.*skin)|\bbean\b(?!.*eye.*bag|.*spill)/i;
+
+  // Beauty 컨텍스트 (soft food 신호가 있어도 이게 있으면 beauty 허용)
+  const _BEAUTY_CTX = /serum|toner|ampoule|cleanser|moisturizer|sunscreen|spf|mask pack|sheet mask|essence.*skin|\bpore\b|\bacne\b|\bhydrating\b|\bsoothing.*skin|\banti.aging|wrinkle|collagen.*skin|peptide.*skin|ceramide|hyaluronic/i;
+
+  if (_FOOD_HARD.test(lower)) {
+    // 강신호 → food 분류 시도, null이면 계속
+    const forced = _forceFoodClassify(lower, title, tags);
+    if (forced) return forced;
+  }
+
+  if (_FOOD_SOFT.test(lower) && !_BEAUTY_CTX.test(lower)) {
+    // 약신호 + beauty 컨텍스트 없음 → food 분류 시도
+    const forced = _forceFoodClassify(lower, title, tags);
+    if (forced) return forced;
+  }
+  // ════════════════════════════════════════════════════════════════
 
   // 0-0. 명확한 충돌 케이스 먼저 해결
 
@@ -245,6 +337,30 @@ function ruleClassify(title="", tags="") {
   // oats / bracken fern / dried vegetable
   if (/\boat(?!.*milk|.*cookie|.*cereal)|rolled oat|bracken fern|dried bracken|tiger.*bean|herbal.*bean/i.test(lower)) {
     return { type: "Korean Food > Fresh Produce", src: "rule-oats-bracken" };
+  }
+  // black soybeans → Fresh Produce (AI 오분류 방지)
+  if (/black soybean|seoritae|서리태|검정콩|seomok|seomoktae/i.test(lower)) {
+    return { type: "Korean Food > Fresh Produce", src: "rule-black-soy" };
+  }
+  // grain mix / five-grain / multi-grain → Packaged Foods
+  if (/grain.*mix|\bfive.grain\b|multi.grain|잡곡|오곡|현미(?!.*snack)/i.test(lower)) {
+    return { type: "Korean Food > Packaged Foods", src: "rule-grain-mix" };
+  }
+  // traditional noodle / wheat noodle → Ramen & Noodles
+  if (/\bnoodle\b(?!.*bowl.*ceramic|.*dish)|wheat noodle|medium noodle|traditional.*noodle/i.test(lower)) {
+    return { type: "Korean Food > Ramen & Noodles", src: "rule-noodle" };
+  }
+  // dried herb for health / bidens / wellness herb → Health & Supplements
+  if (/bidens herb|dried.*herb.*(?:health|wellness|remedy)|herbal.*remedy|natural.*remedy(?!.*hair)/i.test(lower)) {
+    return { type: "Korean Food > Health & Supplements", src: "rule-herb-health" };
+  }
+  // barbershop / neck shaper / hairline trimmer → Household Supplies
+  if (/barbershop|neck shaper|neck.*sharper|hairline.*trim|hair.*trim.*tool/i.test(lower)) {
+    return { type: "Home & Living > Household Supplies", src: "rule-barbershop" };
+  }
+  // pokemon / anime sticker set → Stationery
+  if (/pokemon.*(?:sticker|note|phrase|set)|anime.*sticker|sanrio.*sticker|character.*sticker.*set/i.test(lower)) {
+    return { type: "Stationery & Office", src: "rule-char-sticker" };
   }
   if (/dried.*wild vegetable|wild.*herb(?!.*supplement)|fresh.*wild vegetable|frozen.*spinach|frozen.*minced.*spinach/i.test(lower)) {
     return { type: "Korean Food > Fresh Produce", src: "rule-wild-veg" };
@@ -567,7 +683,7 @@ function ruleClassify(title="", tags="") {
 
   // 5. RULES 순회 전 — 음식/생활용품이 Beauty로 빠지는 것 최종 차단
   // (BLOCK_RULES의 isBlocked와 별개로 명시적 early-exit)
-  const _foodKeyword = /\bsoup\b|\bstew\b(?!.*cut)|\bkimchi\b|\bramen\b|\bnoodle\b|\bfried rice\b|\bbibimbap\b|\bfrozen.*meal\b|instant.*food|hangover.*soup/i.test(lower);
+  const _foodKeyword = /\bsoup\b|\bstew\b(?!.*cut)|\btea\b(?!.*tree|.*tree.*oil)|\bdrink\b(?!.*probiotic.*supplement)|\bjuice\b(?!.*eye|.*lens)|\bsnack\b|\bbeverage\b|\bcoffee\b(?!.*scrub)|\bmilk\b(?!.*thistle|.*bath|.*lotion|.*formula|.*protein)|\bsoybean\b|\bseafood\b(?!.*collagen)|grain(?!.*alcohol)|bean(?!.*eye.*bag)|ramen|noodle|kimchi|bibimbap|bulgogi|dumpling|frozen.*meal|fried rice|hangover.*soup|yukgaejang/i.test(lower);
   const _nonBeauty = /toothbrush|toothpaste|\bdetergent\b|\blaundry\b|\binsole\b|knee.*brace|knee.*support|wrapping paper|folding fan|feather fan|\bnecklace\b|\bkeyring\b|tassel charm/i.test(lower);
   if (_foodKeyword || _nonBeauty) {
     // 이 항목들은 Beauty RULES로 절대 들어가지 않음
@@ -576,8 +692,8 @@ function ruleClassify(title="", tags="") {
 
   // 5. RULES 순회 + BLOCK_RULES 적용
   for (const rule of RULES) {
-    // 음식 신호 있으면 Beauty 카테고리 스킵
-    if (_foodKeyword && rule.type.startsWith("Beauty")) continue;
+    // 음식/비뷰티 신호 → Beauty 카테고리 스킵
+    if ((_foodKeyword || _FOOD_HARD.test(lower) || _FOOD_SOFT.test(lower)) && rule.type.startsWith("Beauty")) continue;
     if (_nonBeauty && rule.type.startsWith("Beauty")) continue;
     if (rule.type === "Beauty > Mask Packs" && !isMaskPackText(text)) continue;
     if (rule.rx.test(text) && !isBlocked(rule.type, text)) {
@@ -940,17 +1056,40 @@ No Korean allowed in any field.`;
 
 const AI_TYPE_PROMPT = `Classify this product into exactly ONE of these types. NEVER output "life". Prefer conservative classification. Reply with ONLY the type name.
 
+CRITICAL RULES (NEVER violate):
+- Food products (soybeans, grains, noodles, soup, herbs for eating) → NEVER Beauty
+- Stationery/toys (stickers, notes, character sets) → NEVER Beauty
+- Household tools (neck shaper, hairline trimmer, barbershop tools) → NEVER Beauty
+- Black soybeans / seoritae / five-grain mix / multigrain → Korean Food > Fresh Produce or Packaged Foods
+- Traditional wheat noodles / medium noodles → Korean Food > Ramen & Noodles
+- Dried herbs for health/wellness (bidens, burdock, etc.) → Korean Food > Health & Supplements
+- Pokemon / anime / character sticker set / note set → Stationery & Office
+- Barbershop / neck shaper / hairline tool → Home & Living > Household Supplies
+
 Key distinction - Korean Food > Snacks & Chips vs Korean Food > Packaged Foods:
 - Snacks & Chips: ready-to-eat items (chips, crackers, cookies, candy, gummies, popcorn, rice snacks, nurungji chips, energy bars)
 - Packaged Foods: meal or cooking-based items (ramen, dumplings, frozen food, instant rice, meal kits, porridge, curry, soup base)
 
+New categories (use these):
+- Beauty > Makeup: foundation, cushion, BB cream, concealer, lipstick, mascara, pact
+- Beauty > Oral Care: toothbrush, toothpaste, mouthwash, teeth whitening
+- Korean Food > Frozen Food: frozen meals, frozen vegetables, frozen seafood
+- Korean Food > Refrigerated Foods: chilled/fresh meat cuts, refrigerated food
+- Korean Food > Beverages: juice, coffee drinks, milk packs, probiotic drinks
+- Fashion > Hats: baseball cap, sun cap, bucket hat
+- Fashion > Bags: backpack, tote bag, handbag
+- Home & Living > Cleaning Supplies: detergent, fabric softener, bleach, mold remover
+
 Rules:
 - Nurungji chips / nurungji snack → Snacks (NOT Packaged)
 - Plain nurungji → Snacks (default safer)
-- Dried seaweed / kim / miyeok → NOT Packaged (leave as Other if unsure)
-- Herbal tea / barley tea / corn tea → NOT Packaged (Other or Beverage)
+- Dried seaweed / kim / miyeok → Banchan or Packaged Foods
+- Herbal tea / fruit tea / honey tea → Korean Food > Beverages
+- Barley tea / corn tea → Korean Food > Beverages
 - Flour / powder / starch → NOT Packaged (ingredient, leave as Other)
 - Pancake mix → NOT Packaged
+- Foundation / cushion / bb cream → Beauty > Makeup (NOT Skincare)
+- Sun stick / sunscreen / SPF product → Beauty > Sun Care (NOT Skincare)
 
 ${TYPES.join("\n")}`;
 
@@ -1219,8 +1358,11 @@ function downloadCSV(rawRows, headers, resultMap, applyPrice, translateOptions=f
     if(idx.ti>=0) nr[idx.ti] = r.titleEn || r.title;
     if(idx.yi>=0) nr[idx.yi] = r.newType;
     // Product Category에도 동일한 분류값 기록 (Shopify 필터링용)
+    // ⚠️ isFirst 여부 관계없이 모든 행에 적용 (Shopify 컬렉션 필터링)
     const pcIdx = headers.indexOf("Product Category");
-    if(pcIdx>=0) nr[pcIdx] = r.newType;
+    if(pcIdx>=0 && r.newType) {
+      nr[pcIdx] = r.newType;
+    }
 
     // ── 옵션값 번역: translateOptions ON일 때만 ───────────────────────────
     const curO1 = idx.o1v>=0 ? (row[idx.o1v]||"") : "";
