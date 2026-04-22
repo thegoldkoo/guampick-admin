@@ -38,7 +38,7 @@ const RULES = [
 
   // ── 최우선 3: 꽃/선물 (soap 단독 세정제 오염 방지) ───────────────────
   { type:"Flowers & Gifts",
-    rx:/soap flower|비누꽃|preserved flower|\bbouquet\b|꽃다발|peony.*(?:bouquet|flower|gift)|rose.*bouquet|조화|프리저브드/i },
+    rx:/soap flower|비누꽃|preserved flower|\bbouquet\b|꽃다발|peony.*(?:bouquet|flower|gift)|rose.*bouquet|조화|프리저브드|folding fan|feather fan|paper fan|silk fan|hanji.*fan|handheld.*fan|\bnecklace\b(?!.*chain store)|\bkeyring\b|key ring|lucky amulet|tassel charm|traditional.*charm|norigae|hanbok.*apron|hanbok.*gown|traditional.*apron|twine.*set(?!.*kitchen)/i },
 
   // ── 뷰티 최우선 차단 ──────────────────────────────────────────────────
   // 염색약/헤어컬러 — 스킨케어로 빠지기 전에 먼저 잡음
@@ -81,7 +81,7 @@ const RULES = [
 
   // ⚠️ Snacks — protein bar/energy bar 제거 (Health로 보냄)
   { type:"Korean Food > Snacks & Chips",
-    rx:/chips|cracker|cookie|biscuit|candy|gummy|jelly candy|popcorn|snacks?|rice puff|snack puff|chocolate|초콜릿|콘칲|칩|과자|스낵|사탕|젤리(?!.*vitamin)|쿠키|비스킷|팝콘|강냉이|뻥튀기|나쵸|빼빼로|새우깡|꼬북칩|홈런볼|오징어집|꼬깔콘|프링글|누룽지칩|누룽지(?!.*죽)|누룽지과자|쌀과자|곡물과자|스낵바|roasted seaweed|seaweed snack|김스낵|lollipop|mixed nuts|nuts|almonds?|walnuts?|cereal|yukwa|유과|강정|fruit snack|honey snack|confectionery|nut mix|trail mix|haitai|orion|lotte(?!.*hotel)|crown(?!.*cork)|haetae|grilled.*seaweed|seasoned.*seaweed|gimtae|laver snack|\bfranks\b|\bsausage\b(?!.*pasta)|hot dog|corn dog|mini.*sausage|cocktail.*sausage/i },
+    rx:/chips|cracker|cookie|biscuit|candy|gummy|jelly candy|popcorn|snacks?|rice puff|snack puff|chocolate|초콜릿|콘칲|칩|과자|스낵|사탕|젤리(?!.*vitamin)|쿠키|비스킷|팝콘|강냉이|뻥튀기|나쵸|빼빼로|새우깡|꼬북칩|홈런볼|오징어집|꼬깔콘|프링글|누룽지칩|누룽지(?!.*죽)|누룽지과자|쌀과자|곡물과자|스낵바|roasted seaweed|seaweed snack|김스낵|lollipop|mixed nuts|nuts|almonds?|walnuts?|cereal|yukwa|유과|강정|fruit snack|honey snack|confectionery|nut mix|trail mix|haitai|orion|lotte(?!.*hotel)|crown(?!.*cork)|haetae|grilled.*seaweed|seasoned.*seaweed|gimtae|laver snack|\bfranks\b|\bsausage\b(?!.*pasta)|hot dog|corn dog|mini.*sausage|cocktail.*sausage|\bgalchi mi\b|\bgalchi\b(?!.*stew)|beef.*jerky|dried.*snack.*beef|roasted.*chestnut|peanut.*roche|rocher.*peanut/i },
 
   // ⚠️ Packaged Foods = 식사/즉석조리용 (라면/국수류 제외 — Ramen & Noodles로)
   { type:"Korean Food > Packaged Foods",
@@ -101,7 +101,7 @@ const RULES = [
 
   // Fresh Produce — 진짜 신선식품만
   { type:"Korean Food > Fresh Produce",
-    rx:/친환경|유기농|무농약|fresh vegetable|fresh fruit|fresh produce|야채|채소|과일|bean sprouts|mung bean sprouts|콩나물|숙주|깻잎|perilla leaf|치커리|상추|배추|오이|미나리|쑥갓|브로콜리|토마토|양파|마늘|애호박|zucchini|당근|carrot|감자(?!.*chip)|potato(?!.*chip|.*starch|.*flour)|고구마(?!.*chip|.*snack)|sweet potato(?!.*chip|.*snack)|fresh ginger|생강|wild thistle|곤드레|엉겅퀴|chives|쪽파|부추|leek|taro|mushroom(?!.*snack|.*chip)|버섯(?!.*스낵|.*칩)|tofu|두부|fresh\s+(?:apple|grape|orange|lemon|pear|blueberr|strawberr|melon|watermelon|mango)|GAP.*(?:berry|fruit|apple|grape)|chili pepper|chilli pepper|청양고추|고추(?!.*sauce|.*oil|.*paste)|kale|organic greens|grain mix|\bbarley\b(?!.*tea)|\bchestnut\b|군밤|잡곡(?!.*밥)|현미(?!.*밥|.*즉석)|frozen.*vegetable|frozen.*veg(?!.*sauce|.*stock)|mixed.*vegetable|vegetable.*mix(?!.*sauce)|mixed.*frozen.*veg|assorted.*vegetable|mixed.*veg.*pack/i },
+    rx:/친환경|유기농|무농약|fresh vegetable|fresh fruit|fresh produce|야채|채소|과일|bean sprouts|mung bean sprouts|콩나물|숙주|깻잎|perilla leaf|치커리|상추|배추|오이|미나리|쑥갓|브로콜리|토마토|양파|마늘|애호박|zucchini|당근|carrot|감자(?!.*chip)|potato(?!.*chip|.*starch|.*flour)|고구마(?!.*chip|.*snack)|sweet potato(?!.*chip|.*snack)|fresh ginger|생강|wild thistle|곤드레|엉겅퀴|chives|쪽파|부추|leek|taro|mushroom(?!.*snack|.*chip)|버섯(?!.*스낵|.*칩)|tofu|두부|fresh\s+(?:apple|grape|orange|lemon|pear|blueberr|strawberr|melon|watermelon|mango)|GAP.*(?:berry|fruit|apple|grape)|chili pepper|chilli pepper|청양고추|고추(?!.*sauce|.*oil|.*paste)|kale|organic greens|grain mix|\bbarley\b(?!.*tea)|\bchestnut\b|군밤|잡곡(?!.*밥)|현미(?!.*밥|.*즉석)|frozen.*vegetable|frozen.*veg(?!.*sauce|.*stock)|mixed.*vegetable|vegetable.*mix(?!.*sauce)|mixed.*frozen.*veg|assorted.*vegetable|mixed.*veg.*pack|cucumber|onion(?!.*ring|.*powder.*season|.*dip|.*sauce)|melon(?!.*flavor|.*tea)|burdock|purslane/i },
 
   // ── Beauty ────────────────────────────────────────────────────────────
   { type:"Beauty > Sun Care",
@@ -126,7 +126,7 @@ const RULES = [
   { type:"Baby & Kids > Toys & Games", rx:/장난감|블록(?!.*수납)|퍼즐(?!.*성인)|보드게임|toy|building block|coloring book|step stool.*toddler|toddler.*step stool|toddler.*footrest|foam.*bat.*kids|soft.*bat.*kids/i },
   { type:"Pet Supplies",               rx:/hamster|\brabbit food\b|\bbird food\b|\bbird.*feed\b|guinea pig|dog food|cat food|dog treat|pet food|cat treat|강아지사료|고양이사료|반려동물|펫푸드|강아지간식/i },
   { type:"Stationery & Office",
-    rx:/ballpoint pen|pencil|eraser|scissors|tape|notebook(?!.*laptop)|marker|stapler|refill(?!.*pack)|ink cartridge|pen refill|marker refill|watercolor|paintbrush|brush set|art supply|볼펜|연필|지우개|가위|테이프|노트(?!북 컴퓨터)|형광펜|포스트잇|크레용|크레파스|스테이플러|리필|잉크/i },
+    rx:/ballpoint pen|pencil|eraser|scissors|tape|notebook(?!.*laptop)|marker|stapler|refill(?!.*pack)|ink cartridge|pen refill|marker refill|watercolor|paintbrush|brush set|art supply|볼펜|연필|지우개|가위|테이프|노트(?!북 컴퓨터)|형광펜|포스트잇|크레용|크레파스|스테이플러|리필|잉크|wrapping paper|\bsticker set\b|\bsticker.*collection\b|pixel.*sticker|gift wrap/i },
   { type:"Automotive",
     rx:/car air freshener|car diffuser|car shampoo|car wash|car wax|car neck pillow|car cup holder|car sunvisor|car seat|car drying|car hanging|car armrest|car towel|motorcycle|windshield|washer fluid|wiper|tire|vehicle|automotive|자동차|차량용|카샴푸|카워시|선바이저|오토바이/i },
   { type:"Fashion > Hats",
@@ -146,7 +146,7 @@ const RULES = [
     rx:/laundry detergent|dish soap|toilet paper|trash can|waste bin|tissue|wet wipe(?!.*car)|floor mat|bath mat|doormat|non-slip|sealant|cable tie|cleaner|세제(?!.*헤어)|섬유유연제|주방세제|화장지|청소포|탈취|쓰레기통|휴지통|매트/i },
   // Home Interior — seat cushion/방석 추가
   { type:"Home & Living > Home & Interior",
-    rx:/인테리어|가구|seat cushion|chair cushion|sofa cushion|방석|소파 쿠션|의자 쿠션|쿠션 커버|수납|담요|홈데코|blind|roller screen|artificial tree|stool|shoe horn|organizer|storage box|hook|hanger(?!.*clothes)|걸이|행거/i },
+    rx:/인테리어|가구|seat cushion|chair cushion|sofa cushion|방석|소파 쿠션|의자 쿠션|쿠션 커버|수납|담요|홈데코|blind|roller screen|artificial tree|stool|shoe horn|organizer|storage box|hook|hanger(?!.*clothes)|걸이|행거|\btable cover\b|ramie.*fabric|moshi.*fabric|traditional.*table.*mat|\btable runner\b/i },
   { type:"Flowers & Gifts",  rx:/비누꽃|조화|프리저브드|soap flower|꽃다발|\bbouquet\b|선물세트|gift set|peony|preserved flower|flower.*arrangement|arrangement.*flower/i },
   { type:"Other",        rx:/\$1.*bakery|\$1.*korea|1달러.*베이커리/i },
 ];
@@ -158,7 +158,7 @@ const FOOD_W = /(\d+(?:\.\d+)?)\s*(g|ml)\s*[,，x×*]\s*(\d+)\s*(개|팩|봉|캔
 // ── 차단 룰 ─────────────────────────────────────────────────────────────────
 const BLOCK_RULES = [
   { block:"Beauty > Skincare",
-    rx:/\bsauce\b|\bfood\b|ramen|snack|cake(?!.*face|.*pack)|pie\b|bread|kimchi|\bsoup\b|\bstock\b(?!.*ings)|cooking|baking|seasoning|detergent|laundry|kitchen|utensil|toothbrush|toothpaste|\bdental\b|body cream|body lotion|body wash|hand cream|\bshampoo\b|\bconditioner\b|correction tape|pen pouch|cabin filter|scorched rice|roasted.*rice(?!.*extract)|\binsole\b|carbon.*fiber.*insole|seaweed salad|frozen.*grain|grain.*frozen|lucky pouch|\bfoundation\b|cushion.*foundation|\bbb cream\b|\bcc cream\b|\bconcealer\b|\bprimer\b|\blipstick\b|\blip gloss\b|\blip tint\b|\blip balm\b|\beyeshadow\b|\beye shadow\b|\beyeliner\b|\bmascara\b|\bblush\b(?!.*skin)|\bblusher\b|\bhighlighter\b|\bcontour\b|\bshading\b|setting powder|setting spray|makeup base|cover pact|tone up cream|air cushion|\bpact\b(?!.*vitamin)|makeup(?!.*remover)|파운데이션|립스틱|아이섀도|마스카라|컨실러/i },
+    rx:/\bsauce\b|\bfood\b|ramen|snack|cake(?!.*face|.*pack)|pie\b|bread|kimchi|\bsoup\b|\bstock\b(?!.*ings)|cooking|baking|seasoning|detergent|laundry|kitchen|utensil|toothbrush|toothpaste|\bdental\b|body cream|body lotion|body wash|hand cream|\bshampoo\b|\bconditioner\b|correction tape|pen pouch|cabin filter|scorched rice|roasted.*rice(?!.*extract)|\binsole\b|carbon.*fiber.*insole|seaweed salad|frozen.*grain|grain.*frozen|lucky pouch|\bfoundation\b|cushion.*foundation|\bbb cream\b|\bcc cream\b|\bconcealer\b|\bprimer\b|\blipstick\b|\blip gloss\b|\blip tint\b|\blip balm\b|\beyeshadow\b|\beye shadow\b|\beyeliner\b|\bmascara\b|\bblush\b(?!.*skin)|\bblusher\b|\bhighlighter\b|\bcontour\b|\bshading\b|setting powder|setting spray|makeup base|cover pact|tone up cream|air cushion|\bpact\b(?!.*vitamin)|makeup(?!.*remover)|파운데이션|립스틱|아이섀도|마스카라|컨실러|\bnecklace\b|\bkeyring\b|folding fan|feather fan|tassel charm|\binsole\b|knee.*brace|knee.*support|incontinence|fruit.*tea|honey.*tea|wrapping paper|\bgalchi\b|\bcucumber\b|\bonion\b(?!.*dip)|spatula|\bscraper\b|sticker.*set|table cover|ramie/i },
   { block:"Korean Food > Fresh Produce",
     rx:/chips|snack|jelly|porridge|cake|pie|cookie|cracker|\bdrink\b|\bjuice\b(?!.*lemon)|roasted|dried(?!.*herb)|frozen(?!.*vegetable|.*veggie|.*veg\b)|instant|\bpowder\b|\bblend\b|ready.to.eat|fried rice|rice ball|볶음밥/i },
   // Packaged Foods에서 그릇/식기/차 차단
@@ -362,6 +362,10 @@ function ruleClassify(title="", tags="") {
   if (/mold remover|nano.*coat|nano.*clean|stain.*remover(?!.*laundry.*brand)|clorox|bleach(?!.*tooth|.*white)|laundry detergent|fabric softener|dishwash.*liquid|dish soap(?!.*skin)|floor cleaner|drain cleaner/i.test(lower)) {
     return { type: "Home & Living > Cleaning Supplies", src: "rule-cleaning" };
   }
+  // 성인용 위생용품 → Household
+  if (/incontinence pad|adult.*pad(?!.*launch)|adult.*diaper|adult.*nappy/i.test(lower)) {
+    return { type: "Home & Living > Household Supplies", src: "rule-adult-care" };
+  }
   // bath towel / quilt cover → Household
   if (/\bbath towel\b|\bquilt cover\b|\bquilt.*case\b|hotel.*towel|combed cotton.*towel|waterproof.*quilt|extra large.*quilt/i.test(lower)) {
     return { type: "Home & Living > Household Supplies", src: "rule-towel" };
@@ -391,7 +395,7 @@ function ruleClassify(title="", tags="") {
     return { type: "Korean Food > Refrigerated Foods", src: "rule-marinated-meat" };
   }
   // ── Beverages ────────────────────────────────────────────────────────────────
-  if (/\bjuice\b(?!.*eye|.*lens)|cold brew coffee|probiotic.*drink(?!.*capsule|.*tablet)|aloe.*drink|\bilohas\b|capri.*sun|flavored.*water(?!.*lotion)|\benergy drink\b|sports.*drink(?!.*supplement)/i.test(lower)) {
+  if (/\bjuice\b(?!.*eye|.*lens)|cold brew coffee|probiotic.*drink(?!.*capsule|.*tablet)|aloe.*drink|\bilohas\b|capri.*sun|flavored.*water(?!.*lotion)|\benergy drink\b|sports.*drink(?!.*supplement)|fruit.*tea.*collection|honey.*tea(?!.*mask)|herbal.*tea.*collection|assorted.*tea(?!.*supplement)/i.test(lower)) {
     return { type: "Korean Food > Beverages", src: "rule-beverages" };
   }
   if (/\bmilk\b.*(?:pack of \d+|\d+ml.*pack|mini.*\d+|bottles?.*\d+|\d+.*bottles?)/i.test(lower) && !/thistle|bath|formula|lotion|shampoo/i.test(lower)) {
@@ -466,6 +470,10 @@ function ruleClassify(title="", tags="") {
   // costume / dress-up / pretend play → Baby > Toys & Games
   if (/\bcostume\b(?!.*halloween.*adult)|dress.up|pretend play|role play.*outfit|role play.*kids/i.test(lower)) {
     return { type: "Baby & Kids > Toys & Games", src: "rule-costume" };
+  }
+  // insole / knee brace / support brace → Sports > Exercise & Fitness
+  if (/\binsole\b|carbon.*insole|fiber.*insole|knee.*support|knee.*brace|support.*brace|ankle.*brace|wrist.*support|elbow.*support/i.test(lower)) {
+    return { type: "Sports & Outdoors > Exercise & Fitness", src: "rule-sport-support" };
   }
   // foam bat / cloth book / sensory toy (kids) → Baby > Toys & Games
   if (/foam.*bat(?!.*cricket)|soft.*bat.*kids|cloth.*book(?!.*adult)|sensory.*book|fabric.*book.*baby|step stool.*toddler|toddler.*step stool/i.test(lower)) {
