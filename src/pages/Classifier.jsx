@@ -39,7 +39,7 @@ const RULES = [
   // ── 뷰티 최우선 차단 ──────────────────────────────────────────────────
   // 염색약/헤어컬러 — 스킨케어로 빠지기 전에 먼저 잡음
   { type:"Beauty > Hair Care",
-    rx:/hair dye|hair color|hair colouring|color cream|bleach|염색약|염모제|탈색제|새치염색/i },
+    rx:/hair wax|hair gel|hair spray|hair pomade|hair gloss|hair mask|hair pack|hair serum|hair oil|hair essence|hair mist|hair tonic|styling.*wax|styling.*gel|strong hold.*spray|hair dye|hair color|hair colouring|color cream|bleach|염색약|염모제|탈색제|새치염색/i },
   // 쿠션파운데이션 — 방석 쿠션과 분리
   { type:"Beauty > Skincare",
     rx:/cushion foundation|쿠션 파운데이션|bb cushion|cc cushion|makeup cushion|sun cushion|air cushion/i },
@@ -59,7 +59,7 @@ const RULES = [
 
   // ⚠️ 떡볶이 — Snacks보다 먼저
   { type:"Korean Food > Packaged Foods",
-    rx:/tteokbokki|떡볶이|컵떡볶이|즉석떡볶이/i },
+    rx:/tteokbokki|떡볶이|컵떡볶이|즉석떡볶이|\boat rice\b|\bgrain rice\b|mixed.*grain(?!.*bowl)|잡곡밥(?!.*즉석)/i },
 
   // ⚠️ Snacks — protein bar/energy bar 제거 (Health로 보냄)
   { type:"Korean Food > Snacks & Chips",
@@ -83,7 +83,7 @@ const RULES = [
 
   // Fresh Produce — 진짜 신선식품만
   { type:"Korean Food > Fresh Produce",
-    rx:/친환경|유기농|무농약|fresh vegetable|fresh fruit|fresh produce|야채|채소|과일|bean sprouts|mung bean sprouts|콩나물|숙주|깻잎|perilla leaf|치커리|상추|배추|오이|미나리|쑥갓|브로콜리|토마토|양파|마늘|애호박|\bzucchini\b|당근|\bcarrot\b|감자(?!.*chip)|\bpotato\b(?!.*chip|.*starch)|고구마(?!.*chip|.*snack)|\bsweet potato\b(?!.*chip|.*snack)|fresh ginger|생강|wild thistle|곤드레|엉겅퀴|chives|쪽파|부추|leek|taro|mushroom(?!.*snack|.*chip)|버섯(?!.*스낵|.*칩)|tofu|두부|fresh\s+(?:apple|grape|orange|lemon|pear|blueberr|strawberr|melon|watermelon|mango)|GAP.*(?:berry|fruit|apple|grape)|chili pepper|chilli pepper|청양고추|고추(?!.*sauce|.*oil|.*paste)|kale|organic greens|grain mix|\brice\b(?!.*cake|.*cracker|.*snack|.*ramen)|\bbarley\b(?!.*tea)|\bchestnut\b|군밤|잡곡(?!.*밥)|현미(?!.*밥|.*즉석)/i },
+    rx:/친환경|유기농|무농약|fresh vegetable|fresh fruit|fresh produce|야채|채소|과일|bean sprouts|mung bean sprouts|콩나물|숙주|깻잎|perilla leaf|치커리|상추|배추|오이|미나리|쑥갓|브로콜리|토마토|양파|마늘|애호박|zucchini|당근|carrot|감자(?!.*chip)|potato(?!.*chip|.*starch|.*flour)|고구마(?!.*chip|.*snack)|sweet potato(?!.*chip|.*snack)|fresh ginger|생강|wild thistle|곤드레|엉겅퀴|chives|쪽파|부추|leek|taro|mushroom(?!.*snack|.*chip)|버섯(?!.*스낵|.*칩)|tofu|두부|fresh\s+(?:apple|grape|orange|lemon|pear|blueberr|strawberr|melon|watermelon|mango)|GAP.*(?:berry|fruit|apple|grape)|chili pepper|chilli pepper|청양고추|고추(?!.*sauce|.*oil|.*paste)|kale|organic greens|grain mix|\bbarley\b(?!.*tea)|\bchestnut\b|군밤|잡곡(?!.*밥)|현미(?!.*밥|.*즉석)|frozen.*vegetable|frozen.*veg(?!.*sauce|.*stock)|mixed.*vegetable|vegetable.*mix(?!.*sauce)|mixed.*frozen.*veg|assorted.*vegetable|mixed.*veg.*pack/i },
 
   // ── Beauty ────────────────────────────────────────────────────────────
   { type:"Beauty > Sun Care",
@@ -207,7 +207,7 @@ function ruleClassify(title="", tags="") {
     return { type: "Korean Food > Fresh Produce", src: "rule-garlic-fresh" };
   }
   if (/\bmussel meat\b|fresh.*mussel|\bsalmon fillet\b|\bscallop.*adductor\b|frozen.*salmon fillet|frozen.*scallop|fresh.*seafood/i.test(lower) && !/flavor|taste/i.test(lower)) {
-    return { type: "Korean Food > Fresh Produce", src: "rule-fresh-seafood" };
+    return { type: "Korean Food > Packaged Foods", src: "rule-fresh-seafood" };
   }
   if (/\bfava bean\b|\bred lentil\b|\blupin bean\b|\blentil\b(?!.*protein bar|.*supplement)/i.test(lower)) {
     return { type: "Korean Food > Fresh Produce", src: "rule-legumes" };
