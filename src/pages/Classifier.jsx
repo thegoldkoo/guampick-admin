@@ -26,7 +26,7 @@ const RULES = [
   { type:"Home & Living > Cleaning Supplies",
     rx:/laundry detergent|fabric softener|dishwasher detergent|dishwashing.*liquid|dish soap|\bbleach\b(?!.*tooth|.*whiten|.*hair)|mold remover|mold.*spray|toilet.*cleaner|toilet.*brush|all.purpose.*cleaner|surface cleaner|floor cleaner|drain cleaner|\bclorox\b|nano.*coat.*clean|\bdowny\b|세탁.*세제|세탁액|섬유유연제|주방.*세제|식기세척|곰팡이.*제거|laundry.*capsule|capsule.*laundry|laundry.*pod|washing.*pod|세탁.*캡슐|캡슐.*세탁/i },
 { type:"Home & Living > Household Supplies",
-    rx:/\bwashing machine cleaner|capsule dish soap(?!.*beauty)|zipper bag|dishwashing|dr\.?\s*beckmann|snuggle|\bdowny\b|세탁세제|세탁조세제|섬유유연제|\b|\b|\b|\b|\b\boral.?b\b|yusimol|median|치약|칫솔|구강청결제|가글|치실/i },
+    rx:/\bwashing machine cleaner\b|zipper bag|dr\.?\s*beckmann|snuggle|\bdowny\b|세탁조세제/i },
   { type:"Beauty > Body Care",
     rx:/body wash|body lotion|body scrub|body oil|body butter|hand cream|hand lotion|hand wash|바디워시|바디로션|바디스크럽|핸드크림|핸드로션/i },
   { type:"Home & Living > Kitchenware",
@@ -143,7 +143,7 @@ const RULES = [
   { type:"Home & Living > Kitchenware",
     rx:/\bspatula\b|\bscraper\b(?!.*ice|.*car)|flexible.*turner|cooking.*spatula|stainless.*whisk|\bladle\b|shaved ice bowl|oatmeal plate|dinner plate|frying pan|rice cooker|kitchen knife|chopsticks?\b|cutting board|\bpasta bowl\b|ceramic.*bowl|melamine.*bowl|\bceramic.*dish\b|tableware|냄비|프라이팬|도마|주방칼|밀폐용기|락앤락|주전자|젓가락|강판|그라인더|그릇\b|cookware.*set|kitchen.*utensil.*set|stainless.*\d.piece.*set(?!.*bath)/i },
   { type:"Home & Living > Household Supplies",
-    rx:/dish soap|toilet paper|trash can|waste bin|tissue|wet wipe(?!.*car)|floor mat|bath mat|doormat|non-slip|sealant|cable tie|cleaner|세제(?!.*헤어)|섬유유연제|주방세제|화장지|청소포|탈취|쓰레기통|휴지통|매트/i },
+    rx:/toilet paper|trash can|waste bin|\btissue\b|wet wipe(?!.*car)|floor mat|bath mat|doormat|non-slip.*mat|cable tie|화장지|청소포|탈취|쓰레기통|휴지통|\b매트\b/i },
   // Home Interior — seat cushion/방석 추가
   { type:"Home & Living > Home & Interior",
     rx:/인테리어|가구|seat cushion|chair cushion|sofa cushion|방석|소파 쿠션|의자 쿠션|쿠션 커버|수납|담요|홈데코|blind|roller screen|artificial tree|stool|shoe horn|organizer|storage box|hook|hanger(?!.*clothes)|걸이|행거|\btable cover\b|ramie.*fabric|moshi.*fabric|traditional.*table.*mat|\btable runner\b/i },
@@ -345,8 +345,9 @@ function ruleClassify(title="", tags="") {
   if (/fava bean|red lentil|lupin bean|lentil(?!.*protein bar|.*supplement)|chickpea|garbanzo|white soybean|\bbaektae\b|black.eyed pea|black eyed pea|\bsorghum\b|kidney bean(?!.*paste|.*sauce)|\bred kidney bean\b(?!.*paste)/i.test(lower)) {
     return { type: "Korean Food > Fresh Produce", src: "rule-legumes" };
   }
-  // oats / bracken fern / dried vegetable
-  if (/\boat(?!.*milk|.*cookie|.*cereal)|rolled oat|bracken fern|dried bracken|tiger.*bean|herbal.*bean/i.test(lower)) {
+  // oats / bracken fern / dried vegetable (식품용만)
+  if (/\boat(?!.*milk|.*cookie|.*cereal|.*plate|.*bowl|.*mug|.*ceramic|.*dinnerware|.*tableware|.*dish)|rolled oat|bracken fern|dried bracken|tiger.*bean|herbal.*bean/i.test(lower)
+      && !/plate|dinnerware|ceramic|tableware|mug|kitchen|\bdish\b(?!.*food|.*meal)|botanic garden|portmeirion/i.test(lower)) {
     return { type: "Korean Food > Fresh Produce", src: "rule-oats-bracken" };
   }
   // black soybeans → Fresh Produce (AI 오분류 방지)
@@ -520,6 +521,11 @@ function ruleClassify(title="", tags="") {
   if (/(?:stew cut|boneless cut|leg cut|front leg|shoulder cut|\bcut piece).*(?:pork|beef|chicken|duck)|(?:pork|beef|chicken|duck).*(?:stew cut|boneless cut|leg cut|front leg)/i.test(lower)) {
     return { type: "Korean Food > Refrigerated Foods", src: "rule-meat-cut2" };
   }
+  // 세라믹/도자기 식기류 → Kitchenware (식품 키워드 오인 방지)
+  if (/portmeirion|botanic garden.*plate|ceramic.*(?:plate|bowl|dish|dinnerware|mug|cup)|dinnerware.*set|tableware.*set|\bchina\b.*(?:plate|dish|set)|porcelain.*(?:plate|bowl|cup)|melamine.*(?:plate|bowl)/i.test(lower)) {
+    return { type: "Home & Living > Kitchenware", src: "rule-ceramic-dishware" };
+  }
+
   // 영양 보충제 - albumin/EAA → Health (AI 오분류 방지)
   if (/\balbumin\b(?!.*skin|.*face)|\beaa\b(?!.*skin)|essential amino acid|drinkable.*(?:albumin|protein)|amino acid.*(?:supplement|powder|boost)|scorched rice|nurungji|누룽지|secret coin|동전육수/i.test(lower)) {
     if (/scorched rice|nurungji|누룽지/i.test(lower)) return { type: "Korean Food > Snacks & Chips", src: "rule-nurungji" };
@@ -741,7 +747,7 @@ const OTHER_RESCUE_RULES = [
   { type:"Korean Food > Snacks & Chips",
     rx:/\bcracker\b|\bbiscuit\b|\bcookie\b|\bsnack\b|\bgum\b|chewing gum|캔디|과자|비스킷|스낵바|에너지바|쌀과자|누룽지칩/i },
   { type:"Home & Living > Household Supplies",
-    rx:/laundry|scrubber|수세미|dish soap|oral.?b|세탁|치약|칫솔|구강/i },
+    rx:/\bscrubber\b|수세미|sponge cleaner/i },
   { type:"Home & Living > Home & Interior",
     rx:/organizer|storage|hook|hanger|adhesive|curtain|rod|\brack\b|\bbasket\b|container|bathroom accessory|sink accessory|수납|정리함|걸이|행거/i },
   { type:"Automotive",
