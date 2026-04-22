@@ -5,23 +5,27 @@ import { claude } from "../api";
 // ── 35 Types ─────────────────────────────────────────────────────────────────
 const TYPES = [
   "Beauty > Skincare","Beauty > Hair Care","Beauty > Body Care","Beauty > Mask Packs",
-  "Beauty > Sun Care","Beauty > Fragrance",
+  "Beauty > Sun Care","Beauty > Fragrance","Beauty > Makeup","Beauty > Oral Care",
   "Korean Food > Kimchi","Korean Food > Ramen & Noodles","Korean Food > Fresh Produce",
   "Korean Food > Snacks & Chips","Korean Food > Bread & Bakery","Korean Food > Banchan",
   "Korean Food > Sauces & Condiments","Korean Food > Health & Supplements","Korean Food > Packaged Foods",
-  "Fashion > Accessories",
+  "Korean Food > Refrigerated Foods","Korean Food > Frozen Food","Korean Food > Beverages",
+  "Fashion > Accessories","Fashion > Bags","Fashion > Socks & Hosiery","Fashion > Hats",
   "Sports & Outdoors > Exercise & Fitness","Sports & Outdoors > Golf",
   "Sports & Outdoors > Swimming","Sports & Outdoors > Outdoor & Camping",
-  "Home & Living > Household Supplies","Home & Living > Kitchenware","Home & Living > Home & Interior",
+  "Home & Living > Household Supplies","Home & Living > Kitchenware",
+  "Home & Living > Home & Interior","Home & Living > Cleaning Supplies",
   "Baby & Kids > Baby Care","Baby & Kids > Toys & Games",
-  "Stationery & Office","Automotive","Flowers & Gifts","Pet Supplies","$1 Bakery","Other",
+  "Stationery & Office","Automotive","Flowers & Gifts","Pet Supplies","Other",
 ];
 
 // ── Rule-based classifier (우선순위 가이드 기준) ──────────────────────────────
 // 순서: 떡볶이 → Snacks/Packaged → Bakery → Health → Sauces → Fresh → Beauty → 기타
 const RULES = [
   // ── 최우선 1: 생활용품 (뷰티/식품 키워드와 혼동 방지) ─────────────────
-  { type:"Home & Living > Household Supplies",
+  { type:"Home & Living > Cleaning Supplies",
+    rx:/laundry detergent|fabric softener|dishwasher detergent|dishwashing.*liquid|dish soap|\bbleach\b(?!.*tooth|.*whiten|.*hair)|mold remover|mold.*spray|toilet.*cleaner|toilet.*brush|all.purpose.*cleaner|surface cleaner|floor cleaner|drain cleaner|\bclorox\b|nano.*coat.*clean|\bdowny\b|세탁.*세제|세탁액|섬유유연제|주방.*세제|식기세척|곰팡이.*제거/i },
+{ type:"Home & Living > Household Supplies",
     rx:/\bdetergent\b|laundry detergent|washing machine cleaner|fabric softener|capsule detergent|dish soap(?!.*beauty)|zipper bag|dishwashing|dr\.?\s*beckmann|snuggle|\bdowny\b|세탁세제|세탁조세제|섬유유연제|\btoothbrush\b|\btoothpaste\b|\bdental\b|mouthwash|dental floss|\boral.?b\b|yusimol|median|치약|칫솔|구강청결제|가글|치실/i },
   { type:"Beauty > Body Care",
     rx:/body wash|body lotion|body scrub|body oil|body butter|hand cream|hand lotion|hand wash|바디워시|바디로션|바디스크럽|핸드크림|핸드로션/i },
@@ -38,7 +42,13 @@ const RULES = [
 
   // ── 뷰티 최우선 차단 ──────────────────────────────────────────────────
   // 염색약/헤어컬러 — 스킨케어로 빠지기 전에 먼저 잡음
-  { type:"Beauty > Hair Care",
+  { type:"Beauty > Makeup",
+    rx:/\bfoundation\b|cushion foundation|\bbb cream\b|\bcc cream\b|\bpact\b(?!.*vitamin|.*probio)|\bconcealer\b|\bprimer\b(?!.*skincare|.*serum)|lipstick|lip gloss|lip tint|lip balm|eyeshadow|eye shadow|\bblush\b(?!.*drink|.*powder|.*blush.*cheek.*cream)|\bhighlighter\b|\beyeliner\b|\bmascara\b|setting powder|setting spray|makeup.*base|tinted.*base|bb.*cushion|cover pact|tone up cream(?!.*body)|makeup/i },
+{ type:"Beauty > Makeup",
+    rx:/파운데이션|쿠션팩트|비비크림|컨실러|립스틱|립글로스|립밤|아이섀도|블러셔|하이라이터|아이라이너|마스카라|프라이머|메이크업/i },
+{ type:"Beauty > Oral Care",
+    rx:/toothbrush|toothpaste|mouthwash|dental floss|teeth whitening|whitening gel(?!.*skin)|mouth guard|tongue cleaner|oral.*care|dental.*care|치솔|칫솔|치약|구강청결|구강세정|구강/i },
+{ type:"Beauty > Hair Care",
     rx:/hair wax|hair gel|hair spray|hair pomade|hair gloss|hair mask|hair pack|hair serum|hair oil|hair essence|hair mist|hair tonic|styling.*wax|styling.*gel|strong hold.*spray|hair dye|hair color|hair colouring|color cream|bleach|염색약|염모제|탈색제|새치염색/i },
   // 쿠션파운데이션 — 방석 쿠션과 분리
   { type:"Beauty > Skincare",
@@ -51,14 +61,22 @@ const RULES = [
   { type:"Korean Food > Kimchi",
     rx:/kimchi|kimchee|김치|깍두기|kkakdugi|총각김치|열무김치|동치미|백김치/i },
   { type:"Korean Food > Banchan",
-    rx:/banchan|반찬|namul|나물|muchim|무침|jorim|조림|장아찌|멸치볶음|콩자반|오징어채볶음|깻잎장아찌|깻잎무침|젓갈|dried radish|무말랭이|cheonggukjang|청국장|dried rapeseed|rapeseed greens|wild greens|건나물|건조나물/i },
+    rx:/banchan|반찬|namul|나물|muchim|무침|jorim|조림|장아찌|멸치볶음|콩자반|오징어채볶음|깻잎장아찌|깻잎무침|젓갈|dried radish|무말랭이|cheonggukjang|청국장|dried rapeseed|rapeseed greens|wild greens|건나물|건조나물|seaweed sheet|dried.*seaweed(?!.*snack)|seaweed soup(?!.*powder)|seasoned.*vegetable.*dried|dried.*seasoned.*vegetable|laver(?!.*nori.*snack)/i },
 
   // ⚠️ Ramen & Noodles — 가장 먼저 (별도 카테고리)
   { type:"Korean Food > Ramen & Noodles",
     rx:/ramen|라면|jjajang|짜장면|instant noodle|noodle meal|국수|udon|우동|냉면|naengmyeon|rice noodle|vermicelli|당면|쌀국수|컵라면|봉지라면|신라면|진라면|너구리|안성탕면|불닭|짜파게티/i },
 
   // ⚠️ 떡볶이 — Snacks보다 먼저
-  { type:"Korean Food > Packaged Foods",
+  { type:"Korean Food > Frozen Food",
+    rx:/frozen(?!.*yogurt|.*berry|.*fruit.*fresh)|냉동(?!.*해제|.*보관 후)|frozen meal|frozen fried rice|frozen.*dumpling|frozen.*cutlet|frozen.*steak|frozen.*wing|frozen.*nugget/i },
+{ type:"Korean Food > Refrigerated Foods",
+    rx:/chilled(?!.*cream|.*drink)|refrigerated(?!.*cream)|냉장(?!.*보관 후)|fresh.*pork.*cut|fresh.*beef.*cut|fresh.*duck.*cut|marinated.*pork|marinated.*beef|marinated.*chicken|bulgogi(?!.*sauce)|fresh.*galbi/i },
+{ type:"Korean Food > Beverages",
+    rx:/\bjuice\b(?!.*lens|.*eye|.*vitamin.*capsule)|cold brew|\bcoffee.*\d+ml\b|coffee.*pack.*of|probiotic.*drink(?!.*capsule)|aloe.*drink|\bmilk\b(?!.*thistle|.*bath|.*formula|.*lotion).*(?:pack|bottle|ml|litre)|\bilohas\b|flavored.*water|vitamin.*water(?!.*supplement)|energy drink|sports drink|\bdrink\b.*(?:pack of \d+|\d+ml.*pack)|capri.*sun/i },
+{ type:"Korean Food > Beverages",
+    rx:/음료|주스(?!.*눈|.*렌즈)|커피.*캔|우유.*팩|두유|식혜|수정과|매실|홍초/i },
+{ type:"Korean Food > Packaged Foods",
     rx:/tteokbokki|떡볶이|컵떡볶이|즉석떡볶이|\boat rice\b|\bgrain rice\b|mixed.*grain(?!.*bowl)|잡곡밥(?!.*즉석)/i },
 
   // ⚠️ Snacks — protein bar/energy bar 제거 (Health로 보냄)
@@ -111,20 +129,26 @@ const RULES = [
     rx:/ballpoint pen|pencil|eraser|scissors|tape|notebook(?!.*laptop)|marker|stapler|refill(?!.*pack)|ink cartridge|pen refill|marker refill|watercolor|paintbrush|brush set|art supply|볼펜|연필|지우개|가위|테이프|노트(?!북 컴퓨터)|형광펜|포스트잇|크레용|크레파스|스테이플러|리필|잉크/i },
   { type:"Automotive",
     rx:/car air freshener|car diffuser|car shampoo|car wash|car wax|car neck pillow|car cup holder|car sunvisor|car seat|car drying|car hanging|car armrest|car towel|motorcycle|windshield|washer fluid|wiper|tire|vehicle|automotive|자동차|차량용|카샴푸|카워시|선바이저|오토바이/i },
-  { type:"Fashion > Accessories",          rx:/가방|지갑|모자|벨트|액세서리|bag(?!.*tea)|sunglasses|안경|선글라스/i },
+  { type:"Fashion > Hats",
+    rx:/baseball hat|baseball cap|sun cap|bucket hat|mesh cap|long.brim.*cap|brim.*hat|foldable.*cap|summer.*hat|sport.*cap|running.*cap|trucker.*cap/i },
+{ type:"Fashion > Bags",
+    rx:/\bbackpack\b|\btote bag\b|\bhandbag\b|crossbody bag|shoulder bag|\bwallet\b(?!.*app|.*pay)|\bpurse\b|\bclutch\b(?!.*purse.*alt)|messenger bag|gym bag|\bduffle\b/i },
+{ type:"Fashion > Socks & Hosiery",
+    rx:/\bsocks?\b(?!.*puppet)|\bhosiery\b|\bstockings?\b|\btights\b(?!.*yoga)|compression sock|ankle sock|knee high sock|no show sock/i },
+{ type:"Fashion > Accessories",          rx:/가방|지갑|모자|벨트|액세서리|bag(?!.*tea)|sunglasses|안경|선글라스/i },
   { type:"Sports & Outdoors > Golf",                  rx:/golf|골프/i },
   { type:"Sports & Outdoors > Swimming",              rx:/수경|킥판|수영모|swim goggles|kickboard|swim cap/i },
   { type:"Sports & Outdoors > Outdoor & Camping",     rx:/텐트|침낭|캠핑|랜턴(?!.*무드)|camping|sleeping bag/i },
   { type:"Sports & Outdoors > Exercise & Fitness",    rx:/dumbbell|yoga mat|resistance band|pilates|덤벨|요가|필라테스|운동밴드|폼롤러/i },
   { type:"Home & Living > Kitchenware",
-    rx:/\bspatula\b|\bscraper\b(?!.*ice|.*car)|flexible.*turner|cooking.*spatula|stainless.*whisk|\bladle\b|shaved ice bowl|oatmeal plate|dinner plate|frying pan|rice cooker|kitchen knife|chopsticks?\b|cutting board|\bpasta bowl\b|ceramic.*bowl|melamine.*bowl|\bceramic.*dish\b|tableware|냄비|프라이팬|도마|주방칼|밀폐용기|락앤락|주전자|젓가락|강판|그라인더|그릇\b/i },
+    rx:/\bspatula\b|\bscraper\b(?!.*ice|.*car)|flexible.*turner|cooking.*spatula|stainless.*whisk|\bladle\b|shaved ice bowl|oatmeal plate|dinner plate|frying pan|rice cooker|kitchen knife|chopsticks?\b|cutting board|\bpasta bowl\b|ceramic.*bowl|melamine.*bowl|\bceramic.*dish\b|tableware|냄비|프라이팬|도마|주방칼|밀폐용기|락앤락|주전자|젓가락|강판|그라인더|그릇\b|cookware.*set|kitchen.*utensil.*set|stainless.*\d.piece.*set(?!.*bath)/i },
   { type:"Home & Living > Household Supplies",
     rx:/laundry detergent|dish soap|toilet paper|trash can|waste bin|tissue|wet wipe(?!.*car)|floor mat|bath mat|doormat|non-slip|sealant|cable tie|cleaner|세제(?!.*헤어)|섬유유연제|주방세제|화장지|청소포|탈취|쓰레기통|휴지통|매트/i },
   // Home Interior — seat cushion/방석 추가
   { type:"Home & Living > Home & Interior",
     rx:/인테리어|가구|seat cushion|chair cushion|sofa cushion|방석|소파 쿠션|의자 쿠션|쿠션 커버|수납|담요|홈데코|blind|roller screen|artificial tree|stool|shoe horn|organizer|storage box|hook|hanger(?!.*clothes)|걸이|행거/i },
   { type:"Flowers & Gifts",  rx:/비누꽃|조화|프리저브드|soap flower|꽃다발|\bbouquet\b|선물세트|gift set|peony|preserved flower|flower.*arrangement|arrangement.*flower/i },
-  { type:"$1 Bakery",        rx:/\$1.*bakery|\$1.*korea|1달러.*베이커리/i },
+  { type:"Other",        rx:/\$1.*bakery|\$1.*korea|1달러.*베이커리/i },
 ];
 
 
@@ -134,7 +158,7 @@ const FOOD_W = /(\d+(?:\.\d+)?)\s*(g|ml)\s*[,，x×*]\s*(\d+)\s*(개|팩|봉|캔
 // ── 차단 룰 ─────────────────────────────────────────────────────────────────
 const BLOCK_RULES = [
   { block:"Beauty > Skincare",
-    rx:/\bsauce\b|\bfood\b|ramen|snack|cake(?!.*face|.*pack)|pie\b|bread|kimchi|\bsoup\b|\bstock\b(?!.*ings)|cooking|baking|seasoning|detergent|laundry|kitchen|utensil|toothbrush|toothpaste|\bdental\b|body cream|body lotion|body wash|hand cream|\bshampoo\b|\bconditioner\b|correction tape|pen pouch|cabin filter/i },
+    rx:/\bsauce\b|\bfood\b|ramen|snack|cake(?!.*face|.*pack)|pie\b|bread|kimchi|\bsoup\b|\bstock\b(?!.*ings)|cooking|baking|seasoning|detergent|laundry|kitchen|utensil|toothbrush|toothpaste|\bdental\b|body cream|body lotion|body wash|hand cream|\bshampoo\b|\bconditioner\b|correction tape|pen pouch|cabin filter|scorched rice|roasted.*rice(?!.*extract)|\binsole\b|carbon.*fiber.*insole|seaweed salad|frozen.*grain|grain.*frozen|lucky pouch|\bfoundation\b|cushion.*foundation|\bbb cream\b|\bconcealer\b|lipstick|lip tint|eyeshadow|\bmascara\b/i },
   { block:"Korean Food > Fresh Produce",
     rx:/chips|snack|jelly|porridge|cake|pie|cookie|cracker|\bdrink\b|\bjuice\b(?!.*lemon)|roasted|dried(?!.*herb)|frozen(?!.*vegetable|.*veggie|.*veg\b)|instant|\bpowder\b|\bblend\b|ready.to.eat|fried rice|rice ball|볶음밥/i },
   // Packaged Foods에서 그릇/식기/차 차단
@@ -178,13 +202,17 @@ function ruleClassify(title="", tags="") {
   // 0-0. 명확한 충돌 케이스 먼저 해결
 
   // ══ 스킨케어 오염 차단 (가장 먼저 실행) ══════════════════════════════════════
-  // ① 칫솔/치약/구강 → Household (Skincare 진입 전 차단)
-  if (/toothbrush|toothpaste|mouthwash|whitening gel|whitening.*gel|dental|oral.?b|구강|치약|칫솔/i.test(lower)) {
-    return { type: "Home & Living > Household Supplies", src: "rule-block-oral" };
+  // ① 칫솔/치약/구강 → Oral Care (Skincare 진입 전 차단)
+  if (/toothbrush|toothpaste|mouthwash|whitening gel|whitening.*gel|dental floss|oral.?b|구강|치약|칫솔/i.test(lower)) {
+    return { type: "Beauty > Oral Care", src: "rule-block-oral" };
   }
   // ② body cream/lotion/wash / hand cream → Body Care
   if (/body cream|body lotion|body wash|body butter|hand cream|hand lotion|바디 크림|핸드크림/i.test(lower)) {
     return { type: "Beauty > Body Care", src: "rule-block-body" };
+  }
+  // ② Makeup → Beauty > Makeup (Skincare 진입 전 차단)
+  if (/\bfoundation\b|cushion.*foundation|\bbb cream\b|\bcc cream\b|\bpact\b(?!.*vitamin|.*pro)|\bconcealer\b|lipstick|lip tint|eyeshadow|\beyeliner\b|\bmascara\b|setting powder|\bblush\b(?!.*skin|.*cream)|\bhighlighter\b(?!.*skin)|makeup.*base|tone.*up.*cream(?!.*body)|\btinted.*base\b/i.test(lower)) {
+    return { type: "Beauty > Makeup", src: "rule-block-makeup" };
   }
   // ③ shampoo/conditioner/scalp → Hair Care
   if (/\bshampoo\b|\bconditioner\b|hair.*treatment|hair.*repair.*conditioner|scalp.*care|scalp.*tonic|scalp.*rinse/i.test(lower) && !/carpet|fabric|laundry/i.test(lower)) {
@@ -209,8 +237,12 @@ function ruleClassify(title="", tags="") {
   if (/\bmussel meat\b|fresh.*mussel|\bsalmon fillet\b|\bscallop.*adductor\b|frozen.*salmon fillet|frozen.*scallop|fresh.*seafood/i.test(lower) && !/flavor|taste/i.test(lower)) {
     return { type: "Korean Food > Packaged Foods", src: "rule-fresh-seafood" };
   }
-  if (/\bfava bean\b|\bred lentil\b|\blupin bean\b|\blentil\b(?!.*protein bar|.*supplement)/i.test(lower)) {
+  if (/\bfava bean\b|\bred lentil\b|\blupin bean\b|\blentil\b(?!.*protein bar|.*supplement)|\bchickpea\b|garbanzo|white soybean|\bbaektae\b|black.eyed pea|black eyed pea|\bsorghum\b|\bkidney bean\b(?!.*paste|.*sauce)|\bred kidney bean\b(?!.*paste)/i.test(lower)) {
     return { type: "Korean Food > Fresh Produce", src: "rule-legumes" };
+  }
+  // oats / bracken fern / dried vegetable
+  if (/\boat(?!.*milk|.*cookie|.*cereal)|rolled oat|bracken fern|dried bracken|tiger.*bean|herbal.*bean/i.test(lower)) {
+    return { type: "Korean Food > Fresh Produce", src: "rule-oats-bracken" };
   }
   if (/dried.*wild vegetable|wild.*herb(?!.*supplement)|fresh.*wild vegetable|frozen.*spinach|frozen.*minced.*spinach/i.test(lower)) {
     return { type: "Korean Food > Fresh Produce", src: "rule-wild-veg" };
@@ -234,9 +266,9 @@ function ruleClassify(title="", tags="") {
   }
   // ════════════════════════════════════════════════════════════════════════════
 
-  // ① all-in-one + 세제/세탁 → Household (Skincare 오염 방지 최우선)
+  // ① all-in-one + 세제/세탁 → Cleaning Supplies (Skincare 오염 방지 최우선)
   if (/all.in.one/i.test(lower) && /detergent|laundry|capsule.*wash|fabric|세제|세탁/i.test(lower)) {
-    return { type: "Home & Living > Household Supplies", src: "rule-aio-detergent" };
+    return { type: "Home & Living > Cleaning Supplies", src: "rule-aio-detergent" };
   }
   // ② all-in-one + 주방도구/슬라이서 → Kitchenware
   if (/all.in.one/i.test(lower) && /slicer|chopper|mandoline|kitchen.*tool|주방/i.test(lower)) {
@@ -326,17 +358,39 @@ function ruleClassify(title="", tags="") {
   if (/air freshener|febreze|\bodor eliminator\b|deodorizer(?!.*body)|fabric refresher/i.test(lower)) {
     return { type: "Home & Living > Household Supplies", src: "rule-air-freshener" };
   }
-  // mold remover / nano coating / cleaning spray → Household
-  if (/mold remover|nano.*coat|nano.*clean|stain.*remover(?!.*laundry.*brand)|clorox|bleach(?!.*tooth|.*white)/i.test(lower)) {
-    return { type: "Home & Living > Household Supplies", src: "rule-cleaning" };
+  // mold remover / detergent / cleaning → Cleaning Supplies
+  if (/mold remover|nano.*coat|nano.*clean|stain.*remover(?!.*laundry.*brand)|clorox|bleach(?!.*tooth|.*white)|laundry detergent|fabric softener|dishwash.*liquid|dish soap(?!.*skin)|floor cleaner|drain cleaner/i.test(lower)) {
+    return { type: "Home & Living > Cleaning Supplies", src: "rule-cleaning" };
   }
-  // bath towel / quilt cover (not sports towel) → Household
-  if (/\bbath towel\b|\bquilt cover\b|\bquilt.*case\b|hotel.*towel|combed cotton.*towel/i.test(lower)) {
+  // bath towel / quilt cover → Household
+  if (/\bbath towel\b|\bquilt cover\b|\bquilt.*case\b|hotel.*towel|combed cotton.*towel|waterproof.*quilt|extra large.*quilt/i.test(lower)) {
     return { type: "Home & Living > Household Supplies", src: "rule-towel" };
+  }
+  // ── Frozen Food → Korean Food > Frozen Food ─────────────────────────────────
+  if (/\bfrozen\b(?!.*yogurt|.*berry(?!.*soup)|.*fresh)/i.test(lower) && /meal|rice|dumpling|cutlet|seafood|vegetable|veg\b|veggie|shrimp|pork|beef|chicken|wing|steak|spinach|garlic|squid|fish/i.test(lower)) {
+    return { type: "Korean Food > Frozen Food", src: "rule-frozen-food" };
+  }
+  // ── Refrigerated Foods ───────────────────────────────────────────────────────
+  if (/(?:pork|beef|chicken|duck|lamb|meat|galbi|rib|boneless).*(?:chilled|refrigerated)|(?:chilled|refrigerated).*(?:pork|beef|chicken|duck|lamb|meat|galbi|rib)/i.test(lower)) {
+    return { type: "Korean Food > Refrigerated Foods", src: "rule-refrigerated" };
+  }
+  // 냉장 절단 육류 (stew cut, boneless, etc.)
+  if (/(?:stew cut|boneless cut|leg cut|front leg|shoulder cut|\bcut piece).*(?:pork|beef|chicken|duck)|(?:pork|beef|chicken|duck).*(?:stew cut|boneless cut|leg cut|front leg)/i.test(lower)) {
+    return { type: "Korean Food > Refrigerated Foods", src: "rule-meat-cut2" };
+  }
+  if (/marinated.*(?:pork|beef|chicken|duck|bulgogi|galbi)/i.test(lower) && !/sauce|paste/i.test(lower)) {
+    return { type: "Korean Food > Refrigerated Foods", src: "rule-marinated-meat" };
+  }
+  // ── Beverages ────────────────────────────────────────────────────────────────
+  if (/\bjuice\b(?!.*eye|.*lens)|cold brew coffee|probiotic.*drink(?!.*capsule|.*tablet)|aloe.*drink|\bilohas\b|capri.*sun|flavored.*water(?!.*lotion)|\benergy drink\b|sports.*drink(?!.*supplement)/i.test(lower)) {
+    return { type: "Korean Food > Beverages", src: "rule-beverages" };
+  }
+  if (/\bmilk\b.*(?:pack of \d+|\d+ml.*pack|mini.*\d+|bottles?.*\d+|\d+.*bottles?)/i.test(lower) && !/thistle|bath|formula|lotion|shampoo/i.test(lower)) {
+    return { type: "Korean Food > Beverages", src: "rule-milk-beverage" };
   }
   // ── Soup 우선순위: Fresh Produce보다 먼저 잡아야 함 ─────────────────────────
   // instant soup / cream soup / cup soup / hangover soup → Packaged Foods
-  if (/instant.*soup|cream.*soup|cup.*soup|hangover.*soup|freeze.dried.*soup|\bsoup\b.*mix|soup.*mix|\bmiso soup\b|egg.*soup|pollack.*soup|yukgaejang|freeze-dried.*soup block/i.test(lower)) {
+  if (/instant.*soup|cream.*soup|cup.*soup|hangover.*soup|freeze.dried.*soup|\bsoup\b.*mix|soup.*mix|\bmiso soup\b|egg.*soup|pollack.*soup|yukgaejang|freeze-dried.*soup block|variety.*soup|soup.*variety.*pack|ready.to.serve.*soup|marukome|ryotei.*aji|canned.*fruit|\bchicken soup\b|cheese.*soup|corn.*soup|bean.*powder(?!.*supplement)/i.test(lower)) {
     return { type: "Korean Food > Packaged Foods", src: "rule-soup-priority" };
   }
   // cream cup / microwave cup (Fontana/Bono 등) → Packaged Foods
@@ -356,8 +410,8 @@ function ruleClassify(title="", tags="") {
   if (/\bjam\b|\b잼\b/i.test(lower) && !/\bram\b|\bslam\b/i.test(lower)) {
     return { type: "Korean Food > Sauces & Condiments", src: "rule-jam" };
   }
-  // MSG / seasoning powder / furikake → Sauces & Condiments
-  if (/\bmsg\b|monosodium glutamate|\bnucleotide.*season|\bfurikake\b|\bkatsuobushi.*season|seasoning powder|cooking.*seasoning|\bdoenjang\b|soybean paste|\ballulose\b|sugar substitute(?!.*supplement)|fruit.*concentrate(?!.*vitamin)/i.test(lower)) {
+  // MSG / seasoning / sauces → Sauces & Condiments
+  if (/\bmsg\b|monosodium glutamate|l.glutamate.*sodium|ajinomoto|\bmiwon\b|nucleotide.*season|\bfurikake\b|katsuobushi.*season|seasoning powder|cooking.*seasoning|cooking.*essence|\bdoenjang\b|soybean paste|\ballulose\b|sugar substitute(?!.*supplement)|fruit.*concentrate(?!.*vitamin)|powdered sugar|fermented.*seasoning|chicken.*powder(?!.*supplement)|sesame.*seed(?!.*supplement)|roasted.*sesame/i.test(lower)) {
     return { type: "Korean Food > Sauces & Condiments", src: "rule-seasoning-ext" };
   }
   // car air filter / cabin filter → Automotive
@@ -388,9 +442,9 @@ function ruleClassify(title="", tags="") {
   if (/sweat.*headband|sweat.absorbing.*head|athletic.*hairband|moisture.wicking.*hairband/i.test(lower)) {
     return { type: "Sports & Outdoors > Exercise & Fitness", src: "rule-headband" };
   }
-  // baseball hat / sun cap / bucket hat → Fashion > Accessories
-  if (/\bbaseball hat\b|\bbaseball cap\b|\bsun cap\b|\bbucket hat\b|\bmesh cap\b|brim.*cap|brim.*hat/i.test(lower) && !/baby|kids|infant/i.test(lower)) {
-    return { type: "Fashion > Accessories", src: "rule-hat" };
+  // baseball hat / sun cap / bucket hat → Fashion > Hats
+  if (/\bbaseball hat\b|\bbaseball cap\b|\bsun cap\b|\bbucket hat\b|\bmesh cap\b|brim.*cap|brim.*hat|trucker.*cap|running.*cap/i.test(lower) && !/baby|kids|infant/i.test(lower)) {
+    return { type: "Fashion > Hats", src: "rule-hat" };
   }
   // beach towel / waterpark towel → Sports > Outdoor & Camping
   if (/\bbeach.*towel\b|\bwaterpark.*towel\b|disposable.*beach/i.test(lower)) {
@@ -408,8 +462,8 @@ function ruleClassify(title="", tags="") {
   if (/foam.*bat(?!.*cricket)|soft.*bat.*kids|cloth.*book(?!.*adult)|sensory.*book|fabric.*book.*baby|step stool.*toddler|toddler.*step stool/i.test(lower)) {
     return { type: "Baby & Kids > Toys & Games", src: "rule-baby-toy-ext" };
   }
-  // inflatable tube / arm tube → Sports > Swimming
-  if (/inflatable.*tube|ride.on.*inflatable|\bswim.*float\b|\bbaby.*float\b|inflatable.*arm|\barm tube\b|\bswim ring\b|swim.*ring/i.test(lower)) {
+  // inflatable / earplugs for swimming → Sports > Swimming
+  if (/inflatable.*tube|ride.on.*inflatable|\bswim.*float\b|\bbaby.*float\b|inflatable.*arm|\barm tube\b|\bswim ring\b|swim.*ring|earplug.*nose|nose clip.*swim|silicone.*earplug.*shower|swim.*earplug/i.test(lower)) {
     return { type: "Sports & Outdoors > Swimming", src: "rule-inflatable" };
   }
   // banana milk / flavored milk drink → Packaged Foods
@@ -1203,7 +1257,7 @@ function downloadCSV(rawRows, headers, resultMap, applyPrice, translateOptions=f
   a.click();
 }
 
-const CAT_COLORS={"Korean Food > Snacks & Chips":"#FF6B35","Korean Food > Packaged Foods":"#E67E22","Korean Food > Fresh Produce":"#27AE60","Korean Food > Sauces & Condiments":"#F39C12","Korean Food > Kimchi":"#E74C3C","Korean Food > Ramen & Noodles":"#C0392B","Korean Food > Banchan":"#D35400","Korean Food > Health & Supplements":"#16A085","Korean Food > Beverages":"#3498DB","Korean Food > Bread & Bakery":"#8B4513","Beauty > Skincare":"#E91E8C","Beauty > Hair Care":"#9B59B6","Beauty > Body Care":"#8E44AD","Beauty > Mask Packs":"#FF69B4","Beauty > Sun Care":"#F1C40F","Beauty > Fragrance":"#D98880","Home & Living > Kitchenware":"#2980B9","Home & Living > Household Supplies":"#1ABC9C","Stationery & Office":"#2C3E50","Pet Supplies":"#8D6E63","$1 Bakery":"#FF8C00","Other":"#BDC3C7"};
+const CAT_COLORS={"Korean Food > Snacks & Chips":"#FF6B35","Korean Food > Packaged Foods":"#E67E22","Korean Food > Fresh Produce":"#27AE60","Korean Food > Sauces & Condiments":"#F39C12","Korean Food > Kimchi":"#E74C3C","Korean Food > Ramen & Noodles":"#C0392B","Korean Food > Banchan":"#D35400","Korean Food > Health & Supplements":"#16A085","Korean Food > Beverages":"#3498DB","Korean Food > Bread & Bakery":"#8B4513","Beauty > Skincare":"#E91E8C","Beauty > Hair Care":"#9B59B6","Beauty > Body Care":"#8E44AD","Beauty > Mask Packs":"#FF69B4","Beauty > Sun Care":"#F1C40F","Beauty > Fragrance":"#D98880","Home & Living > Kitchenware":"#2980B9","Home & Living > Household Supplies":"#1ABC9C","Stationery & Office":"#2C3E50","Pet Supplies":"#8D6E63","Other":"#FF8C00","Other":"#BDC3C7"};
 
 export default function Classifier() {
   const [products,  setProducts]  = useState([]);
