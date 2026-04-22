@@ -61,7 +61,7 @@ const RULES = [
   { type:"Korean Food > Kimchi",
     rx:/kimchi|kimchee|김치|깍두기|kkakdugi|총각김치|열무김치|동치미|백김치/i },
   { type:"Korean Food > Banchan",
-    rx:/banchan|반찬|namul|나물|muchim|무침|jorim|조림|장아찌|멸치볶음|콩자반|오징어채볶음|깻잎장아찌|깻잎무침|젓갈|dried radish|무말랭이|cheonggukjang|청국장|dried rapeseed|rapeseed greens|wild greens|건나물|건조나물|seaweed sheet|dried.*seaweed(?!.*snack)|seaweed soup(?!.*powder)|seasoned.*vegetable.*dried|dried.*seasoned.*vegetable|laver(?!.*nori.*snack)/i },
+    rx:/banchan|반찬|namul|나물|muchim|무침|jorim|조림|장아찌|멸치볶음|콩자반|오징어채볶음|깻잎장아찌|깻잎무침|젓갈|dried radish|무말랭이|cheonggukjang|청국장|dried rapeseed|rapeseed greens|wild greens|건나물|건조나물|seaweed sheet|dried.*seaweed(?!.*snack)|seaweed soup(?!.*powder)|seasoned.*vegetable.*dried|dried.*seasoned.*vegetable|laver(?!.*nori.*snack)|seaweed.*flake|kim.*jaban|\bkimjaban\b|seaweed.*seasoning/i },
 
   // ⚠️ Ramen & Noodles — 가장 먼저 (별도 카테고리)
   { type:"Korean Food > Ramen & Noodles",
@@ -81,7 +81,7 @@ const RULES = [
 
   // ⚠️ Snacks — protein bar/energy bar 제거 (Health로 보냄)
   { type:"Korean Food > Snacks & Chips",
-    rx:/chips|cracker|cookie|biscuit|candy|gummy|jelly candy|popcorn|snacks?|rice puff|snack puff|chocolate|초콜릿|콘칲|칩|과자|스낵|사탕|젤리(?!.*vitamin)|쿠키|비스킷|팝콘|강냉이|뻥튀기|나쵸|빼빼로|새우깡|꼬북칩|홈런볼|오징어집|꼬깔콘|프링글|누룽지칩|누룽지(?!.*죽)|누룽지과자|쌀과자|곡물과자|스낵바|roasted seaweed|seaweed snack|김스낵|lollipop|mixed nuts|nuts|almonds?|walnuts?|cereal|yukwa|유과|강정|fruit snack|honey snack|confectionery|nut mix|trail mix|haitai|orion|lotte(?!.*hotel)|crown(?!.*cork)|haetae|grilled.*seaweed|seasoned.*seaweed|gimtae|laver snack|\bfranks\b|\bsausage\b(?!.*pasta)|hot dog|corn dog|mini.*sausage|cocktail.*sausage|\bgalchi mi\b|\bgalchi\b(?!.*stew)|beef.*jerky|dried.*snack.*beef|roasted.*chestnut|peanut.*roche|rocher.*peanut/i },
+    rx:/chips|cracker|cookie|biscuit|candy|gummy|jelly candy|popcorn|snacks?|rice puff|snack puff|chocolate|초콜릿|콘칲|칩|과자|스낵|사탕|젤리(?!.*vitamin)|쿠키|비스킷|팝콘|강냉이|뻥튀기|나쵸|빼빼로|새우깡|꼬북칩|홈런볼|오징어집|꼬깔콘|프링글|누룽지칩|누룽지(?!.*죽)|누룽지과자|쌀과자|곡물과자|스낵바|roasted seaweed|seaweed snack|김스낵|lollipop|mixed nuts|nuts|almonds?|walnuts?|cereal|yukwa|유과|강정|fruit snack|honey snack|confectionery|nut mix|trail mix|haitai|orion|lotte(?!.*hotel)|crown(?!.*cork)|haetae|grilled.*seaweed|seasoned.*seaweed|gimtae|laver snack|\bfranks\b|\bsausage\b(?!.*pasta)|hot dog|corn dog|mini.*sausage|cocktail.*sausage|\bgalchi mi\b|\bgalchi\b(?!.*stew)|beef.*jerky|dried.*snack.*beef|roasted.*chestnut|peanut.*roche|rocher.*peanut|\bdoughnut\b|\bdonut\b|\bmochi\b(?!.*mask|.*skin)|\bchurro\b|\bwaffle\b(?!.*maker)|twisted.*snack/i },
 
   // ⚠️ Packaged Foods = 식사/즉석조리용 (라면/국수류 제외 — Ramen & Noodles로)
   { type:"Korean Food > Packaged Foods",
@@ -101,7 +101,7 @@ const RULES = [
 
   // Fresh Produce — 진짜 신선식품만
   { type:"Korean Food > Fresh Produce",
-    rx:/친환경|유기농|무농약|fresh vegetable|fresh fruit|fresh produce|야채|채소|과일|bean sprouts|mung bean sprouts|콩나물|숙주|깻잎|perilla leaf|치커리|상추|배추|오이|미나리|쑥갓|브로콜리|토마토|양파|마늘|애호박|zucchini|당근|carrot|감자(?!.*chip)|potato(?!.*chip|.*starch|.*flour)|고구마(?!.*chip|.*snack)|sweet potato(?!.*chip|.*snack)|fresh ginger|생강|wild thistle|곤드레|엉겅퀴|chives|쪽파|부추|leek|taro|mushroom(?!.*snack|.*chip)|버섯(?!.*스낵|.*칩)|tofu|두부|fresh\s+(?:apple|grape|orange|lemon|pear|blueberr|strawberr|melon|watermelon|mango)|GAP.*(?:berry|fruit|apple|grape)|chili pepper|chilli pepper|청양고추|고추(?!.*sauce|.*oil|.*paste)|kale|organic greens|burdock|purslane/i },
+    rx:/친환경|유기농|무농약|fresh vegetable|fresh fruit|fresh produce|야채|채소|과일|bean sprouts|mung bean sprouts|콩나물|숙주|깻잎|perilla leaf|치커리|상추|배추|오이|미나리|쑥갓|브로콜리|토마토|양파|마늘|애호박|zucchini|당근|carrot|감자(?!.*chip)|potato(?!.*chip|.*starch|.*flour)|고구마(?!.*chip|.*snack)|sweet potato(?!.*chip|.*snack)|fresh ginger|생강|wild thistle|곤드레|엉겅퀴|chives|쪽파|부추|leek|taro|mushroom(?!.*snack|.*chip)|버섯(?!.*스낵|.*칩)|tofu|두부|fresh\s+(?:apple|grape|orange|lemon|pear|blueberr|strawberr|melon|watermelon|mango)|GAP.*(?:berry|fruit|apple|grape)|chili pepper|chilli pepper|청양고추|고추(?!.*sauce|.*oil|.*paste)|kale|organic greens|burdock|purslane|organic.*salad.*mix|european.*salad.*mix|soft.*mix.*salad|salad.*100g/i },
 
   // ── Beauty ────────────────────────────────────────────────────────────
   { type:"Beauty > Sun Care",
@@ -244,7 +244,7 @@ function _forceFoodClassify(lower, title="", tags="") {
   if (/black soybean|seoritae|서리태|검정콩|white soybean|baektae|chickpea|black.eyed pea|kidney bean|soybean|soybeans/i.test(lower)) {
     return { type: "Korean Food > Fresh Produce", src: "force-soy" };
   }
-  if (/\bmilk\b/i.test(lower) && !/thistle|bath|lotion|formula|protein/i.test(lower)) {
+  if (/\bmilk\b/i.test(lower) && !/thistle|bath|lotion|formula|protein|baobab|colostrum|hair.*care|hair.*set|shampoo|treatment|conditioner|powder.*shampoo/i.test(lower)) {
     return { type: "Korean Food > Beverages", src: "force-milk" };
   }
   if (/\bgrain\b/i.test(lower) && !/alcohol|skin.*extract/i.test(lower)) {
@@ -275,7 +275,7 @@ function ruleClassify(title="", tags="") {
   const _FOOD_HARD = /\bsoup\b|\bstew\b(?!.*cut)|\bramen\b|\bnoodle\b|\bkimchi\b|\btteokbokki\b|\bbibimbap\b|\bbulgogi\b|\bgalbi\b(?!.*tteok)|\bdoenjang\b|\bgochujang\b|dumpling|\bfrozen.*(?:meal|rice|veg|dumpling|cutlet|seafood)|\bfried rice\b|hangover.*soup|yukgaejang|미역국|김치|된장|고추장|잡채|불고기|라면|만두|떡볶이/i;
 
   // 음식 약신호: 다른 컨텍스트와 함께 체크
-  const _FOOD_SOFT = /\btea\b(?!.*tree|.*tree.*oil|.*green.*extract)|\bdrink\b(?!.*probiotic.*supplement)|\bjuice\b(?!.*eye.*care|.*lens)|\bsnack\b|beverage|\bcoffee\b(?!.*scrub|.*body.*scrub)|\bmilk\b(?!.*thistle|.*bath|.*mist|.*lotion|.*formula|.*protein)|\bgrain\b(?!.*alcohol|.*extract.*skin)|soybean|seafood(?!.*collagen)|\bvegetable(?!.*extract.*skin)|\bfruit\b(?!.*acid|.*enzyme.*skin)|\bbean\b(?!.*eye.*bag|.*spill)/i;
+  const _FOOD_SOFT = /\btea\b(?!.*tree|.*tree.*oil|.*green.*extract)|\bdrink\b(?!.*probiotic.*supplement)|\bjuice\b(?!.*eye.*care|.*lens)|\bsnack\b|beverage|\bcoffee\b(?!.*scrub|.*body.*scrub)|\bmilk\b(?!.*thistle|.*bath|.*mist|.*lotion|.*formula|.*protein|.*baobab|.*colostrum|.*hair|.*shampoo)|\bgrain\b(?!.*alcohol|.*extract.*skin)|soybean|seafood(?!.*collagen)|\bvegetable(?!.*extract.*skin)|\bfruit\b(?!.*acid|.*enzyme.*skin)|\bbean\b(?!.*eye.*bag|.*spill)/i;
 
   // Beauty 컨텍스트 (soft food 신호가 있어도 이게 있으면 beauty 허용)
   const _BEAUTY_CTX = /serum|toner|ampoule|cleanser|moisturizer|sunscreen|spf|mask pack|sheet mask|essence.*skin|\bpore\b|\bacne\b|\bhydrating\b|\bsoothing.*skin|\banti.aging|wrinkle|collagen.*skin|peptide.*skin|ceramide|hyaluronic/i;
@@ -304,8 +304,16 @@ function ruleClassify(title="", tags="") {
   if (/body cream|body lotion|body wash|body butter|hand cream|hand lotion|바디 크림|핸드크림/i.test(lower)) {
     return { type: "Beauty > Body Care", src: "rule-block-body" };
   }
+  // ② Sun Care가 Makeup보다 먼저: tone-up + sunscreen/spf → Sun Care
+  if (/tone.*up.*(?:sunscreen|spf|sun cream|uv)|(?:sunscreen|spf|sun cream).*tone.*up/i.test(lower)) {
+    return { type: "Beauty > Sun Care", src: "rule-toneup-sun" };
+  }
+  // All-in-One (메이크업 아닌 것) → Skincare
+  if (/\ball.in.one\b/i.test(lower) && !/bb cream|foundation|cc cream|makeup/i.test(lower)) {
+    return { type: "Beauty > Skincare", src: "rule-aio-skin" };
+  }
   // ② Makeup → Beauty > Makeup (Skincare 진입 전 차단)
-  if (/\bfoundation\b|cushion.*foundation|\bbb cream\b|\bcc cream\b|\bpact\b(?!.*vitamin|.*probio)|\bconcealer\b|\bprimer\b(?!.*skincare|.*serum)|\blipstick\b|\blip gloss\b|\blip tint\b|\blip balm\b|\beyeshadow\b|\beye shadow\b|\beyeliner\b|\bmascara\b|\bsetting powder\b|\bsetting spray\b|\bblush\b(?!.*skin|.*cream|.*drink)|\bblusher\b|\bhighlighter\b(?!.*skin)|\bcontour\b|\bshading\b(?!.*effect)|makeup.*base|tone.*up.*cream(?!.*body)|\btinted.*base\b|cover pact|air cushion|파운데이션|립스틱|틴트(?!.*보조|.*용)|아이섀도|마스카라|컨실러|아이라이너/i.test(lower)) {
+  if (/\bfoundation\b|cushion.*foundation|\bbb cream\b|\bcc cream\b|\bpact\b(?!.*vitamin|.*probio)|\bconcealer\b|\bprimer\b(?!.*skincare|.*serum)|\blipstick\b|\blip gloss\b|\blip tint\b|\blip balm\b|\beyeshadow\b|\beye shadow\b|\beyeliner\b|\bmascara\b|\bsetting powder\b|\bsetting spray\b|\bblush\b(?!.*skin|.*cream|.*drink)|\bblusher\b|\bhighlighter\b(?!.*skin|.*stationer|.*marker|.*eraser)|\bcontour\b|\bshading\b(?!.*effect)|makeup.*base|tone.*up.*cream(?!.*body|.*sunscreen)|\btinted.*base\b|cover pact|air cushion|파운데이션|립스틱|틴트(?!.*보조|.*용)|아이섀도|마스카라|컨실러|아이라이너/i.test(lower)) {
     return { type: "Beauty > Makeup", src: "rule-block-makeup" };
   }
   // ③ shampoo/conditioner/scalp → Hair Care
@@ -500,6 +508,10 @@ function ruleClassify(title="", tags="") {
   // ── Refrigerated Foods ───────────────────────────────────────────────────────
   if (/(?:pork|beef|chicken|duck|lamb|meat|galbi|rib|boneless).*(?:chilled|refrigerated)|(?:chilled|refrigerated).*(?:pork|beef|chicken|duck|lamb|meat|galbi|rib)/i.test(lower)) {
     return { type: "Korean Food > Refrigerated Foods", src: "rule-refrigerated" };
+  }
+  // 한우/beef grade 제품 → Packaged Foods or Refrigerated
+  if (/hanwoo|\bkorean beef\b.*(?:grade|premium|gold)|\bbeef\b.*(?:grade|premium gold)|ajuzone.*beef/i.test(lower)) {
+    return { type: "Korean Food > Packaged Foods", src: "rule-hanwoo" };
   }
   // 냉장 절단 육류 (stew cut, boneless, etc.)
   if (/(?:stew cut|boneless cut|leg cut|front leg|shoulder cut|\bcut piece).*(?:pork|beef|chicken|duck)|(?:pork|beef|chicken|duck).*(?:stew cut|boneless cut|leg cut|front leg)/i.test(lower)) {
