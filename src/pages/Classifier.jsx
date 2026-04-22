@@ -134,7 +134,7 @@ const FOOD_W = /(\d+(?:\.\d+)?)\s*(g|ml)\s*[,，x×*]\s*(\d+)\s*(개|팩|봉|캔
 // ── 차단 룰 ─────────────────────────────────────────────────────────────────
 const BLOCK_RULES = [
   { block:"Beauty > Skincare",
-    rx:/\bsauce\b|\bfood\b|ramen|snack|cake(?!.*face|.*pack)|pie\b|bread|kimchi|\bsoup\b|\bstock\b(?!.*ings)|cooking|baking|seasoning|detergent|laundry|kitchen|utensil/i },
+    rx:/\bsauce\b|\bfood\b|ramen|snack|cake(?!.*face|.*pack)|pie\b|bread|kimchi|\bsoup\b|\bstock\b(?!.*ings)|cooking|baking|seasoning|detergent|laundry|kitchen|utensil|toothbrush|toothpaste|\bdental\b|body cream|body lotion|body wash|hand cream|\bshampoo\b|\bconditioner\b|correction tape|pen pouch|cabin filter/i },
   { block:"Korean Food > Fresh Produce",
     rx:/chips|snack|jelly|porridge|cake|pie|cookie|cracker|\bdrink\b|\bjuice\b(?!.*lemon)|roasted|dried(?!.*herb)|frozen(?!.*vegetable|.*veggie|.*veg\b)|instant|\bpowder\b|\bblend\b|ready.to.eat|fried rice|rice ball|볶음밥/i },
   // Packaged Foods에서 그릇/식기/차 차단
@@ -176,6 +176,42 @@ function ruleClassify(title="", tags="") {
   const lower = text.toLowerCase();
 
   // 0-0. 명확한 충돌 케이스 먼저 해결
+
+  // ══ 스킨케어 오염 차단 (가장 먼저 실행) ══════════════════════════════════════
+  // ① 칫솔/치약/구강 → Household (Skincare 진입 전 차단)
+  if (/toothbrush|toothpaste|mouthwash|whitening gel|whitening.*gel|dental|oral.?b|구강|치약|칫솔/i.test(lower)) {
+    return { type: "Home & Living > Household Supplies", src: "rule-block-oral" };
+  }
+  // ② body cream/lotion/wash / hand cream → Body Care
+  if (/body cream|body lotion|body wash|body butter|hand cream|hand lotion|바디 크림|핸드크림/i.test(lower)) {
+    return { type: "Beauty > Body Care", src: "rule-block-body" };
+  }
+  // ③ shampoo/conditioner/scalp → Hair Care
+  if (/\bshampoo\b|\bconditioner\b|hair.*treatment|hair.*repair.*conditioner|scalp.*care|scalp.*tonic|scalp.*rinse/i.test(lower) && !/carpet|fabric|laundry/i.test(lower)) {
+    return { type: "Beauty > Hair Care", src: "rule-block-hair" };
+  }
+  // ④ 식품류 → 해당 카테고리
+  if (/\blettuce\b|romaine|amaranth greens|butterhead|salad.*greens/i.test(lower)) {
+    return { type: "Korean Food > Fresh Produce", src: "rule-block-produce" };
+  }
+  if (/banana.*milk|flavored.*milk|cantata.*coffee|cold brew coffee/i.test(lower)) {
+    return { type: "Korean Food > Packaged Foods", src: "rule-block-food-drink" };
+  }
+  if (/tomato stew|beef goulash|beef.*stew/i.test(lower)) {
+    return { type: "Korean Food > Packaged Foods", src: "rule-block-stew" };
+  }
+  // ⑤ 차량용품 → Automotive
+  if (/\bcar\b.*(?:charm|start|button|filter|cabin|visor|mirror|ornament|figurine)/i.test(lower)) {
+    return { type: "Automotive", src: "rule-block-car" };
+  }
+  if (/cabin filter|car air.*filter|activated.*carbon.*car/i.test(lower)) {
+    return { type: "Automotive", src: "rule-block-car-filter" };
+  }
+  // ⑥ 문구류 → Stationery
+  if (/correction tape|\bpen pouch\b|pen.*tray|origami.*paper|mechanical compass|\bbookmark\b(?!.*face|.*skin)/i.test(lower)) {
+    return { type: "Stationery & Office", src: "rule-block-stationery" };
+  }
+  // ════════════════════════════════════════════════════════════════════════════
 
   // ① all-in-one + 세제/세탁 → Household (Skincare 오염 방지 최우선)
   if (/all.in.one/i.test(lower) && /detergent|laundry|capsule.*wash|fabric|세제|세탁/i.test(lower)) {
@@ -241,9 +277,89 @@ function ruleClassify(title="", tags="") {
   if (/\bcar\b|차량용/i.test(lower) && /visor|mirror|dashboard|suction/i.test(lower)) {
     return { type: "Automotive", src: "rule-car" };
   }
-  // ⑫ noodle bowl / ramen bowl → Kitchenware (Ramen & Noodles 아님)
-  if (/noodle.*bowl|ramen.*bowl|\bbowl set\b|bone china.*bowl|ceramic.*bowl|melamine.*bowl/i.test(lower)) {
-    return { type: "Home & Living > Kitchenware", src: "rule-noodle-bowl" };
+  // ⑫ instant noodle bowl (컵라면) → Ramen & Noodles
+  if (/instant.*noodle.*bowl|noodle.*soup.*bowl|\bcup.*noodle\b/i.test(lower)) {
+    return { type: "Korean Food > Ramen & Noodles", src: "rule-instant-noodle-bowl" };
+  }
+  // bowl / plate / tableware → Kitchenware
+  if (/noodle.*bowl|ramen.*bowl|\bbowl set\b|bone china.*bowl|ceramic.*bowl|melamine.*bowl|\bsoup bowl\b|sectional.*plate|divided.*plate|\bplate set\b|\bceramic.*plate\b|\btableware\b/i.test(lower)) {
+    return { type: "Home & Living > Kitchenware", src: "rule-bowl-plate" };
+  }
+  // scraper → Kitchenware
+  if (/rotary scraper|\bscraper\b(?!.*skin|.*face)/i.test(lower)) {
+    return { type: "Home & Living > Kitchenware", src: "rule-scraper" };
+  }
+  // driving gloves / car neck pillow / car vent → Automotive
+  if (/driving gloves?|car neck pillow|neck pillow.*tesla|\bcar vent\b|\bcar.*organizer\b/i.test(lower)) {
+    return { type: "Automotive", src: "rule-auto-extras" };
+  }
+  // bouquet + shampoo/hair → Hair Care (Flowers & Gifts 오염 방지)
+  if (/bouquet/i.test(lower) && /shampoo|conditioner|\bhair\b|haircare/i.test(lower)) {
+    return { type: "Beauty > Hair Care", src: "rule-bouquet-hair" };
+  }
+  // bouquet + body cream/lotion → Body Care
+  if (/bouquet/i.test(lower) && /body cream|body lotion|body wash|바디/i.test(lower)) {
+    return { type: "Beauty > Body Care", src: "rule-bouquet-body" };
+  }
+  // air freshener / febreze → Household Supplies
+  if (/air freshener|febreze|\bodor eliminator\b|deodorizer(?!.*body)/i.test(lower)) {
+    return { type: "Home & Living > Household Supplies", src: "rule-air-freshener" };
+  }
+  // jam / 잼 → Sauces & Condiments
+  if (/\bjam\b|\b잼\b/i.test(lower) && !/\bram\b|\bslam\b/i.test(lower)) {
+    return { type: "Korean Food > Sauces & Condiments", src: "rule-jam" };
+  }
+  // car air filter / cabin filter → Automotive
+  if (/car.*air.*filter|cabin.*filter|air.*conditioner.*filter/i.test(lower)) {
+    return { type: "Automotive", src: "rule-car-filter" };
+  }
+  // car figurine / car ornament / car interior accessory → Automotive
+  if (/car.*figurine|car.*ornament|car.*interior.*accessory|car.*decor|car.*doll/i.test(lower)) {
+    return { type: "Automotive", src: "rule-car-ornament" };
+  }
+  // origami / OHP film / compass(drawing) → Stationery & Office
+  if (/origami|\bohp film\b|\boverhead projector\b|mechanical compass|drawing compass/i.test(lower)) {
+    return { type: "Stationery & Office", src: "rule-stationery-extra" };
+  }
+  // greeting card / patchwork card / message card → Stationery & Office
+  if (/\bcard set\b(?!.*golf|.*game)|\bgreeting card\b|\bmessage card\b|\bpatchwork card\b/i.test(lower)) {
+    return { type: "Stationery & Office", src: "rule-greeting-card" };
+  }
+  // curtain tieback / bathroom hook → Home & Interior
+  if (/curtain tieback|curtain.*strap|\btieback\b/i.test(lower)) {
+    return { type: "Home & Living > Home & Interior", src: "rule-curtain" };
+  }
+  // sweat headband / athletic hairband → Sports > Exercise & Fitness
+  if (/sweat.*headband|sweat.absorbing.*head|athletic.*hairband|moisture.wicking.*hairband/i.test(lower)) {
+    return { type: "Sports & Outdoors > Exercise & Fitness", src: "rule-headband" };
+  }
+  // baseball hat / sun cap / bucket hat → Fashion > Accessories
+  if (/\bbaseball hat\b|\bbaseball cap\b|\bsun cap\b|\bbucket hat\b|\bmesh cap\b|brim.*cap|brim.*hat/i.test(lower) && !/baby|kids|infant/i.test(lower)) {
+    return { type: "Fashion > Accessories", src: "rule-hat" };
+  }
+  // beach towel / waterpark towel → Sports > Outdoor & Camping
+  if (/\bbeach.*towel\b|\bwaterpark.*towel\b|disposable.*beach/i.test(lower)) {
+    return { type: "Sports & Outdoors > Outdoor & Camping", src: "rule-beach-towel" };
+  }
+  // ride-on / walker / toddler → Baby > Toys & Games
+  if (/ride.on car|\bwalker\b(?!.*walking|.*shoe)|toddler.*walker|puzzle mat.*kids|puzzle.*play mat/i.test(lower)) {
+    return { type: "Baby & Kids > Toys & Games", src: "rule-baby-toys" };
+  }
+  // costume / dress-up / pretend play → Baby > Toys & Games
+  if (/\bcostume\b(?!.*halloween.*adult)|dress.up|pretend play|role play.*outfit|role play.*kids/i.test(lower)) {
+    return { type: "Baby & Kids > Toys & Games", src: "rule-costume" };
+  }
+  // inflatable tube (kids) → Sports > Swimming
+  if (/inflatable.*tube|ride.on.*inflatable|\bswim.*float\b|\bbaby.*float\b/i.test(lower)) {
+    return { type: "Sports & Outdoors > Swimming", src: "rule-inflatable" };
+  }
+  // banana milk / flavored milk drink → Packaged Foods
+  if (/\bmilk\b.*(?:120ml|pack of \d+|mini.*pack|bottles)|banana.*milk|flavored.*milk/i.test(lower)) {
+    return { type: "Korean Food > Packaged Foods", src: "rule-milk-drink" };
+  }
+  // granola cereal → Snacks & Chips
+  if (/granola.*cereal|\bcereal\b(?!.*protein|.*supplement)/i.test(lower)) {
+    return { type: "Korean Food > Snacks & Chips", src: "rule-cereal" };
   }
   // tteokbokki / rice cake spicy → Packaged (snack으로 빠지는 것 강제 차단)
   if (/tteokbokki|떡볶이|rice cake.*spicy|spicy.*rice cake|korean rice cake/i.test(lower)) {
