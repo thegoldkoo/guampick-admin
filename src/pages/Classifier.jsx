@@ -160,7 +160,7 @@ const BLOCK_RULES = [
   { block:"Beauty > Skincare",
     rx:/\bsauce\b|\bfood\b|ramen|snack|cake(?!.*face|.*pack)|pie\b|bread|kimchi|\bsoup\b|\bstock\b(?!.*ings)|cooking|baking|seasoning|detergent|laundry|kitchen|utensil|toothbrush|toothpaste|\bdental\b|body cream|body lotion|body wash|hand cream|\bshampoo\b|\bconditioner\b|correction tape|pen pouch|cabin filter|scorched rice|roasted.*rice(?!.*extract)|\binsole\b|carbon.*fiber.*insole|seaweed salad|frozen.*grain|grain.*frozen|lucky pouch|\bfoundation\b|cushion.*foundation|\bbb cream\b|\bcc cream\b|\bconcealer\b|\bprimer\b|\blipstick\b|\blip gloss\b|\blip tint\b|\blip balm\b|\beyeshadow\b|\beye shadow\b|\beyeliner\b|\bmascara\b|\bblush\b(?!.*skin)|\bblusher\b|\bhighlighter\b|\bcontour\b|\bshading\b|setting powder|setting spray|makeup base|cover pact|tone up cream|air cushion|\bpact\b(?!.*vitamin)|makeup(?!.*remover)|파운데이션|립스틱|아이섀도|마스카라|컨실러|\bnecklace\b|\bkeyring\b|folding fan|feather fan|tassel charm|\binsole\b|knee.*brace|knee.*support|incontinence|fruit.*tea|honey.*tea|wrapping paper|\bgalchi\b|\bcucumber\b|\bonion\b(?!.*dip)|spatula|\bscraper\b|sticker.*set|table cover|ramie/i },
   { block:"Korean Food > Fresh Produce",
-    rx:/chips|snack|jelly|porridge|cake|pie|cookie|cracker|\bdrink\b|\bjuice\b(?!.*lemon)|roasted|dried(?!.*herb)|frozen(?!.*vegetable|.*veggie|.*veg\b)|instant|\bpowder\b|\bblend\b|ready.to.eat|fried rice|rice ball|볶음밥/i },
+    rx:/chips|snack|jelly|porridge|cake|pie|cookie|cracker|\bdrink\b|\bjuice\b(?!.*lemon)|roasted|dried(?!.*herb)|frozen(?!.*vegetable|.*veggie|.*veg\b)|instant|\bpowder\b|\bblend\b|ready.to.eat|fried rice|rice ball|볶음밥|\bsoup\b|\bstew\b(?!.*cut)|hangover|broth|\bmiso\b/i },
   // Packaged Foods에서 그릇/식기/차 차단
   { block:"Korean Food > Packaged Foods",
     rx:/\bbowl\b(?!.*soup|.*rice|.*porridge)|pasta bowl|ceramic.*dish|melamine.*bowl|soup bowl(?!.*soup mix)|\btea\b(?!.*bag.*soup|.*base)|barley tea|corn tea|green tea|herbal tea/i },
@@ -181,8 +181,10 @@ function isBlocked(type, text) {
 function classifyCushion(text="") {
   const t = text.toLowerCase();
   if (!/\bcushion\b|쿠션/.test(t)) return null;
-  if (/foundation|\bbb\b|\bcc\b|makeup|cover|concealer|팩트|파운데이션|메이크업|sun cushion|air cushion/.test(t))
-    return "Beauty > Skincare";
+  if (/sun cushion|sun.*cushion/.test(t))
+    return "Beauty > Sun Care";
+  if (/foundation|\bbb\b|\bcc\b|makeup|cover|concealer|팩트|파운데이션|메이크업|air cushion/.test(t))
+    return "Beauty > Makeup";
   if (/seat|sofa|chair|pillow|방석|의자|소파|쿠션커버|쿠션 커버/.test(t))
     return "Home & Living > Home & Interior";
   return null;
@@ -563,8 +565,20 @@ function ruleClassify(title="", tags="") {
     return rescueClassify(title, tags) || null;
   }
 
+  // 5. RULES 순회 전 — 음식/생활용품이 Beauty로 빠지는 것 최종 차단
+  // (BLOCK_RULES의 isBlocked와 별개로 명시적 early-exit)
+  const _foodKeyword = /\bsoup\b|\bstew\b(?!.*cut)|\bkimchi\b|\bramen\b|\bnoodle\b|\bfried rice\b|\bbibimbap\b|\bfrozen.*meal\b|instant.*food|hangover.*soup/i.test(lower);
+  const _nonBeauty = /toothbrush|toothpaste|\bdetergent\b|\blaundry\b|\binsole\b|knee.*brace|knee.*support|wrapping paper|folding fan|feather fan|\bnecklace\b|\bkeyring\b|tassel charm/i.test(lower);
+  if (_foodKeyword || _nonBeauty) {
+    // 이 항목들은 Beauty RULES로 절대 들어가지 않음
+    // 아래 계속해서 food/household RULES로 분류됨
+  }
+
   // 5. RULES 순회 + BLOCK_RULES 적용
   for (const rule of RULES) {
+    // 음식 신호 있으면 Beauty 카테고리 스킵
+    if (_foodKeyword && rule.type.startsWith("Beauty")) continue;
+    if (_nonBeauty && rule.type.startsWith("Beauty")) continue;
     if (rule.type === "Beauty > Mask Packs" && !isMaskPackText(text)) continue;
     if (rule.rx.test(text) && !isBlocked(rule.type, text)) {
       return { type: rule.type, src: "rule" };
@@ -1204,6 +1218,9 @@ function downloadCSV(rawRows, headers, resultMap, applyPrice, translateOptions=f
     // ── Title + Type: 모든 행 ─────────────────────────────────────────────
     if(idx.ti>=0) nr[idx.ti] = r.titleEn || r.title;
     if(idx.yi>=0) nr[idx.yi] = r.newType;
+    // Product Category에도 동일한 분류값 기록 (Shopify 필터링용)
+    const pcIdx = headers.indexOf("Product Category");
+    if(pcIdx>=0) nr[pcIdx] = r.newType;
 
     // ── 옵션값 번역: translateOptions ON일 때만 ───────────────────────────
     const curO1 = idx.o1v>=0 ? (row[idx.o1v]||"") : "";
@@ -1380,7 +1397,7 @@ function finalFallback(title="", tags="") {
   if (/shampoo|conditioner|treatment|hair mask|rinse|샴푸|헤어/.test(t)) return "Beauty > Hair Care";
   // 스킨케어
   if (/foundation|bb cream|cc cream|concealer|lip tint|air cushion|cover pact/.test(t)) return "Beauty > Makeup";
-  if (/facial mist|soothing mist|hydrating mist|sun cushion/.test(t)) return "Beauty > Skincare";
+  if (/facial mist|soothing mist|hydrating mist/.test(t) && !/\bsoup\b|\bfood\b|\bramen\b/i.test(t)) return "Beauty > Skincare";
   if (/spf|sunscreen|sun cream|uv protection/.test(t)) return "Beauty > Sun Care";
   if (/\bface lotion\b|facial moisturizer|skin care for men|men.*grooming/.test(t)) return "Beauty > Skincare";
   // 향수
