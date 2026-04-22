@@ -301,6 +301,23 @@ function ruleClassify(title="", tags="") {
     return { type: "Korean Food > Health & Supplements", src: "rule-milk-thistle-top" };
   }
 
+  // ═══ Infant Formula (Protein/Colostrum 단어 있어도 Baby Care) ═══
+  //    colostrum protein이 먼저 잡히지 않도록 formula가 있으면 Baby Care
+  if (/infant formula|baby formula|\bformula\b.*(?:stage|newborn|infant|toddler|baby milk)|(?:stage|newborn|infant|toddler).*formula|baby milk powder|hipp organic|similac|enfamil|absolute.*(?:masterpiece|platinum|premium|sanyang|classic).*formula|true (?:mom|mum).*formula|i am mother.*formula|imperial dream.*formula|agisalsang.*formula/i.test(lower)) {
+    return { type: "Baby & Kids > Baby Care", src: "rule-formula-top" };
+  }
+
+  // ═══ Shampoo/Conditioner/Hair Care 제품 → Hair Care (최상위) ═══
+  //    Fashion Accessories / 기타 오인 차단
+  if (/\bshampoo\b(?!.*carpet|.*upholstery|.*rug)|\bconditioner\b(?!.*fabric|.*softener|.*air.condition)|hair care.*(?:set|combo|kit|pack|bundle|duo)|hair treatment.*(?:set|combo|pack)|hair tonic|hair essence|hair serum|hair repair|hair coating|hair damage|keratin.*(?:hair|shampoo|treatment)|haircare.*(?:gift|set|combo|duo)|propolis.*(?:damage repair|hair)|hair loss.*(?:shampoo|treatment|tonic)|scalp.*(?:care|tonic|rinse|treatment|shampoo)|kerasys|elastine.*(?:shampoo|conditioner|hair)|aekyung.*hanaro|mise.?en.?scene|milk baobab.*(?:shampoo|treatment|hair)|bioclasse.*(?:shampoo|treatment)|dr\.?rafael.*shampoo|jaysoop.*(?:shampoo|treatment)/i.test(lower) && !/laundry|detergent|capsule.*detergent|wool.*detergent|fabric softener/i.test(lower)) {
+    return { type: "Beauty > Hair Care", src: "rule-hair-product-top" };
+  }
+
+  // ═══ Baby Shampoo Cap → Baby Care (샴푸 단어 있어도 유아용) ═══
+  if (/baby.*shampoo.*(?:cap|shield|visor)|newborn.*shampoo|toddler.*shampoo.*cap/i.test(lower)) {
+    return { type: "Baby & Kids > Baby Care", src: "rule-baby-shampoo-top" };
+  }
+
   // ════════════════════════════════════════════════════════════════
   // 📍 추가 안전 체크 — food-first로 인한 오분류 방지 (batch 5/6/기타)
   // ════════════════════════════════════════════════════════════════
@@ -316,7 +333,8 @@ function ruleClassify(title="", tags="") {
   }
 
   // ── 🌿 산달래/미나리/사게/마늘/양파 등 신선 야채 → Fresh Produce ──
-  if (/산달래|wild mountain.*(?:azaleas|lily bulbs|chives)|korean wild mountain|korean sage|fresh.*(?:purple onions?|onions?(?!.*powder|.*dry)|garlic|minari|water parsley|cucumbers?|wild chives|crown daisy|ssukgat)|premium.*white.*cucumbers?|korean.*white.*cucumbers?|baek dadagi|white.*pickling.*cucumbers?|premium stem.only|cheongdo minari|gwangpyeong.*(?:onion|farm)|\bminari\b(?!.*sauce|.*dried)|jeju.*(?:sweet potato|carrot|tangerine)(?!.*pie|.*snack)|organic.*(?:sweet potato|purple yam)/i.test(lower) && !/cream|serum|toner|ampoule|cleanser|\bkimchi\b/i.test(lower)) {
+  //    ⚠️ kimchi 단어 있으면 제외 (Kimchi 카테고리로 가야함)
+  if (/산달래|wild mountain.*(?:azaleas|lily bulbs|chives)|korean wild mountain|korean sage|fresh.*(?:purple onions?|onions?(?!.*powder|.*dry)|garlic|minari|water parsley|wild chives|crown daisy|ssukgat)|premium.*white.*cucumbers?|korean.*white.*cucumbers?|baek dadagi|white.*pickling.*cucumbers?(?!.*kimchi)|premium stem.only|cheongdo minari|gwangpyeong.*(?:onion|farm)|\bminari\b(?!.*sauce|.*dried)|jeju.*(?:sweet potato|carrot|tangerine)(?!.*pie|.*snack)|organic.*(?:sweet potato|purple yam|chestnut.*sweet potato)/i.test(lower) && !/cream|serum|toner|ampoule|cleanser|\bkimchi\b|pickled|oisobagi|oi sobagi/i.test(lower)) {
     return { type: "Korean Food > Fresh Produce", src: "rule-fresh-veg-top2" };
   }
 
@@ -334,8 +352,14 @@ function ruleClassify(title="", tags="") {
   }
 
   // ── 💊 Capsule 형태 건강보조 → Health (Skincare 오인 차단) ──
-  if (/(?:pumpkin seed|saw palmetto|black maca|probiotic|bifidus|lactobacillus|banaba leaf|olive oil|hemp seed|mugwort|ashwagandha|turmeric|chondroitin|glucosamine|vitamin.*d|vitamin.*c|vitamin.*b|omega.?3|iron.*supplement|calcium.*magnesium).*(?:capsules?|tablets?|softgels?|extract.*tablets?|supplement)(?!.*cream|.*serum|.*mask|.*patch|.*ampoule)/i.test(lower)) {
+  //    ⚠️ Skin1004, Skincare 브랜드 제품은 ampoule/serum/essence/cream/mask면 Skincare
+  if (/(?:pumpkin seed|saw palmetto|black maca|probiotic|bifidus|lactobacillus|banaba leaf|olive oil|hemp seed|mugwort|ashwagandha|turmeric|chondroitin|glucosamine|vitamin.*d|vitamin.*c|vitamin.*b|omega.?3|iron.*supplement|calcium.*magnesium).*(?:capsules?|tablets?|softgels?|extract.*tablets?|supplement)(?!.*cream|.*serum|.*mask|.*patch|.*ampoule|.*essence|.*toner|.*cleans|.*moistur)/i.test(lower) && !/skin1004|skincare|\bampoule\b|centella.*cica|madagascar.*centella/i.test(lower)) {
     return { type: "Korean Food > Health & Supplements", src: "rule-supp-capsule-top" };
+  }
+
+  // ── 💧 Skin1004 / Centella / Madagascar 스킨케어 → Skincare ──
+  if (/skin1004|madagascar centella|\bcentella\b.*(?:ampoule|essence|serum|cream|toner|mask|cica|probiotic)|probiotic.*(?:ampoule|essence|serum|mask)|probiotic mask(?!.*supplement)|firstlab.*probiotic.*mask|advanced.*skincare/i.test(lower)) {
+    return { type: "Beauty > Skincare", src: "rule-skin1004-top" };
   }
 
   // ── 🪰 Pest Control / 벌레퇴치 → Household ──
@@ -384,8 +408,13 @@ function ruleClassify(title="", tags="") {
   }
 
   // ── 🌿 곤드레/Thistle Leaves / Korean Wild Greens → Packaged ──
-  if (/geongondre|gondre|thistle leaves|wild korean.*(?:leaves|greens)|korean thistle|dried.*(?:leaves|greens)/i.test(lower) && !/\bfresh\b.*greens/i.test(lower)) {
+  if (/geongondre|gondre|thistle leaves|wild korean.*(?:leaves|greens)|korean thistle|dried.*(?:leaves|greens|seasonal vegetables|native wild vegetables|wild vegetables|mountain herb|natural dried greens)|jeju dambit.*dried|dambit.*dried/i.test(lower) && !/\bfresh\b.*greens/i.test(lower)) {
     return { type: "Korean Food > Packaged Foods", src: "rule-gondre-top" };
+  }
+
+  // ── 🍚 Cooked Rice / Oat Rice / Rice with Vegetables → Packaged Foods ──
+  if (/cooked rice.*vegetables?|cooked rice.*\d+g|rice with vegetables|rice with beef|oat rice(?!.*snack)|canadian oats?.*(?:\d+kg|single pack)|\brolled oats?\b|baeksul cooked rice|\d+.grain.*(?:rice pack|mixed rice|multigrain rice)|uncle tak.*(?:oat|grain|mixed|song)|song.*set.*grain|mixed.*\d+.?song|mixed.*26 varieties|nongbu gokgan.*oats?|pavavin|pavabin/i.test(lower)) {
+    return { type: "Korean Food > Packaged Foods", src: "rule-cooked-rice-top" };
   }
 
   // ── 🫚 Korean Dried Seaweed (조미김/반찬김) → Banchan ──
@@ -393,9 +422,95 @@ function ruleClassify(title="", tags="") {
     return { type: "Korean Food > Banchan", src: "rule-kim-banchan-top" };
   }
 
-  // ── 🫖 Extract Drink with Chicken Feet/Health tonic → Health ──
-  if (/extract.*(?:drink|bottle|ml).*(?:supplement|health|korean|immunity)|red ginseng.*drink.*supplement|deer antler.*(?:ginseng|drink|extract)|achyranthes.*extract|chicken feet.*extract|health tonic|energy.*tonic|immunity.*stick|hyangcho.*herbal drink/i.test(lower)) {
+  // ── 🫖 Extract Drink with Chicken Feet/Red Ginseng → Health ──
+  //    (일반 herbal tea / herbal drink는 Beverages로)
+  if (/red ginseng.*(?:drink|stick|extract).*(?:supplement|immunity|vitality|premium)|deer antler.*(?:ginseng|drink|extract)|achyranthes.*extract|chicken feet.*extract|\bhealth tonic\b|immunity.*stick|traditional sweets.*red ginseng|red ginseng.*traditional sweets/i.test(lower)) {
     return { type: "Korean Food > Health & Supplements", src: "rule-health-tonic-top" };
+  }
+  // herbal drink 단독은 Beverages
+  if (/\bherbal drink\b|\bherbal tea\b|\bjuice\b.*\d+ml.*bottles?|probiotic drink.*\d+ml/i.test(lower) && !/supplement|extract.*health|deer antler|red ginseng/i.test(lower)) {
+    return { type: "Korean Food > Beverages", src: "rule-herbal-drink-top" };
+  }
+
+  // ── Body Cream / Body Lotion → Body Care (car 단어 있어도) ──
+  //    BougCarnie 같은 브랜드명에 "carni"가 있어 Automotive로 오인 방지
+  if (/body cream|body lotion|body butter|bougcarnie|bouquet garni|\bbody\b.*cream.*moisturiz|deep nourishing.*body/i.test(lower)) {
+    return { type: "Beauty > Body Care", src: "rule-body-cream-top" };
+  }
+
+  // ── 🧴 Facial Mist / Skincare Mist → Skincare (Other 오인 방지) ──
+  if (/facial mist|calming mist|hydrating mist|soothing mist|skincare.*mist|\bmist\b.*(?:spray|hydrat|soothing|calming|skin|face|brightening|glutathione|spot|blemish|madecassoside|cicapair|sensitive skin)|glutathione mist|madecassoside mist|spot.*mist.*blemish|avene.*thermal.*mist|uriage.*mist|dr\.?jart.*mist|eunyul.*mist|medbee.*mist/i.test(lower)) {
+    return { type: "Beauty > Skincare", src: "rule-mist-top" };
+  }
+
+  // ── 🥜 Korean Grain Sets / Uncle Tak / Pavavin → Packaged Foods ──
+  if (/uncle tak|pavavin|pavabim|pavabin|thedam.?eun.*millet|glutinous millet|nutty millet|mixed.*\d+ varieties|mixed.*\d+.?song.*set|nutty and delicious millet|mom.?s kitchen.*grain|\bmillet\b.*(?:kg|pack)|daegu.*millet|rich flavor king banana|banana\s*$/i.test(lower)) {
+    return { type: "Korean Food > Packaged Foods", src: "rule-grain-misc-top" };
+  }
+
+  // ── 🫒 MCT Oil / Coconut Oil 건강보조 → Health ──
+  if (/\bmct oil\b|medium chain triglyceride|coconut mct|lauric.*coconut|coconut oil.*(?:\d+ml|energy|metabolism|wellness)/i.test(lower)) {
+    return { type: "Korean Food > Health & Supplements", src: "rule-mct-top" };
+  }
+
+  // ── 🍬 Haribo / Fun Mix Gummies → Snacks ──
+  if (/\bharibo\b|fun mix gummies|gummy candy.*\d+g|gummies.*pack|\bgummy\b.*(?:bear|worm|fruit)/i.test(lower)) {
+    return { type: "Korean Food > Snacks & Chips", src: "rule-gummies-top" };
+  }
+
+  // ── 🏊 Ice Cooling / Cold Pad → Other (health support) ──
+  if (/ice cooling.*(?:sheet|pad|pack|pillow)|cooling sheet.*(?:neck|body)|냉찜질|duralon.*cooling|manito.*cooling|neck pillow.*cooling/i.test(lower)) {
+    return { type: "Sports & Outdoors > Exercise & Fitness", src: "rule-cooling-top" };
+  }
+
+  // ── 🦟 Bug Shield / Mosquito Band → Outdoor ──
+  if (/bugs?\s*shield|mosquito band|bug.*band|midchu.*bugs?|kc certified.*(?:band|bugs?|repellent)|mosquito.*(?:repellent|wristband|patch)/i.test(lower)) {
+    return { type: "Sports & Outdoors > Outdoor & Camping", src: "rule-bugshield-top" };
+  }
+
+  // ── 🏃 Sports Towel / Wet Towel → Sports ──
+  if (/wet sports towel|quick.?dry.*towel.*exercise|microfiber.*towel.*exercise|sports.*towel.*(?:quick|absorbent)|wonie.*sports towel|sports towel set/i.test(lower)) {
+    return { type: "Sports & Outdoors > Exercise & Fitness", src: "rule-sport-towel-top" };
+  }
+
+  // ── 💪 Germanium Power Bracelet / Health Bracelet → Health ──
+  if (/germanium.*bracelet|prostate energy|health bracelet.*(?:vitality|wellness|men)|energy booster.*bracelet/i.test(lower)) {
+    return { type: "Korean Food > Health & Supplements", src: "rule-germanium-top" };
+  }
+
+  // ── 📻 Radio / Electronics → Other (Home & Interior) ──
+  if (/medium wave radio|portable radio|eco.?friendly.*radio|\bradio\b.*(?:korea|portable|wave)/i.test(lower)) {
+    return { type: "Home & Living > Home & Interior", src: "rule-radio-top" };
+  }
+
+  // ── 🧳 Travel Toiletry / Personal Care Kit → Household ──
+  if (/travel toiletry kit|toiletry kit|personal care set.*(?:travel|portable|grooming)|mini travel.*kit.*grooming|portable.*grooming.*(?:set|kit)/i.test(lower)) {
+    return { type: "Home & Living > Household Supplies", src: "rule-toiletry-top" };
+  }
+
+  // ── 🔨 Water Play Hammer / Kids Water Toys → Toys ──
+  if (/water play.*(?:pvc|hammer|bopping|toy)|bopping hammer|minhwa shop.*water|\bpvc\b.*(?:hammer|bopping|play)/i.test(lower)) {
+    return { type: "Baby & Kids > Toys & Games", src: "rule-water-toy-top" };
+  }
+
+  // ── 🧶 Yarn / Knitting Supplies → Stationery/Hobby ──
+  if (/\byarn\b.*(?:knitting|crochet|faux fur)|faux fur yarn|knitting.*yarn|crochet.*supplies|brand yan.*yarn/i.test(lower)) {
+    return { type: "Stationery & Office", src: "rule-yarn-top" };
+  }
+
+  // ── 🐟 명란젓 / 절임 → Banchan ──
+  if (/명란|pollack roe|marinated pollack|spicy marinated.*roe|jidopyoseong.*roe|salted.*fish.*roe/i.test(lower)) {
+    return { type: "Korean Food > Banchan", src: "rule-pollack-top" };
+  }
+
+  // ── 📒 Sketchbook / Drawing Paper → Stationery ──
+  if (/sketchbook|sketch.*pad|drawing paper|exploration.*sketchbook|gsm.*drawing|artist.*paper/i.test(lower)) {
+    return { type: "Stationery & Office", src: "rule-sketchbook-top" };
+  }
+
+  // ── Business Card / Greeting Card → Stationery/Gifts ──
+  if (/business card.*(?:holder|case)|greeting card|card set|patchwork card|card holder.*(?:traditional|korean|craft)|mother.of.pearl.*(?:business|card)/i.test(lower)) {
+    return { type: "Flowers & Gifts", src: "rule-cards-top" };
   }
 
   // ── 🚗 Motorcycle / Scooter Parts → Automotive ──
@@ -538,7 +653,7 @@ function ruleClassify(title="", tags="") {
   }
 
   // ── Ceramic/Kitchenware (noodle bowl, soup bowl 등) ──
-  if (/portmeirion|botanic garden.*(?:plate|bowl|dish)|ceramic.*(?:plate|bowl|dish|dinnerware|mug|cup|serving)|dinnerware.*set|tableware.*set|\bchina\b.*(?:plate|dish|bowl|set)|porcelain.*(?:plate|bowl|cup)|melamine.*(?:plate|bowl|dish)|bone china.*(?:bowl|plate)|insulated.*(?:bowl|mug)|vacuum.*insulated.*bowl|stainless.*steel.*(?:bowl|cold noodle bowl)|stainless.*\d+.*(?:cm|bowl)|\bsus.?304\b.*bowl|cold noodle bowl|pasta bowl|character.*handle.*bowl|character.*bowl.*set|nonstick.*(?:pan|pot|cookware)|cookware.*set|frying.*pan|(?:noodle|soup|serving|dining|rice).*bowl.*(?:set|ceramic|porcelain|stainless|melamine|character|bpa|4pcs|bone china|set of \d+)|bpa.?free.*(?:bowl|plate|melamine)/i.test(lower)) {
+  if (/portmeirion|botanic garden.*(?:plate|bowl|dish)|ceramic.*(?:plate|bowl|dish|dinnerware|mug|cup|serving)|dinnerware.*set|tableware.*set|\bchina\b.*(?:plate|dish|bowl|set)|porcelain.*(?:plate|bowl|cup)|melamine.*(?:plate|bowl|dish)|bone china.*(?:bowl|plate)|insulated.*(?:bowl|mug)|vacuum.*insulated.*bowl|stainless.*steel.*(?:bowl|cold noodle bowl|shot glass|cookware|drinkware)|stainless.*\d+.*(?:cm|bowl)|\bsus.?304\b.*bowl|cold noodle bowl|pasta bowl|character.*handle.*bowl|character.*bowl.*set|nonstick.*(?:pan|pot|cookware)|cookware.*set|frying.*pan|(?:noodle|soup|serving|dining|rice).*bowl.*(?:set|ceramic|porcelain|stainless|melamine|character|bpa|4pcs|bone china|set of \d+)|bpa.?free.*(?:bowl|plate|melamine)|shot glass(?!.*soju|.*food)|drinkware|belcremer.*shot glass/i.test(lower)) {
     return { type: "Home & Living > Kitchenware", src: "rule-kitchenware-top" };
   }
 
