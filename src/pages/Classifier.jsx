@@ -34,7 +34,7 @@ const RULES = [
 
   // ── 최우선 2: 식용 기름/양념 (헤어오일보다 먼저) ──────────────────────
   { type:"Korean Food > Sauces & Condiments",
-    rx:/sesame oil|perilla oil|참기름|들기름|\bsalt\b(?!.*hair|.*beauty|.*scrub|.*body)|소금(?!.*bath|.*body)|secret coin|동전육수|coin.*stock|coin.*broth|big mama.*coin|refreshing.*coin(?!.*bitcoin)/i },
+    rx:/sesame oil|perilla oil|참기름|들기름|\bsalt\b(?!.*hair|.*beauty|.*scrub|.*body)|소금(?!.*bath|.*body)|secret coin|동전육수|coin.*stock|coin.*broth|big mama.*coin|refreshing.*coin(?!.*bitcoin)|beverage.*base|\bflavor base\b|drink.*base|cocktail.*mixer/i },
 
   // ── 최우선 3: 꽃/선물 (soap 단독 세정제 오염 방지) ───────────────────
   { type:"Flowers & Gifts",
@@ -81,7 +81,7 @@ const RULES = [
 
   // ⚠️ Snacks — protein bar/energy bar 제거 (Health로 보냄)
   { type:"Korean Food > Snacks & Chips",
-    rx:/chips|cracker|cookie|biscuit|candy|gummy|jelly candy|popcorn|snacks?|rice puff|snack puff|chocolate|초콜릿|콘칲|칩|과자|스낵|사탕|젤리(?!.*vitamin)|쿠키|비스킷|팝콘|강냉이|뻥튀기|나쵸|빼빼로|새우깡|꼬북칩|홈런볼|오징어집|꼬깔콘|프링글|누룽지칩|누룽지(?!.*죽)|누룽지과자|쌀과자|곡물과자|스낵바|roasted seaweed|seaweed snack|김스낵|lollipop|mixed nuts|nuts|almonds?|walnuts?|cereal|yukwa|유과|강정|fruit snack|honey snack|confectionery|nut mix|trail mix|haitai|orion|lotte(?!.*hotel)|crown(?!.*cork)|haetae|grilled.*seaweed|seasoned.*seaweed|gimtae|laver snack|\bfranks\b|\bsausage\b(?!.*pasta)|hot dog|corn dog|mini.*sausage|cocktail.*sausage|\bgalchi mi\b|\bgalchi\b(?!.*stew)|beef.*jerky|dried.*snack.*beef|roasted.*chestnut|peanut.*roche|rocher.*peanut|doughnut|donut|\bmochi\b(?!.*mask|.*skin)|\bchurro\b|\bwaffle\b(?!.*maker)|twisted.*snack|scorched rice|nurungji|누룽지|roasted.*rice(?!.*extract)|puffed rice snack/i },
+    rx:/chips|cracker|cookie|biscuit|candy|gummy|jelly candy|popcorn|snacks?|rice puff|snack puff|chocolate|초콜릿|콘칲|칩|과자|스낵|사탕|젤리(?!.*vitamin)|쿠키|비스킷|팝콘|강냉이|뻥튀기|나쵸|빼빼로|새우깡|꼬북칩|홈런볼|오징어집|꼬깔콘|프링글|누룽지칩|누룽지(?!.*죽)|누룽지과자|쌀과자|곡물과자|스낵바|roasted seaweed|seaweed snack|김스낵|lollipop|mixed nuts|nuts|almonds?|walnuts?|cereal|yukwa|유과|강정|fruit snack|honey snack|confectionery|nut mix|trail mix|haitai|orion|lotte(?!.*hotel)|crown(?!.*cork)|haetae|grilled.*seaweed|seasoned.*seaweed|gimtae|laver snack|\bfranks\b|\bsausage\b(?!.*pasta)|hot dog|corn dog|mini.*sausage|cocktail.*sausage|\bgalchi mi\b|\bgalchi\b(?!.*stew)|beef.*jerky|dried.*snack.*beef|roasted.*chestnut|peanut.*roche|rocher.*peanut|doughnut|donut|\bmochi\b(?!.*mask|.*skin)|\bchurro\b|\bwaffle\b(?!.*maker)|twisted.*snack|scorched rice|nurungji|누룽지|roasted.*rice(?!.*extract)|puffed rice snack|cheese.*roll(?!.*sushi)|crispy.*rice.*(?:roll|snack)|baked.*rice.*roll|korean rice.*crisp/i },
 
   // ⚠️ Packaged Foods = 식사/즉석조리용 (라면/국수류 제외 — Ramen & Noodles로)
   { type:"Korean Food > Packaged Foods",
@@ -101,7 +101,7 @@ const RULES = [
 
   // Fresh Produce — 진짜 신선식품만
   { type:"Korean Food > Fresh Produce",
-    rx:/친환경|유기농|무농약|fresh vegetable|fresh fruit|fresh produce|야채|채소|과일|bean sprouts|mung bean sprouts|콩나물|숙주|깻잎|perilla leaf|치커리|상추|배추|오이|미나리|쑥갓|브로콜리|토마토|양파|마늘|애호박|zucchini|당근|carrot|감자(?!.*chip)|potato(?!.*chip|.*starch|.*flour)|고구마(?!.*chip|.*snack)|sweet potato(?!.*chip|.*snack)|fresh ginger|생강|wild thistle|곤드레|엉겅퀴|chives|쪽파|부추|leek|taro|mushroom(?!.*snack|.*chip)|버섯(?!.*스낵|.*칩)|tofu|두부|fresh\s+(?:apple|grape|orange|lemon|pear|blueberr|strawberr|melon|watermelon|mango)|GAP.*(?:berry|fruit|apple|grape)|chili pepper|chilli pepper|청양고추|고추(?!.*sauce|.*oil|.*paste)|kale|organic greens|burdock|purslane|organic.*salad.*mix|european.*salad.*mix|soft.*mix.*salad|salad.*100g/i },
+    rx:/친환경|유기농|무농약|fresh vegetable|fresh fruit|fresh produce|야채|채소|과일|bean sprouts|mung bean sprouts|콩나물|숙주|깻잎|perilla leaf|치커리|상추|배추|오이|미나리|쑥갓|브로콜리|토마토|양파|마늘|애호박|zucchini|당근|carrot|감자(?!.*chip)|potato(?!.*chip|.*starch|.*flour)|고구마(?!.*chip|.*snack)|sweet potato(?!.*chip|.*snack)|fresh ginger|생강|wild thistle|곤드레|엉겅퀴|chives|쪽파|부추|leek|taro|mushroom(?!.*snack|.*chip)|버섯(?!.*스낵|.*칩)|tofu|두부|fresh\s+(?:apple|grape|orange|lemon|pear|blueberr|strawberr|melon|watermelon|mango)|GAP.*(?:berry|fruit|apple|grape)|chili pepper|chilli pepper|청양고추|고추(?!.*sauce|.*oil|.*paste)|kale|organic greens|burdock|purslane|organic.*salad.*mix|european.*salad.*mix|soft.*mix.*salad|salad.*100g|fresh.*tomato|tomato.*fresh|premium.*tomato|\bdaejeo\b|\btomatoes\b(?!.*sauce|.*paste|.*ketchup)/i },
 
   // ── Beauty ────────────────────────────────────────────────────────────
   { type:"Beauty > Sun Care",
@@ -119,14 +119,14 @@ const RULES = [
     rx:/perfume(?!.*shampoo|.*conditioner|.*hair)|eau de parfum|eau de toilette|reed diffuser|cologne|body spray(?!.*hair)|fragrance mist(?!.*hair)|향수|퍼퓸|룸 디퓨저/i },
   // Skincare — all-in-one/cushion/waterproof 제거, mist 추가
   { type:"Beauty > Skincare",
-    rx:/face cleanser|cleanser(?!.*powder|.*food)|foam cleanser|face toner|toner(?!.*food)|face serum|serum(?!.*hair|.*food)|gel lotion|겔로션|moisturizer(?!.*food)|facial cream(?!.*cake|.*food)|cream(?!.*body|.*cake|.*ice|.*pie|.*food|.*치즈|.*크림빵)|face lotion|ampoule(?!.*food)|facial essence(?!.*cooking|.*food)|essence(?!.*hair|.*cooking|.*food|.*vanilla|.*lemon|.*almond|.*mint|.*extract|.*oil|.*flavor|.*요리|.*식품|.*향신)|soothing pads?|진정패드|trouble pads?|acne pads?|pact|skincare(?!.*hair)|facial mist|hydrating mist|soothing mist|thermal.*mist/i },
+    rx:/face cleanser|cleanser(?!.*powder|.*food)|foam cleanser|face toner|toner(?!.*food)|face serum|serum(?!.*hair|.*food)|gel lotion|겔로션|moisturizer(?!.*food)|facial cream(?!.*cake|.*food)|cream(?!.*body|.*cake|.*ice|.*pie|.*food|.*치즈|.*크림빵)|face lotion|ampoule(?!.*food)|facial essence(?!.*cooking|.*food)|essence(?!.*hair|.*cooking|.*food|.*vanilla|.*lemon|.*almond|.*mint|.*extract|.*oil|.*flavor|.*요리|.*식품|.*향신)|soothing pads?|진정패드|trouble pads?|acne pads?|pact|skincare(?!.*hair)|facial mist|hydrating mist|soothing mist|thermal.*mist|cleansing pad|cleansing gel|derma.*pad|trouble.*pad|soothing.*pad|toner.*pad/i },
   // Baby Care — 강화
   { type:"Baby & Kids > Baby Care",
     rx:/baby|infant|newborn|toddler|baby lotion|baby shampoo|baby wash|baby cream|baby oil|baby powder|baby wipe|baby toothpaste|baby toothbrush|floatie|infant formula|baby formula|follow.?up formula|stage\s*[123]\s+formula|newborn formula|milk powder(?!.*protein)|baby bib|burp cloth|baby bottle|baby nipple|pacifier|teether|baby swim|baby float|diaper|기저귀|아기로션|물티슈(?!.*일반)|젖병|분유|유아용|신생아|아기|베이비|아동용/i },
   { type:"Baby & Kids > Toys & Games", rx:/장난감|블록(?!.*수납)|퍼즐(?!.*성인)|보드게임|toy|building block|coloring book|step stool.*toddler|toddler.*step stool|toddler.*footrest|foam.*bat.*kids|soft.*bat.*kids|bubble gun|bubble.*set(?!.*bath|.*skin)|\bwater gun\b|\bwater.*toy\b|\bplay.*set\b.*kids|\bkids.*play.*set\b|outdoor.*play.*set|animal.*toy.*set/i },
-  { type:"Pet Supplies",               rx:/hamster|\brabbit food\b|\bbird food\b|\bbird.*feed\b|guinea pig|dog food|cat food|dog treat|pet food|cat treat|강아지사료|고양이사료|반려동물|펫푸드|강아지간식/i },
+  { type:"Pet Supplies",               rx:/hamster|\brabbit food\b|\bbird food\b|\bbird.*feed\b|guinea pig|dog food|cat food|dog treat|pet food|cat treat|강아지사료|고양이사료|반려동물|펫푸드|강아지간식|pet meal|pet.*supplement|rabbit.*side dish|dog.*treat|cat.*treat|pet.*snack/i },
   { type:"Stationery & Office",
-    rx:/ballpoint pen|pencil|eraser|scissors|tape|notebook(?!.*laptop)|marker|stapler|refill(?!.*pack)|ink cartridge|pen refill|marker refill|watercolor|paintbrush|brush set|art supply|볼펜|연필|지우개|가위|테이프|노트(?!북 컴퓨터)|형광펜|포스트잇|크레용|크레파스|스테이플러|리필|잉크|wrapping paper|\bsticker set\b|\bsticker.*collection\b|pixel.*sticker|gift wrap/i },
+    rx:/ballpoint pen|pencil|eraser|scissors|tape|notebook(?!.*laptop)|marker|stapler|refill(?!.*pack)|ink cartridge|pen refill|marker refill|watercolor|paintbrush|brush set|art supply|볼펜|연필|지우개|가위|테이프|노트(?!북 컴퓨터)|형광펜|포스트잇|크레용|크레파스|스테이플러|리필|잉크|wrapping paper|\bsticker set\b|\bsticker.*collection\b|pixel.*sticker|gift wrap|\bstationery\b(?!.*skin)|stationery.*set|writing.*set|school.*supplies.*set/i },
   { type:"Automotive",
     rx:/car air freshener|car diffuser|car shampoo|car wash|car wax|car neck pillow|car cup holder|car sunvisor|car seat|car drying|car hanging|car armrest|car towel|motorcycle|windshield|washer fluid|wiper|tire|vehicle|automotive|자동차|차량용|카샴푸|카워시|선바이저|오토바이/i },
   { type:"Fashion > Hats",
